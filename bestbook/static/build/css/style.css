@@ -1,0 +1,332 @@
+
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    font-size: 1.3em;
+}
+
+h1, h2, h3 {
+    font-family: 'Playfair Display', serif;
+}
+
+#bg {
+    background-image: url('https://images.unsplash.com/photo-1507842217343-583bb7270b66?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80');
+    height: 100%;
+    width: 100%;
+    filter: blur(2px);
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: -1;
+    opacity: .9;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+.rc {
+    color: #aaa;
+    border: 1px solid #eee;
+    border-radius: 3px;
+    width: 500px;
+    padding: 10px;
+}
+
+h1.main-logo {
+    margin: 0;
+    text-align: center;
+    font-family: 'Playfair Display', serif;
+    margin-bottom: -10px;
+    font-size: 5vw;
+}
+
+.main-logo span {
+    position: relative;
+    top: -40px;
+    font-weight: normal;    
+    border-bottom: 5px solid #ccd6dd;
+}
+
+h2.tagline {
+    font-style: italic;
+    text-align: center;
+    font-weight: normal;
+    margin: 0 auto;
+    padding: 0;
+    font-size: 2.5vw;
+    max-width: 1000px;
+    color: #6c777d;
+}
+
+select {
+    padding: 10px;
+    font-size: 1em;
+    background: #fff;
+    border: 3px solid #99aab5;
+    border-radius: 10px;
+    padding: 10px 5px;
+    font-family: arial;
+    color: #666;
+}
+
+
+.container {
+    max-width: 1000px;
+    width: 100%;
+    margin: 0 auto;
+}
+
+.block {
+    border: 5px solid #ccd6dd;
+    border-radius: 15px;
+    max-width: 1000px;
+    width: 100%;
+    margin: 0 auto;
+}
+
+.block h3 {
+    padding: 5px 0;
+    margin: 0;
+    font-weight: normal;
+}
+
+h3 span.subject {
+    font-weight: bold;
+}
+
+button {
+    
+}
+
+input[type=text] {
+    padding: 10px;
+    font-size: 1em;
+    background: #fff;
+    border-radius: 10px;
+    color: #333;
+    border: 3px solid #99aab5;
+}
+
+#book-selector {
+    min-width: 370px;
+}
+
+.ui-menu {
+    background-color: #fafafa;
+    width: 400px;
+}
+
+header {
+    margin-bottom: 40px;
+}
+
+.step h2 {
+    margin-top: 20px;
+}
+
+.step p {
+    color: #999;
+
+}
+
+.step {
+    padding: 0px 40px;
+    display: flex;
+}
+
+.step--1 {
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    background-color: hsla(354, 82%, 61%, 0.25);
+}
+
+.step--2 {
+    background-color: hsla(0, 0%, 91%, .25);
+}
+
+.step--3 {
+    background-color: hsla(206, 51%, 51%, .25);
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
+
+.cta {
+    text-align: center;
+    margin: 40px;
+}
+
+.cta-btn>button {
+    border-radius: 10px;
+    padding: 20px 40px;
+    background: #ffce31;
+    border: none;
+    color: #fff;
+    font-size: 1.5em;
+    font-weight: bold;
+    font-family: 'Playfair Display', serif;
+}
+
+hr {
+    border: 1px solid #ddd;
+    
+}
+
+a {
+    color: #226699;
+}
+
+.display {
+    margin-left: 20px;
+    padding: 20px;
+    flex: 1;
+}
+
+.book-placeholder {
+    border: 5px solid #99aab5;
+    width: 125px;
+    height: 100%;
+    display: inline-block;
+    float: right;
+    margin-left: 10px;
+}
+
+.picker {
+    padding-bottom: 25px;
+}
+
+a.filter {
+    display: inline-block;
+    margin-bottom: 5px;
+    color: #99aab5;
+    padding: 5px;
+    text-decoration: none;
+}
+
+a.selected {
+    border-radius: 5px;
+    text-align: center;
+    min-width: 50px;
+    text-decoration: underline;
+}
+
+.opt {
+    margin-right: 20px;
+}
+
+footer {
+    margin-top: 40px;
+    text-align: center;
+    background-color: hsla(0, 0%, 91%, .25);
+    padding: 20px;
+    border-top: 5px solid #ddd;
+}
+
+footer p {
+    color: #333;
+}
+
+footer a.label {
+    border-radius: 5px;
+    border: 3px solid #ccd6dd;
+    padding: 5px;
+    margin-right: 10px;
+}
+
+footer a.label:last-child {
+    margin-right: 0;
+}
+
+.recommendation {
+    display: flex;
+    font-family: arial;
+}
+
+.bookcover {
+    border-radius: 5px;
+    margin: 20px;
+    margin-bottom: 0;
+}
+
+a.borrow-btn {
+    text-align: center;
+    color: #fff;
+    text-decoration: none;
+    font-size: .8em;
+    display: block;
+    border: none;
+    background-color: #226699;
+    margin: 20px;
+    margin-top: 0;
+    padding: 5px 0;
+    border-radius:5px;
+}
+
+
+
+
+
+
+
+
+/* The switch - the box around the slider */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+}
+
+/* Hide default HTML checkbox */
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* The slider */
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: #2196F3;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #2196F3;
+}
+
+input:checked + .slider:before {
+  -webkit-transform: translateX(26px);
+  -ms-transform: translateX(26px);
+  transform: translateX(26px);
+}
+
+/* Rounded sliders */
+.slider.round {
+  border-radius: 34px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}

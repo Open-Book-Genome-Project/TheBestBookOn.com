@@ -1,0 +1,56 @@
+
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>The Best Book On .com</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="https://fonts.googleapis.com/css2?family=Playfair+Display&display=swap" rel="stylesheet">
+        <link rel="stylesheet" type="text/css" href="/static/build/css/style.css"/>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0-alpha1/jquery.min.js"></script>
+        <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+        <script src="/static/build/js/index.js"></script>
+
+    </head>
+    <body>
+        <!--[if lt IE 8]>
+            <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+        <![endif]-->
+
+        <header class="header">
+          <h1 class="main-logo">
+            <span>The Best</span>
+            <img src="/static/imgs/best-book-on.png">
+            <span>Book On</span>
+          </h1>
+          <h2 class="tagline">Recommendations Made Together, With <a href="http://lesswrong.com/lw/3gu/the_best_textbooks_on_every_subject/">Intention</a></h2>
+        </header>
+
+        <!-- Add your site or application content here -->
+        <div class="container">
+          <a class="filter {{'selected' if request.path in ['/browse', '/'] else ''}}" href="/browse">Browse</a>
+          <a class="filter {{'selected' if request.path == '/ask' else ''}}" href="/ask">Ask</a>
+          <a class="filter {{'selected' if request.path == '/submit' else ''}}" href="/submit">Submit</a>
+          {% include template %}
+        </div>
+
+        <footer style="text-align: center;">
+          <p><a href="https://thebestbookon.com">TheBestBookOn.com</a> &copy; 2020 is a non-profit experiment maintained by <a href="https://mek.fyi">mek</a> &amp; the <a href="https://bookgenomeproject.org">Open Book Genome Project</a>.</p>
+          <p>We gratefully use book data from the <a href="https://archive.org">Internet Archive</a>'s <a href="https://openlibrary.org">OpenLibrary.org</a>
+          </p>
+        </footer>
+
+
+        <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
+        <script>
+            (function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=
+            function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;
+            e=o.createElement(i);r=o.getElementsByTagName(i)[0];
+            e.src='//www.google-analytics.com/analytics.js';
+            r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));
+            ga('create','UA-XXXXX-X','auto');ga('send','pageview');
+        </script>
+    </body>
+</html>
