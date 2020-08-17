@@ -69,6 +69,14 @@ select {
     color: #666;
 }
 
+select:focus, select:active, input[type=text]:focus, input[type=text]:active {
+    border-radius: 10px;
+    border: 3px solid #ffce31;
+    outline: 3px solid #ffce31;
+    box-shadow: 0 0 3px #ffce31;
+    outline: none;
+}
+
 
 .container {
     max-width: 1000px;
@@ -82,6 +90,11 @@ select {
     max-width: 1000px;
     width: 100%;
     margin: 0 auto;
+}
+
+.block h2 {
+    font-weight: normal;
+    color: #333;
 }
 
 .block h3 {
@@ -192,6 +205,7 @@ a {
 
 .picker {
     padding-bottom: 25px;
+    flex: 1;
 }
 
 a.filter {
@@ -329,4 +343,38 @@ input:checked + .slider:before {
 
 .slider.round:before {
   border-radius: 50%;
+}
+
+.optional {
+    color: #6a7a86;
+    font-style: oblique;
+}
+
+table.rules select, table.rules input[type=text] {
+    min-width: -webkit-fill-available;
+    font-size: .9em;
+    padding: 15px 10px;
+}
+
+table.rules td:first-child {
+    text-align: right;
+    padding-right: 20px;
+}
+
+.bbo {
+    font-weight: normal;
+    color: #000;
+    border-bottom: 5px solid #aaa;
+}
+
+.topic {
+    margin: 0 auto;
+    text-align: center;
+    font-size: 1.5em;
+}
+
+span[title] {
+    text-decoration: underline;
+    text-decoration-style: dotted;
+    text-decoration-color: #999;
 }

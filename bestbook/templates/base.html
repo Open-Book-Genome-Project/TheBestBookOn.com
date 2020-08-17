@@ -1,4 +1,3 @@
-
 <!doctype html>
 <html class="no-js" lang="">
     <head>
@@ -25,20 +24,20 @@
             <img src="/static/imgs/best-book-on.png">
             <span>Book On</span>
           </h1>
-          <h2 class="tagline">Recommendations Made Together, With <a href="http://lesswrong.com/lw/3gu/the_best_textbooks_on_every_subject/">Intention</a></h2>
+          <h2 class="tagline">Recommendations made with <a href="http://lesswrong.com/lw/3gu/the_best_textbooks_on_every_subject/">intention</a></h2>
         </header>
 
         <!-- Add your site or application content here -->
         <div class="container">
-          <a class="filter {{'selected' if request.path in ['/browse', '/'] else ''}}" href="/browse">Browse</a>
-          <a class="filter {{'selected' if request.path == '/ask' else ''}}" href="/ask">Ask</a>
-          <a class="filter {{'selected' if request.path == '/submit' else ''}}" href="/submit">Submit</a>
+          <a class="filter {{'selected' if request.path in ['/browse'] else ''}}" href="/browse">Browse</a>
+          <a class="filter {{'selected' if request.path in ['/ask', '/'] else ''}}" href="/ask">Ask</a>
+          <a class="filter {{'selected' if request.path == '/submit' else ''}}" href="/submit">Give</a>
           {% include template %}
         </div>
 
         <footer style="text-align: center;">
-          <p><a href="https://thebestbookon.com">TheBestBookOn.com</a> &copy; 2020 is a non-profit experiment maintained by <a href="https://mek.fyi">mek</a> &amp; the <a href="https://bookgenomeproject.org">Open Book Genome Project</a>.</p>
-          <p>We gratefully use book data from the <a href="https://archive.org">Internet Archive</a>'s <a href="https://openlibrary.org">OpenLibrary.org</a>
+          <p><a href="https://thebestbookon.com">TheBestBookOn.com</a> &copy; 2020 is a non-profit <a href="https://github.com/Open-Book-Genome-Project/TheBestBookOn.com">open-source</a> experiment maintained by <a href="https://mek.fyi">mek</a> @ the <a href="https://bookgenomeproject.org">Open Book Genome Project</a>.</p>
+          <p>We gratefully borrow book data from the <a href="https://archive.org">Internet Archive</a>'s <a href="https://openlibrary.org">OpenLibrary.org</a>
           </p>
         </footer>
 

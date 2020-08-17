@@ -3,97 +3,118 @@
   <div class="block">
     <div class="step step--1">
       <div class="picker">
-        <h2>1. ⚖️ I'm looking for</h2>
-        The Best Book On <input type="text"  placeholder="goblins..." style="max-width: 250px"> which <select>
-          <option>is better than...</option>
-          <option>is the best out of...</option>
-        </select>
-      </div>
-      <div class="display">
-      </div>
+        <h2>1. ⚖️ What's the <span class="bbo">The Best Book On</span></h2>
+        <div class="ui-widget topic">
+          <label for="tags"></label>
+          <input type="text" id="topic-selector" placeholder="Library Science...">
+        </div>
+       </div>
     </div>
-    
+
     <div class="step step--2">
       <div class="picker">
-        <h2>2. 📚 These Book(s)</h2>
-        <div class="ui-widget">
-          <label for="tags"></label>
-          <input type="text" id="tags" placeholder="Search by title, author, or isbn">
-        </div>
-      </div>
-      <div class="display">
-        <!--
-            <div class="book-placeholder"></div>
-            -->
-      </div>
-    </div>
-
-    <div class="step step--3">
-      <div class="picker">
-        <h2>3. 📏  Criteria</h2>
-        <p>The winning recommendation should be...</p>
+        <h2>2. 📏  <span class="bbo">Best</span>  meaning...</h2>
         <div style="margin-bottom: 30px;">
+
+          <table class="rules">
+            <tr>
+              <td><span title="Domain familiarity. Is this a new field for you?">Familiarity</span></td>
+              <td>
+                <select>
+                  <option>This will be my first book on this topic</option>
+                  <option>I've read a few books on this topic</option>
+                </select>
+              </td>
+            </tr>
+            <tr>
+              <td><span title="What reading level do you prefer?">Reading Level</span></td>
+              <td>
+                <select>
+                  <option value="0">General audiences</option>
+                  <option value="1">High School</option>
+                  <option value="2" selected>College</option>
+                  <option value="3">Graduate Researcher</option>
+                  <option value="4">Professor / Domain Expert</option>
+                </select>
+              </td>
+            </tr>
+            <tr>
+              <td><span title="What do you intend to use this book for?">Purpose</span></td>
+              <td>
+                <select>
+                  <option value="">Enjoyment: Casual reading, insight, &amp; forming understanding</option>
+                  <option value="">Learning: fStructured curriculum, problem sets, &amp; explanations</option>
+                  <option value="">Reference: Dense, efficient, pragmatic, navigable &amp; actionable</option>
+                  <option value="">Research: Deep understanding, technical, theoretical, frontier</option>
+                </select>
+              </td>
+            </tr>
+            <tr>
+              <td><span title="How much material is covered?">Scope</span></td>
+              <td>
+                <select>
+                  <option value="">Wide &amp; Comprehensive (Breadth)</option>
+                  <option value="">Narrow &amp; Focused (Depth)</option>
+                </select>
+              </td>
+            </tr>
+            <tr>
+              <td>Length</td>
+              <td>
+                <select>
+                  <option value="">Short (up to 150 pages)</option>
+                  <option value="">Medium (up to 350 pages)</option>
+                  <option value="">Longer (351+ pages)</option>
+                </select>
+              </td>
+            </tr>
+            <tr>
+              <td></td>
+              <td><input type="text" placeholder="Other requirements?"></td>
+            </tr>
+          </table>
+         
           <!--
-          <div>
-            <label class="switch">
-              <input type="checkbox">
-              <span class="slider round"></span>
-            </label>
-            Entertaining
-          </div>
+          <tr>
+            <td></td>
+            <td>
+              <select>
+                <option value=""></option>
+                <option value=""></option>
+              </select>
+            </td>
+          </tr>
 
-          <div>
-            <label class="switch">
-              <input type="checkbox">
-              <span class="slider round"></span>
-            </label>
-            Entertaining
-          </div>
+          Score Card
+          - Originality: Standard v. Novel
+          - Accuracy: ...
+          - Relevance: Out of date?
+          - Dry v. Entertaining
+          - Clarity
+          - Brevity
+          - Insightful
 
-          Difficulty: Easy v. Hard
-          How much prior knowledge is required?
-
-          
-
-          Originality: Standard v. Novel
-
-          Accuracy:  v. Rigor
-
-          Audience: General v. Expert
-          
-          Relevance: Out of date?
-
-          Density: 
-
-          Clarity: 
-
-          Scope: Narrow v. Wide
-
-          Technical: Jargon Heavy
-          
-          Scope: Breadth v. Depth
-
-          Insight:
-
-          Explanations:
-
-
-        <li>Accuracy</li>
         <li>Medium Length</li>
         <li>Medium Technicality</li>
         <li>Exciting</li>
         <li>Wide Coverage</li>
         -->
 
-          <div class="opt"><input type="checkbox"> Faster Paced</div>
-          <div class="opt"><input type="checkbox"> More entertaining</div>
-          <div class="opt"><input type="checkbox"> Easier to understand</div>
         </div>
-        <input type="text" placeholder="Also must...">
+      </div>
+    </div>
+
+    <div class="step step--3">
+      <div class="picker">
+        <h2>3. 📚    Books I'm considering... <span class="optional">(Optional)</span></h2>
+        <div class="ui-widget">
+          <label for="book-selector"></label>
+          <input type="text" class="book-selector" placeholder="Find by title, isbn...">
+        </div>
       </div>
     </div>
   </div>
-  <div class="cta">      
+  <div class="cta">
     <span class="cta-btn">
       <button type="submit">Submit Request</button>
     </span>

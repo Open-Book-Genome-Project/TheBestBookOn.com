@@ -21,6 +21,12 @@ python app.py
 
 ## Resources
 
+- https://www.lesswrong.com/posts/xg3hXCYQPJkwHyik2/the-best-textbooks-on-every-subject
 - http://www.tarleton.edu/departments/library/library_module/unit8/8books_lm.htm
 - http://lib.colostate.edu/howto/evalbk.html
 - http://www2.lib.unc.edu/instruct/evaluate/?section=books
+
+
+## Similar
+
+- https://fivebooks.com
