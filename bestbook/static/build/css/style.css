@@ -87,7 +87,7 @@ select:focus, select:active, input[type=text]:focus, input[type=text]:active {
 .block {
     border: 5px solid #ccd6dd;
     border-radius: 15px;
-    max-width: 1000px;
+
     width: 100%;
     margin: 0 auto;
 }
@@ -118,6 +118,8 @@ input[type=text] {
     border-radius: 10px;
     color: #333;
     border: 3px solid #99aab5;
+    box-sizing: border-box;
+    max-width: 100%;
 }
 
 #book-selector {
@@ -134,7 +136,7 @@ header {
 }
 
 .step h2 {
-    margin-top: 20px;
+    margin-top: 0;
 }
 
 .step p {
@@ -143,8 +145,7 @@ header {
 }
 
 .step {
-    padding: 0px 40px;
-    display: flex;
+    padding: 40px;
 }
 
 .step--1 {
@@ -203,24 +204,23 @@ a {
     margin-left: 10px;
 }
 
-.picker {
-    padding-bottom: 25px;
-    flex: 1;
+span.navigation {
+    color: #99aab5;
 }
 
 a.filter {
     display: inline-block;
     margin-bottom: 5px;
-    color: #99aab5;
     padding: 5px;
-    text-decoration: none;
+    text-decoration: underline;
+    color: #99aab5;
 }
 
 a.selected {
     border-radius: 5px;
     text-align: center;
     min-width: 50px;
-    text-decoration: underline;
+    color: #226699;
 }
 
 .opt {
@@ -351,9 +351,10 @@ input:checked + .slider:before {
 }
 
 table.rules select, table.rules input[type=text] {
-    min-width: -webkit-fill-available;
+    width: 100%;
     font-size: .9em;
     padding: 15px 10px;
+    box-sizing: border-box;
 }
 
 table.rules td:first-child {

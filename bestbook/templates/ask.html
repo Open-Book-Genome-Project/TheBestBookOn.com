@@ -2,50 +2,37 @@
 <form>
   <div class="block">
     <div class="step step--1">
-      <div class="picker">
-        <h2>1. ⚖️ What's the <span class="bbo">The Best Book On</span></h2>
-        <div class="ui-widget topic">
-          <label for="tags"></label>
-          <input type="text" id="topic-selector" placeholder="Library Science...">
-        </div>
-       </div>
+      <h2>1. ⚖️ What is "<span class="bbo">The Best Book On</span>"</h2>
+      <div class="ui-widget topic">
+        <label for="tags"></label>
+        <input type="text" id="topic-selector" placeholder="Physics...">
+      </div>
     </div>
 
     <div class="step step--2">
       <div class="picker">
-        <h2>2. 📏  <span class="bbo">Best</span>  meaning...</h2>
-        <div style="margin-bottom: 30px;">
-
+        <h2>2. 📏  Based on these Criteria</h2>
+        <div>
           <table class="rules">
             <tr>
-              <td><span title="Domain familiarity. Is this a new field for you?">Familiarity</span></td>
+              <td><span title="Domain familarity: Is this a new field for you?">Experience</span></td>
               <td>
                 <select>
-                  <option>This will be my first book on this topic</option>
-                  <option>I've read a few books on this topic</option>
+                  <option>👶 I'm new to this topic, where do I start?</option>
+                  <option>👵 I'm familiar with the topic, skip the intros.</option>
                 </select>
               </td>
             </tr>
             <tr>
-              <td><span title="What reading level do you prefer?">Reading Level</span></td>
+              <td><span title="Who is the intended audience or what reading level do you prefer?">For</span></td>
               <td>
                 <select>
-                  <option value="0">General audiences</option>
-                  <option value="1">High School</option>
-                  <option value="2" selected>College</option>
-                  <option value="3">Graduate Researcher</option>
-                  <option value="4">Professor / Domain Expert</option>
-                </select>
-              </td>
-            </tr>
-            <tr>
-              <td><span title="What do you intend to use this book for?">Purpose</span></td>
-              <td>
-                <select>
-                  <option value="">Enjoyment: Casual reading, insight, &amp; forming understanding</option>
-                  <option value="">Learning: fStructured curriculum, problem sets, &amp; explanations</option>
-                  <option value="">Reference: Dense, efficient, pragmatic, navigable &amp; actionable</option>
-                  <option value="">Research: Deep understanding, technical, theoretical, frontier</option>
+                  <option value="1">🖍️ Kids &amp; young adults</option>
+                  <option value="2">🖩 High school students</option>
+                  <option value="3" selected>🙋 Everyone</option>
+                  <option value="4">🎓 College students</option>
+                  <option value="5">🔬 Graduate researchers</option>
+                  <option value="6">🍎 Professor / Domain expert</option>
                 </select>
               </td>
             </tr>
@@ -53,8 +40,19 @@
               <td><span title="How much material is covered?">Scope</span></td>
               <td>
                 <select>
-                  <option value="">Wide &amp; Comprehensive (Breadth)</option>
-                  <option value="">Narrow &amp; Focused (Depth)</option>
+                  <option value="">🔭 Wide &amp; Comprehensive  overview(Breadth)</option>
+                  <option value="">🔬 Narrow &amp; Focused (Depth)</option>
+                </select>
+              </td>
+            </tr>
+            <tr>
+              <td><span title="What do you intend to use this book for?">Goal</span></td>
+              <td>
+                <select>
+                  <option value="">😊 Enjoyment: Casual reading, insight, &amp; forming understanding</option>
+                  <option value="">✏️ Learning: Structured curriculum, problem sets, &amp; explanations</option>
+                  <option value="">🔧 Reference: Dense, efficient, pragmatic, navigable &amp; actionable</option>
+                  <option value="">📑 Research: Deep understanding, technical, theoretical, frontier</option>
                 </select>
               </td>
             </tr>
@@ -62,15 +60,15 @@
               <td>Length</td>
               <td>
                 <select>
-                  <option value="">Short (up to 150 pages)</option>
-                  <option value="">Medium (up to 350 pages)</option>
-                  <option value="">Longer (351+ pages)</option>
+                  <option value="">📘 Any length</option>
+                  <option value="">📜 Short (up to 150 pages)</option>
+                  <option value="">📚 Medium (up to 350 pages)</option>
                 </select>
               </td>
             </tr>
             <tr>
               <td></td>
-              <td><input type="text" placeholder="Other requirements?"></td>
+              <td><input type="text" placeholder="Other requirements? Topics?"></td>
             </tr>
           </table>
          
@@ -116,7 +114,7 @@
   </div>
   <div class="cta">
     <span class="cta-btn">
-      <button type="submit">Submit Request</button>
+      <button type="submit" onclick="alert('This is a demo');">Submit Request</button>
     </span>
   </div>
 </form>
