@@ -114,7 +114,7 @@ class BaseMixin(object):
         if not pid:
             raise RexException(
                 "Save operation requires primary key to be unset, "
-                "i.e. record must alreay exist")
+                "i.e. record must already exist")
         self.save_hook()
         self._save(update=True)
 
