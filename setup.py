@@ -5,9 +5,8 @@
     setup.py
     ~~~~~~~~
 
-    no description available
 
-    :copyright: (c) 2015 by root.
+    :copyright: (c) 2020 by Open Book Genome Project.
     :license: see LICENSE for more details.
 """
 
@@ -38,8 +37,8 @@ def find_version(*file_paths):
 setup(
     name='bestbook',
     version=find_version("bestbook", "__init__.py"),
-    description='no description available',
-    long_description=read('README.rst'),
+    description='Rigorous Book Recommendations',
+    long_description=read('README.md'),
     classifiers=[
         ],
     author='root',
