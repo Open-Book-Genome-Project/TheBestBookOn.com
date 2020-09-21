@@ -11,7 +11,7 @@
 """
 
 from flask import Flask
-from flask.ext.routing import router
+from flask_routing import router
 import views
 from configs import options
 
