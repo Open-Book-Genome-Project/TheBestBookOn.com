@@ -379,3 +379,24 @@ span[title] {
     text-decoration-style: dotted;
     text-decoration-color: #999;
 }
+
+.banner {
+    background-color: hsla(354, 82%, 61%, 0.25);
+    color: #666;
+    overflow: hidden;
+    padding-bottom: 5px;
+    padding-top: 5px;
+    border-bottom: 3px solid #ccd6dd;
+}
+
+.banner-content {
+    text-align: center;
+}
+
+.banner-item {
+    padding-right: 10px;
+    margin-bottom: 20px;
+    text-decoration: none;
+    white-space: nowrap;
+}
+}
