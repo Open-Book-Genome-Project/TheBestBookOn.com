@@ -1,9 +1,9 @@
-FROM ubuntu:16.04
+FROM ubuntu:20.04
 
 MAINTAINER openlibrary "openlibrary@archive.org"
 
 RUN apt-get update -y && \
-    apt-get install -y python-pip python-dev postgresql postgresql-server-dev-9.5
+    apt-get install -y python3-pip python3-dev postgresql postgresql-server-dev-9.5
 
 COPY ./requirements.txt /app/requirements.txt
 
@@ -13,6 +13,6 @@ RUN pip install -r requirements.txt
 
 COPY . /app
 
-ENTRYPOINT [ "python" ]
+ENTRYPOINT [ "python3" ]
 
 CMD [ "app.py" ]
