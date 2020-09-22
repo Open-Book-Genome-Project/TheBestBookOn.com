@@ -12,9 +12,9 @@
 import os
 import types
 try:
-    import configparser
+    from configparser import ConfigParser
 except ImportError:
-    import ConfigParser as configparser
+    from ConfigParser import ConfigParser
 
 path = os.path.dirname(os.path.realpath(__file__))
 approot = os.path.abspath(os.path.join(path, os.pardir))
@@ -27,7 +27,7 @@ def getdef(self, section, option, default_value):
         return default_value
 
 
-config = configparser.ConfigParser()
+config = ConfigParser()
 config.read('%s/settings.cfg' % path)
 config.getdef = types.MethodType(getdef, config)
 
