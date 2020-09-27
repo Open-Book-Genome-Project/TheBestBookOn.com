@@ -26,13 +26,13 @@ def getdef(self, section, option, default_value):
         return self.get(section, option)
     except:
         return default_value
-
+    
 config = configparser.ConfigParser()
 config.read('%s/settings.cfg' % path)
 config.getdef = types.MethodType(getdef, config)
 
 HOST = config.getdef("server", "host", '0.0.0.0')
-PORT = int(config.getdef("server", "port", 8080))
+PORT = int(sys.argv[1]) if len(sys.argv) > 1 else int(config.getdef("server", "port", 8080))
 DEBUG = bool(int(config.getdef("server", "debug", 1)))
 options = {'debug': DEBUG, 'host': HOST, 'port': PORT}
 
