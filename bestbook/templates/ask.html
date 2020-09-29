@@ -1,11 +1,10 @@
-
-<form>
+<form action="/ask" method="post">
   <div class="block">
     <div class="step step--1">
       <h2>1. ⚖️ What is "<span class="bbo">The Best Book On</span>"</h2>
       <div class="ui-widget topic">
         <label for="tags"></label>
-        <input type="text" id="topic-selector" placeholder="Physics...">
+        <input type="text" name="topic" id="topic-selector" placeholder="Physics...">
       </div>
     </div>
 
@@ -17,16 +16,16 @@
             <tr>
               <td><span title="Domain familarity: Is this a new field for you?">Experience</span></td>
               <td>
-                <select>
+	       <select name="experience">
                   <option>👶 I'm new to this topic, where do I start?</option>
                   <option>👵 I'm familiar with the topic, skip the intros.</option>
                 </select>
-              </td>
+	      </td>
             </tr>
             <tr>
               <td><span title="Who is the intended audience or what reading level do you prefer?">For</span></td>
               <td>
-                <select>
+                <select name="intended_audience">
                   <option value="1">🖍️ Kids &amp; young adults</option>
                   <option value="2">🖩 High school students</option>
                   <option value="3" selected>🙋 Everyone</option>
@@ -39,7 +38,7 @@
             <tr>
               <td><span title="How much material is covered?">Scope</span></td>
               <td>
-                <select>
+                <select name="scope">
                   <option value="">🔭 Wide &amp; Comprehensive  overview(Breadth)</option>
                   <option value="">🔬 Narrow &amp; Focused (Depth)</option>
                 </select>
@@ -48,7 +47,7 @@
             <tr>
               <td><span title="What do you intend to use this book for?">Goal</span></td>
               <td>
-                <select>
+                <select goal="">
                   <option value="">😊 Enjoyment: Casual reading, insight, &amp; forming understanding</option>
                   <option value="">✏️ Learning: Structured curriculum, problem sets, &amp; explanations</option>
                   <option value="">🔧 Reference: Dense, efficient, pragmatic, navigable &amp; actionable</option>
@@ -59,7 +58,7 @@
             <tr>
               <td>Length</td>
               <td>
-                <select>
+                <select name="length">
                   <option value="">📘 Any length</option>
                   <option value="">📜 Short (up to 150 pages)</option>
                   <option value="">📚 Medium (up to 350 pages)</option>
@@ -71,7 +70,7 @@
               <td><input type="text" placeholder="Other requirements? Topics?"></td>
             </tr>
           </table>
-         
+
           <!--
           <tr>
             <td></td>
@@ -114,9 +113,8 @@
   </div>
   <div class="cta">
     <span class="cta-btn">
-      <button type="submit" onclick="alert('This is a demo');">Submit Request</button>
+      <!-- onclick="alert('This is a demo');" -->
+      <button type="submit">Submit Request</button>
     </span>
   </div>
 </form>
-
-

@@ -1,36 +1,30 @@
 
 import requests
-from api import graph
-from configs import AUTH_SERVER
-
-
-def authenticate(email, password):
-    r = requests.post('%s/authorize' % AUTH_SERVER, data={'email': email, 'password': password})
-    resp = r.json()
-    if 'http_error_code' not in resp:
-        return resp
-    raise Exception(resp['msg'])
+from flask import session
+from internetarchive.config import get_auth_config
+from internetarchive.exceptions import AuthenticationError
 
 
 def login(email, password):
     """Authenticates user and returns session"""
-    resp = authenticate(email, password)
-    if 'http_error_code' not in resp and 'session' in resp:
-        s = resp.get('session')
-        email = s.get('email')
-        if not email:
-            raise Exception("Account corrupt, has no email")
 
-        try:
-            u = graph.User.get(email=email)
-        except Exception as e:
-            username = s.get('username')
-            u = graph.User(email=email, username=username)
-            u.create()
+    email = email.replace(' ', '+')
 
-        s['username'] = u.username
-        s['id'] = u.id
-        s['logged'] = True
-        return s
-    raise Exception(resp['msg'])
+    # We're already logged in, so return a True value
+    if session.get('username'):
+        return session.get('username')
+
+    try:
+        response = get_auth_config(email, password)
+        
+        # We now know the user's credentials are correct.
+        # Next, we need to get their OpenLibrary username        
+        headers = {'Content-Type': 'application/json'}
+        r = requests.post('https://openlibrary.org/account/login', headers=headers, json=response.get('s3'))
+        username = r.cookies.get('session').split('/')[2].split('%2C')[0]        
+        session['username'] = username
+        return username
+
+    except AuthenticationError:
+        return False
 
