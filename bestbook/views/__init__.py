@@ -56,8 +56,8 @@ class Section(MethodView):
 
         experience_value = request.form['experience']
         i = 1
-        rquest = Request(id=i, name=experience_value)
-        rquest.save()
+        request = Request(id=i, name=experience_value)
+        request.save()
         print(value1)
         return render_template('base.html', template='browse.html')
         #return render_template('base.html', template='%s.html' % layout)
