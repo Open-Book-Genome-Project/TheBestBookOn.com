@@ -1,10 +1,9 @@
-#!/usr/bin/env pythonNone
-#-*-coding: utf-8 -*-
+#!/usr/bin/env python3
 
 """
     __init__.py
     ~~~~~~~~~~~
-    
+
 
     :copyright: (c) 2015 by Anonymous
     :license: BSD, see LICENSE for more details.
@@ -14,20 +13,21 @@ import os
 import sys
 import types
 try:
-    import ConfigParser as configparser
-except:
-    import configparser
+    from configparser import ConfigParser
+except ImportError:
+    from ConfigParser import ConfigParser
 
 path = os.path.dirname(os.path.realpath(__file__))
 approot = os.path.abspath(os.path.join(path, os.pardir))
 
+
 def getdef(self, section, option, default_value):
     try:
         return self.get(section, option)
-    except:
+    except Exception:
         return default_value
-    
-config = configparser.ConfigParser()
+
+config = ConfigParser()
 config.read('%s/settings.cfg' % path)
 config.getdef = types.MethodType(getdef, config)
 
@@ -40,7 +40,7 @@ options = {'debug': DEBUG, 'host': HOST, 'port': PORT}
 # Especially useful for SeaDragon viewers running locally
 cors = bool(int(config.getdef('server', 'cors', 0)))
 
-SECRET_KEY = config.get('security', 'secret', raw=True)
+SECRET_KEY = config.getdef('security', 'secret', 'raw=True')
 
 # DATABASES
 DB_URI = '%(dbn)s://%(user)s:%(pw)s@%(host)s:%(port)s/%(db)s' % {
