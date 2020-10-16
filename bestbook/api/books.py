@@ -23,26 +23,18 @@ from sqlalchemy.dialects.postgresql import JSON
 from sqlalchemy.exc import IntegrityError, InvalidRequestError
 from sqlalchemy.orm.exc import ObjectDeletedError
 from sqlalchemy.orm import relationship
+from sqlalchemy.orm.attributes import flag_modified
 from api import db, engine, core
 
-
-
-"""
-Requirements:
-* Browse/Get all Requests
-* Browse/Get all Recommendations
-* Browse/Get all Books (referenced in any way by/within a Recommendation)
-"""
 
 def build_tables():
     """Builds database postgres schema"""
     MetaData().create_all(engine)
 
-class Topic(core.Base):
-    # Can we pull topics from Open Library?
-    # Open Library's subjects are pretty messy, maybe not to start?
 
-    # Issue: How do we handle i18n for topics across languages
+class Topic(core.Base):
+
+    # Issue: How do we handle i18n for topics across languages (punt)
     __tablename__ = "topics"
 
     id = Column(BigInteger, primary_key=True)
@@ -51,32 +43,16 @@ class Topic(core.Base):
                      nullable=False)
     modified = Column(DateTime(timezone=False), default=None)
 
+
 class Book(core.Base):
-
-    # Should Open Library ID be a Work? Edition? Or either?
-
-    # This is tricky because of work v. edition
-    # Edition needs to be unique
-    # Patron may not care about the Edition (just the work)
-    # No good solution for this yet, let's just do Edition for now
 
     __tablename__ = "books"
 
-    id = Column(BigInteger, primary_key=True)
-    title = Column(Unicode)
-    edition_olid = Column(Unicode, unique=True) # Open Library ID (required)
+    work_olid = Column(Unicode, nullable=False, unique=True, primary_key=True) # Open Library ID (required)
+    edition_olid = Column(Unicode, nullable=True) # Open Library ID (optional)
     created = Column(DateTime(timezone=False), default=datetime.utcnow,
                      nullable=False)
     modified = Column(DateTime(timezone=False), default=None)
-
-# Is a Request just a Search/filter?
-# url -- let's wait for the community to come up with an answer :)
-# Here is a link to your request
-
-# 1. Submitting a Request
-# 2. Submitting a Recommendation
-# 3. Someone browsing /Requests or /Recommendations
-# 4. Someone is browsing /topics -> /Recommendations
 
 
 class Request(core.Base):
@@ -91,7 +67,7 @@ class Request(core.Base):
     __tablename__ = "requests"
 
     id = Column(BigInteger, primary_key=True)
-    topic_id = Column(Integer, ForeignKey('topics.id')) # TBBO what?
+    topic_id = Column(Integer, ForeignKey("topics.id")) # TBBO what?
     data = Column(JSON)
     description = Column(Unicode) # Free-form answer
     username = Column(Unicode) # @cdrini - Open Library
@@ -110,15 +86,192 @@ class Recommendation(core.Base):
     __tablename__ = "recommendations"
 
     id = Column(BigInteger, primary_key=True)
-    topic_id = Column(Integer, ForeignKey('topics.id')) # TBBO what?
-    book_id = Column(Integer, ForeignKey('books.id')) # TBBO what?
+    topic_id = Column(Integer, ForeignKey("topics.id")) # TBBO what?
+    book_id = Column(Unicode, ForeignKey("books.work_olid")) # TBBO what?
     description = Column(Unicode)
     username = Column(Unicode) # @cdrini - Open Library
     created = Column(DateTime(timezone=False), default=datetime.utcnow,
                      nullable=False)
     modified = Column(DateTime(timezone=False), default=None)
 
-    books = relationship('Book', backref='recommendations')
+    books = relationship("Book", backref="recommendations")
+
+
+class Aspect(core.Base):
+
+    """The full set of possible registered features about which a patron
+    may make an observation"""
+    
+    __tablename__ = "aspects"
+
+    id = Column(BigInteger, primary_key=True)
+    label = Column(Unicode)  # title
+    description = Column(Unicode)
+    multi_choice = Column(Boolean, default=False)
+    schema = Column(JSON, nullable=False)
+    created = Column(DateTime(timezone=False), default=datetime.utcnow,
+                     nullable=False)
+    modified = Column(DateTime(timezone=False), default=None)
+
+    def add_value(self, v):
+        self.schema['values'].append(v)
+        flag_modified(self, "schema")
+        db.add(self)
+        db.commit()
+    
+class Observation(core.Base):
+    
+    __tablename__ = "observations"
+
+    username = Column(Unicode, primary_key=True) # e.g. @cdrini - Open Library
+    aspect_id = Column(Integer, ForeignKey("aspects.id"), onupdate="CASCADE", primary_key=True)
+    book_id = Column(Unicode, ForeignKey("books.work_olid"), primary_key=True)
+    response = Column(JSON, nullable=False)
+    created = Column(DateTime(timezone=False), default=datetime.utcnow, nullable=False)    
+    modified = Column(DateTime(timezone=False), default=None)    
+
+    book = relationship("Book", backref="observations")
+    aspect = relationship("Aspect", backref="observations")
+
+class Upvote(core.Base):
+    
+    __tablename__ = "upvotes"  # for recommendations
+
+    username = Column(Unicode, primary_key=True)
+    recommendation_id = Column(Integer, ForeignKey("recommendations.id"), onupdate="CASCADE", primary_key=True)
+    created = Column(DateTime(timezone=False), default=datetime.utcnow, nullable=False)    
+    modified = Column(DateTime(timezone=False), default=None)    
+
+    recommendation = relationship("Recommendation", backref="votes")
+
+def register_aspects():
+    Aspect(label="pace",
+           description="What is the pace of this book?",
+           schema={
+               "values": [
+                   "fast", "medium", "slow"
+               ]
+           },
+           multi_choice=False
+    ).create()
+    Aspect(label="enjoyability",
+           description="How entertaining is this book?",
+           schema={
+               "values": [
+                   "very entertaining", "entertaining", "average", "boring", "N/A"
+               ]
+           },
+           multi_choice=False
+    ).create()
+    Aspect(label='clarity',
+           description='How clearly is this book written?',
+           schema={
+               "values": [
+                   "very clear", "clear", "average", "confusing",
+                   "incomprehensible", "N/A"
+               ]
+           }
+    ).create()
+    Aspect(label='jargon',
+           description='How much notation and technical jargon is used?',
+           schema={
+               "values": [
+                   "highly technical", "medium technicality", "low technicality",
+                   "not technical", "N/A"
+               ]
+           }
+    ).create()
+    Aspect(label='originality',
+           description='Does this book bring anything new to the table?',
+           schema={
+               "values": [
+                   "genre-defining", "very original", "rather unoriginal", "N/A"
+               ]
+           }
+    ).create()
+    Aspect(label='difficulty',
+           description='How challenging or advanced is the subject matter of this book?',
+           schema={
+               "values": [
+                   "contains some advanced topics", "no prior knowledge required",
+                   "good first book on topic", "very difficult",
+                   "requires domain expertise", "N/A"
+               ]
+           }
+    ).create()
+    Aspect(label='usefulness',
+           description='How impactful is the content of this book?',
+           schema={
+               "values": [
+                   "indispensable", "very useful", "somewhat useful",
+                   "not useful", "N/A"
+               ]
+           }
+    ).create()
+    Aspect(label='coverage',
+           description='How much depth or breadth does this book cover?',
+           schema={
+               "values": [
+                   "narrow", "wide", "meandering", "N/A"
+               ]
+           }
+    ).create()
+    Aspect(label='objectivity',
+           description='Are there causes to question the objectivity or accuracy of this book?',
+           schema={
+               "values": [
+                   "biased", "misleading", "inaccurate", "typos", "inflammatory",
+                   "needs citations", "N/A"
+               ]
+           },
+           multi_choice=True
+    ).create()
+    Aspect(
+        label='genres',
+        description='What are the genres of this book?',
+        schema={
+            "values": [
+                "biographical", "textbook", "reference", "technical",
+                "dictionary", "encyclopedia", "how-to", "romance", "action",
+                "anthology", "classic", "graphical", "crime", "drama",
+                "fantasy", "horror", "humor", "mystery", "paranormal",
+                "memoir", "poetry", "satire",
+                "philosophy", "sci-fi"
+            ]
+        },
+        multi_choice=True
+    ).create()
+    Aspect(label='fictionality',
+           description='Is this book a work of fact or fiction?',
+           schema={
+               "values": [
+                   "fiction", "nonfiction"
+               ]
+           }
+    ).create()
+    Aspect(label='audience',
+           description='What are the intended age groups for this book?',
+           schema={
+               "values": [
+                   "General audiences", "Baby", "Kindergarten", "Elementary",
+                   "High school", "College", "Experts"
+               ]
+           },
+           multi_choice=True
+    ).create()
+    Aspect(label='mood',
+           description='What are the moods of this book',
+           schema={
+               "values": [
+                   "cheerful", "inspiring", "reflective", "gloomy", "humorous",
+                   "melancholy", "idyllic", "whimsical", "romantic", "mysterious",
+                   "ominous", "informative", "calm", "lighthearted", "hopeful",
+                   "angry", "fearful", "tense", "lonely", "dark", "sad",
+                   "suspenseful", "strange", "emotional", "dry"
+               ]
+           },
+           multi_choice=True
+    ).create()
 
 
 # TODO / Missing step: Expand the recommendation_books table to
@@ -127,7 +280,7 @@ class Recommendation(core.Base):
 # Idea: can we add a json blob here?
 recommendation_books = \
     Table('recommendations_to_books', core.Base.metadata,
-          Column('book_id', BigInteger, ForeignKey('books.id'),
+          Column('book_id', Unicode, ForeignKey('books.work_olid'),
                  primary_key=True, nullable=False,
                  onupdate="CASCADE"),
           Column('recommendation_id', BigInteger, ForeignKey('recommendations.id'),
@@ -146,3 +299,15 @@ for model in core.Base._decl_class_registry:
         core.models[m.__tablename__] = m
     except:
         pass
+
+"""
+Example:
+
+from api.books import Aspect, Book, Observation
+book = Book.all()[0];
+o = Observation(username='mekBot',
+                book_id=book.work_olid,
+                aspect_id=Aspect.get(label='mood').id,
+                response={'values': ['scientific']}
+)
+"""
