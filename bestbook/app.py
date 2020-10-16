@@ -14,9 +14,11 @@ from flask_routing import router
 import views
 from configs import options, SECRET_KEY
 
-urls = ('/login', views.Login,
-        '/ask', views.Section,
-        '/<path:resource>', views.Section,
+urls = ('/<path:resource>', views.Section,
+        '/admin', views.Admin,
+        '/api/', views.Index,
+        '/api/<cls>/<_id>', views.Router,
+        '/api/<cls>', views.Router,
         '/', views.Base
         )
 app = router(Flask(__name__), urls)

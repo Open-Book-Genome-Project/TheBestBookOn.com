@@ -381,12 +381,14 @@ span[title] {
 }
 
 .banner {
-    background-color: hsla(354, 82%, 61%, 0.25);
+ //   background-color: hsla(354, 82%, 61%, 0.25);
+    background-color: rgba(354, 82%, 61%, 0.25);
     color: #666;
     overflow: hidden;
     padding-bottom: 5px;
     padding-top: 5px;
     border-bottom: 3px solid #ccd6dd;
+    opacity: 1.0 !important;
 }
 
 .banner-content {
