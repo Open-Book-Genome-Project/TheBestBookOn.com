@@ -1,8 +1,7 @@
 $( function() {
 
   $.support.cors = true
-  var apiurl = "https://openlibrary.org";
-
+    
   requests = {
     get: function(url, callback) {
       $.get(url, function(results) {
@@ -26,22 +25,13 @@ $( function() {
     },
   };
 
-  var bind_autocomplete = function(self, selector) {
+  /* This is the main function which registers a <input class="ui-widget"> 
+     as an autocomplete
+  */
+  var bind_autocomplete = function(self, selector, callback) {
     $(selector).autocomplete({
       source: function (request, response) {
-        $.ajax({
-          url: apiurl + '/search.json?limit=10&q=' + request.term,
-          success: function(resp) {
-            var entities = $.map(resp.docs, function(book) {              
-              return {
-                label: book.title,
-                value: book.id,
-                img: 'https://covers.openlibrary.org/b/olid/' + book.cover_edition_key + '-S.jpg'
-              }
-            });
-            response(entities);
-          }
-        });
+          $.ajax(callback(request, response));
       },
       minLength: 2,
       focus: function (event, ui) {
@@ -56,6 +46,8 @@ $( function() {
         return false;
       }
     }).data("ui-autocomplete")._renderItem = function (ul, item) {
+      /* Renders how the data appears in the autocomplete menu */
+      // NOTE: I think we only want to do this for search_books (and not search_topics)
       return $("<li />")
         .data( "ui-autocomplete-item", item)
         .append("<a class='book-result'><img src='" + item.img + "' />" + item.label + "</a>")
@@ -63,6 +55,41 @@ $( function() {
     };
   }
 
-  bind_autocomplete(self, ".book-winner-selector");
-  bind_autocomplete(self, ".book-candidate-selector");
+  var search_books = function(request, response) {
+    return {
+      url: 'https://openlibrary.org/search.json?limit=10&q=' + request.term,
+      success: function(resp) {
+        var entities = $.map(resp.docs, function(book) {              
+          return {
+            label: book.title,
+            value: book.key,
+            img: 'https://covers.openlibrary.org/b/olid/' + book.cover_edition_key + '-S.jpg'
+          }
+        });
+	console.log(entities);
+        response(entities);
+      }
+    }
+  };
+
+  var search_topics = function(request, response) {
+    return {
+      url: 'https://dev.thebestbookon.com/api/topics?query=' + request.term + '&field=name&action=search',
+      success: function(resp) {
+        var entities = $.map(resp.topics, function(topic) {
+          return {
+            label: topic.name,
+            value: topic.id,
+	    img: ''
+          }
+        });
+        console.log(entities);
+        response(entities);
+      }
+    }
+  };    
+    
+  bind_autocomplete(self, ".book-winner-selector", search_books);
+  bind_autocomplete(self, ".book-candidate-selector", search_books);
+  bind_autocomplete(self, ".book-topic-selector", search_topics);
 });

@@ -47,7 +47,8 @@ class Topic(core.Base):
 class Book(core.Base):
 
     __tablename__ = "books"
-
+    PKEY = 'work_olid' 
+    
     work_olid = Column(Unicode, nullable=False, unique=True, primary_key=True) # Open Library ID (required)
     edition_olid = Column(Unicode, nullable=True) # Open Library ID (optional)
     created = Column(DateTime(timezone=False), default=datetime.utcnow,
