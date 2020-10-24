@@ -124,9 +124,9 @@ class Observation(core.Base):
     __tablename__ = "observations"
 
     username = Column(Unicode, primary_key=True) # e.g. @cdrini - Open Library
-    aspect_id = Column(Integer, ForeignKey("aspects.id"), onupdate="CASCADE", primary_key=True)
+    aspect_id = Column(Integer, ForeignKey("aspects.id", onupdate="CASCADE"), primary_key=True)
     book_id = Column(Unicode, ForeignKey("books.work_olid"), primary_key=True)
-    response = Column(JSON, nullable=False)
+    response = Column(Unicode, nullable=False)
     created = Column(DateTime(timezone=False), default=datetime.utcnow, nullable=False)    
     modified = Column(DateTime(timezone=False), default=None)    
 
@@ -138,7 +138,7 @@ class Upvote(core.Base):
     __tablename__ = "upvotes"  # for recommendations
 
     username = Column(Unicode, primary_key=True)
-    recommendation_id = Column(Integer, ForeignKey("recommendations.id"), onupdate="CASCADE", primary_key=True)
+    recommendation_id = Column(Integer, ForeignKey("recommendations.id", onupdate="CASCADE"), primary_key=True)
     created = Column(DateTime(timezone=False), default=datetime.utcnow, nullable=False)    
     modified = Column(DateTime(timezone=False), default=None)    
 
@@ -280,12 +280,10 @@ def register_aspects():
 # Idea: can we add a json blob here?
 recommendation_books = \
     Table('recommendations_to_books', core.Base.metadata,
-          Column('book_id', Unicode, ForeignKey('books.work_olid'),
-                 primary_key=True, nullable=False,
-                 onupdate="CASCADE"),
-          Column('recommendation_id', BigInteger, ForeignKey('recommendations.id'),
-                 primary_key=True, nullable=False,
-                 onupdate="CASCADE"),
+          Column('book_id', Unicode, ForeignKey('books.work_olid', onupdate="CASCADE"),
+                 primary_key=True, nullable=False),
+          Column('recommendation_id', BigInteger, ForeignKey('recommendations.id', onupdate="CASCADE"),
+                 primary_key=True, nullable=False),
           Column('created', DateTime(timezone=False), default=datetime.utcnow,
                  nullable=False)
           )
