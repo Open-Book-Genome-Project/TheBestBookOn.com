@@ -1,5 +1,4 @@
-#!/usr/bin/env pythonNone
-#-*-coding: utf-8 -*-
+#!/usr/bin/env python3
 
 """
     __init__.py
@@ -83,16 +82,13 @@ def search(model, limit=50, lazy=True):
 
 class Base(MethodView):
     def get(self, uri="index"):
-        return render_template("base.html", template="%s.html" % uri)
+        return render_template("base.html", template=f"{uri}.html")
 
     
 class Section(MethodView):
     def get(self, resource=""):
-        if resource:
-            layout = resource.replace(".html", "")
-        else:
-            layout = "index"
-        return render_template("base.html", template="%s.html" % layout)
+        layout = resource.replace(".html", "") if resource else "index"
+        return render_template("base.html", template=f"{layout}.html")
     
     def post(self, resource=""):
         """
@@ -135,12 +131,12 @@ class Observations(MethodView):
 
     def post(self):
         # Ensure that data was sent
-        if len(request.data) == 0:
+        if not request.data:
             return "Bad Request", 400
 
         data = loads(request.data)
 
-        if not self.validate_request(data):
+        if not all(data.get(x) for x in ("username", "work_id", "observations")):
             return "Bad Request", 400
 
         try:
@@ -155,8 +151,7 @@ class Observations(MethodView):
         all_observations = {}
         
         for elem in data["observations"]:
-            key = list(elem.items())[0][0]
-            value = list(elem.items())[0][1]
+            key, value = list(elem.items())[0]
             if key in all_observations:
                 all_observations[key] = f"{all_observations[key]}{self.MULTI_CHOICE_DELIMITER}{value}"
             else:
@@ -179,18 +174,6 @@ class Observations(MethodView):
                                           response=v).create()
 
         return "OK", 200
-
-    def validate_request(self, data):
-        if "username" not in data or len(data["username"]) == 0:
-            return False
-
-        if "work_id" not in data or len(data["work_id"]) == 0:
-            return False
-
-        if "observations" not in data or len(data["observations"]) == 0:
-            return False
-
-        return True
 
 
 # API GET Router
