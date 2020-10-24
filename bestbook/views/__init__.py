@@ -134,42 +134,26 @@ class Observations(MethodView):
     MULTI_CHOICE_DELIMITER = "|"
 
     def post(self):
-        print("Request.data:")
-        print(request.data)
-        
         # Ensure that data was sent
         if len(request.data) == 0:
             return "Bad Request", 400
 
         data = loads(request.data)
-        print("Data dictionary:")
-        print(data)
 
         if not self.validate_request(data):
             return "Bad Request", 400
 
         try:
             book = Book.get(work_olid=data['work_id'])
-            print("     Book exists!!!!!!")
         except RexException:
-            print("     Book does not exist!!!!!!")
             book = Book(work_olid=data['work_id'])
-            print("Book instantiated with no edition")
             if 'edition_id' in data:
                 book.edition_olid = data['edition_id']
-                print("Edition added to book")
-            print("Calling book.create():")
+
             book.create()
-
-        print("Printing book:")
-        print(book)
-
-        print("  Info about observation list item: ")
-        print(type(data["observations"][0])) # dict
 
         all_observations = {}
         
-        print("  Observations:")
         for elem in data["observations"]:
             key = list(elem.items())[0][0]
             value = list(elem.items())[0][1]
@@ -178,8 +162,6 @@ class Observations(MethodView):
             else:
                 all_observations[key] = value
             
-        print(all_observations)
-        print("   All Aspects:")
         for k, v in all_observations.items():
             aspect = Aspect.get(label=k)
 
@@ -187,18 +169,14 @@ class Observations(MethodView):
                 observation = Observation.get(username=data["username"],
                                               aspect_id=aspect.id,
                                               book_id=book.work_olid)
-                print("    GET SUCCESSFUL")
-                print(observation)
                 observation.response = v
                 observation.modified = datetime.utcnow()
-                print("    ATTEMPTING UPDATE")
                 observation.update()
             except RexException:
                 observation = Observation(username=data["username"],
                                           aspect_id=aspect.id,
                                           book_id=book.work_olid,
                                           response=v).create()
-
 
         return "OK", 200
 
