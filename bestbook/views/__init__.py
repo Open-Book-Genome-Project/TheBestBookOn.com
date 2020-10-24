@@ -14,12 +14,12 @@ import calendar
 from datetime import datetime
 from flask import Flask, render_template, Response, request, session, jsonify, redirect
 from flask.views import MethodView
-from flask.json import JSONEncoder
+from flask.json import JSONEncoder, loads
 from api.auth import login
 from api import books
 from api.books import Recommendation, Book, Request, Observation, Aspect
+from api.core import RexException
 from api import db
-
 
 PRIVATE_ENDPOINTS = []
 
@@ -130,6 +130,91 @@ class Submit(MethodView):
     def post(self):
         pass    
 
+class Observations(MethodView):
+    MULTI_CHOICE_DELIMITER = "|"
+
+    def post(self):
+        print("Request.data:")
+        print(request.data)
+        
+        # Ensure that data was sent
+        if len(request.data) == 0:
+            return "Bad Request", 400
+
+        data = loads(request.data)
+        print("Data dictionary:")
+        print(data)
+
+        if not self.validate_request(data):
+            return "Bad Request", 400
+
+        try:
+            book = Book.get(work_olid=data['work_id'])
+            print("     Book exists!!!!!!")
+        except RexException:
+            print("     Book does not exist!!!!!!")
+            book = Book(work_olid=data['work_id'])
+            print("Book instantiated with no edition")
+            if 'edition_id' in data:
+                book.edition_olid = data['edition_id']
+                print("Edition added to book")
+            print("Calling book.create():")
+            book.create()
+
+        print("Printing book:")
+        print(book)
+
+        print("  Info about observation list item: ")
+        print(type(data["observations"][0])) # dict
+
+        all_observations = {}
+        
+        print("  Observations:")
+        for elem in data["observations"]:
+            key = list(elem.items())[0][0]
+            value = list(elem.items())[0][1]
+            if key in all_observations:
+                all_observations[key] = f"{all_observations[key]}{self.MULTI_CHOICE_DELIMITER}{value}"
+            else:
+                all_observations[key] = value
+            
+        print(all_observations)
+        print("   All Aspects:")
+        for k, v in all_observations.items():
+            aspect = Aspect.get(label=k)
+
+            try:
+                observation = Observation.get(username=data["username"],
+                                              aspect_id=aspect.id,
+                                              book_id=book.work_olid)
+                print("    GET SUCCESSFUL")
+                print(observation)
+                observation.response = v
+                observation.modified = datetime.utcnow()
+                print("    ATTEMPTING UPDATE")
+                observation.update()
+            except RexException:
+                observation = Observation(username=data["username"],
+                                          aspect_id=aspect.id,
+                                          book_id=book.work_olid,
+                                          response=v).create()
+
+
+        return "OK", 200
+
+    def validate_request(self, data):
+        if "username" not in data or len(data["username"]) == 0:
+            return False
+
+        if "work_id" not in data or len(data["work_id"]) == 0:
+            return False
+
+        if "observations" not in data or len(data["observations"]) == 0:
+            return False
+
+        return True
+
+
 # API GET Router
     
 class Router(MethodView):
@@ -143,6 +228,7 @@ class Router(MethodView):
         if _id:
             return books.core.models[cls].get(_id).dict(minimal=False)
         return {cls: [v.dict(minimal=True) for v in books.core.models[cls].all()]}
+
 
 # Index of all available models: APIs / tables
 

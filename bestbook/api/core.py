@@ -130,7 +130,7 @@ class BaseMixin(object):
         db.add(self)
         try:
             db.commit()
-            return getattr(self, self.PKEY)
+            # return getattr(self, self.PKEY)
         except Exception as e:
             db.rollback()
             raise e
@@ -152,7 +152,7 @@ class BaseMixin(object):
 
         res = db.query(getattr(cls, cls.PKEY)).filter(*terms).limit(1).first()
         if res:
-            return res.id
+            return res
         return False
 
     @classmethod
@@ -161,7 +161,13 @@ class BaseMixin(object):
             .offset(page * limit).limit(limit)
         return query if lazy else query.all()
 
-
+    def update(self):
+        """Updates an existing entity.
+        Precondition: The entity must exist in the database.
+        """
+        db.add(self)
+        db.commit()
+        
 Base = declarative_base(cls=BaseMixin)
 
 
