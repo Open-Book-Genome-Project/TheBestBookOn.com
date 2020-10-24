@@ -158,7 +158,8 @@ def register_aspects():
            description="How entertaining is this book?",
            schema={
                "values": [
-                   "very entertaining", "entertaining", "average", "boring", "N/A"
+                   "very entertaining", "entertaining", "neither entertaining nor boring", 
+                   "boring", "very boring", "not applicable"
                ]
            },
            multi_choice=False
@@ -167,61 +168,64 @@ def register_aspects():
            description='How clearly is this book written?',
            schema={
                "values": [
-                   "very clear", "clear", "average", "confusing",
-                   "incomprehensible", "N/A"
+                   "very clearly", "clearly", "unclearly", "very unclearly", 
+                   "not applicable"
                ]
            }
     ).create()
     Aspect(label='jargon',
-           description='How much notation and technical jargon is used?',
+           description='How technical is the content?',
            schema={
                "values": [
-                   "highly technical", "medium technicality", "low technicality",
-                   "not technical", "N/A"
+                   "very technical", "technical", "somewhat technical", 
+                   "not technical", "not applicable"
                ]
            }
     ).create()
     Aspect(label='originality',
-           description='Does this book bring anything new to the table?',
+           description='How original is this book?',
            schema={
                "values": [
-                   "genre-defining", "very original", "rather unoriginal", "N/A"
+                   "very original", "somewhat original", "somewhat unoriginal", 
+                   "very unoriginal", "not applicable"
                ]
            }
     ).create()
     Aspect(label='difficulty',
-           description='How challenging or advanced is the subject matter of this book?',
+           description='How advanced is the subject matter of this book?',
            schema={
                "values": [
-                   "contains some advanced topics", "no prior knowledge required",
-                   "good first book on topic", "very difficult",
-                   "requires domain expertise", "N/A"
+                   "no prior knowledge needed", "some prior knowledge needed", 
+                   "a lot of prior knowledge needed", "requires domain expertise", 
+                   "not applicable"
                ]
            }
     ).create()
     Aspect(label='usefulness',
-           description='How impactful is the content of this book?',
+           description='How useful is the content of this book?',
            schema={
                "values": [
-                   "indispensable", "very useful", "somewhat useful",
-                   "not useful", "N/A"
+                   "very useful", "useful", "somewhat useful", "not useful", 
+                   "not applicable"
                ]
            }
     ).create()
     Aspect(label='coverage',
-           description='How much depth or breadth does this book cover?',
+           description="Does this book's content cover more breadth or depth of the subject matter?",
            schema={
                "values": [
-                   "narrow", "wide", "meandering", "N/A"
+                   "much more broad", "somewhat more broad", "equally broad and deep", 
+                   "somewhat more deep", "much more deep", "not applicable"
                ]
            }
     ).create()
     Aspect(label='objectivity',
-           description='Are there causes to question the objectivity or accuracy of this book?',
+           description='Are there causes to question the accuracy of this book?',
            schema={
                "values": [
-                   "biased", "misleading", "inaccurate", "typos", "inflammatory",
-                   "needs citations", "N/A"
+                   "yes, it is biased", "yes, it is misleading", "yes, it is inaccurate", 
+                   "yes, it has typos", "yes, it is inflammatory", "yes, it needs citations", 
+                   "no, it seems accurate", "not applicable"
                ]
            },
            multi_choice=True
@@ -260,14 +264,14 @@ def register_aspects():
            multi_choice=True
     ).create()
     Aspect(label='mood',
-           description='What are the moods of this book',
+           description='What are the moods of this book?',
            schema={
                "values": [
-                   "cheerful", "inspiring", "reflective", "gloomy", "humorous",
-                   "melancholy", "idyllic", "whimsical", "romantic", "mysterious",
-                   "ominous", "informative", "calm", "lighthearted", "hopeful",
-                   "angry", "fearful", "tense", "lonely", "dark", "sad",
-                   "suspenseful", "strange", "emotional", "dry"
+                   "cheerful", "inspiring", "reflective", "gloomy", "humorous", 
+                   "melancholy", "idyllic", "whimsical", "romantic", "mysterious", 
+                   "ominous", "informative", "calm", "lighthearted", "hopeful", 
+                   "angry", "fearful", "tense", "lonely", "dark", "sad", 
+                   "suspenseful", "strange", "emotional", "dry", "scientific"
                ]
            },
            multi_choice=True
