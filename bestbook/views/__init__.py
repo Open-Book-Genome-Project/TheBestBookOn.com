@@ -153,7 +153,7 @@ class Observations(MethodView):
         for elem in data["observations"]:
             key, value = list(elem.items())[0]
             if key in all_observations:
-                all_observations[key] = f"{all_observations[key]}{self.MULTI_CHOICE_DELIMITER}{value}"
+                all_observations[key] += self.MULTI_CHOICE_DELIMITER + value
             else:
                 all_observations[key] = value
             
