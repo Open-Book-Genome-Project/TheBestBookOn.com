@@ -12,17 +12,6 @@
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0-alpha1/jquery.min.js"></script>
         <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
         <script src="/static/build/js/index.js"></script>
-
-<style>
-div.banner{
-  position: -webkit-sticky;
-  position: sticky;
-  top: 0;
-  opacity: 1.0;
-}
-</style>
-
-
     </head>
     <body>
         <!--[if lt IE 8]>
@@ -31,7 +20,7 @@ div.banner{
 
         <div class="banner">
             <div class="banner-content"> 
-                 <span>This is the work in progress. To contribute, please check out our <a href="https://github.com/Open-Book-Genome-Project/TheBestBookOn.com/" target="_blank">Github</a> or  <a href="https://forms.gle/SFmgvBvRF9pAJN2B7" target="_blank">take our survey</a>!</span>
+                 <span>This site is a work in progress. To <a href="/volunteer">contribute</a>, please check out our <a href="https://github.com/Open-Book-Genome-Project/TheBestBookOn.com/" target="_blank">Github</a> or  <a href="https://forms.gle/SFmgvBvRF9pAJN2B7" target="_blank">take our survey</a>!</span>
             </div>
         </div>
 
@@ -49,7 +38,7 @@ div.banner{
           <span class="navigation">
             <a class="filter {{'selected' if request.path in ['/browse'] else ''}}" href="/browse">Browse</a>,
             <a class="filter {{'selected' if request.path in ['/ask', '/'] else ''}}" href="/ask">Request</a>, or
-            <a class="filter {{'selected' if request.path == '/submit' else ''}}" href="/submit">Make</a> Recommendations.
+            <a class="filter {{'selected' if request.path == '/submit' else ''}}" href="https://forms.gle/8xfqt6m8Li3kV3My6">Make</a> Recommendations.
           </span>
           {% include template %}
         </div>

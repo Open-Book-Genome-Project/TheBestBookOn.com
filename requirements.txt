@@ -22,3 +22,4 @@ total-ordering==0.1.0
 tqdm==4.48.2
 urllib3==1.25.10
 Werkzeug==1.0.1
+flask_cors==3.0.9

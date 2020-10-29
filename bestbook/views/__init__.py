@@ -1,4 +1,5 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
+#-*-coding: utf-8 -*-
 
 """
     __init__.py
@@ -10,36 +11,18 @@
 """
 
 import calendar
+import json
 from datetime import datetime
 from flask import Flask, render_template, Response, request, session, jsonify, redirect
 from flask.views import MethodView
 from flask.json import JSONEncoder, loads
 from api.auth import login
 from api import books
-from api.books import Recommendation, Book, Request, Observation, Aspect
+from api.books import Recommendation, Book, Request, Observation, Aspect, Topic
 from api.core import RexException
 from api import db
 
 PRIVATE_ENDPOINTS = []
-
-class CustomJSONEncoder(JSONEncoder):
-
-    def default(self, obj):
-        try:
-            if isinstance(obj, datetime):
-                if obj.utcoffset() is not None:
-                    obj = obj - obj.utcoffset()
-                    millis = int(
-                        calendar.timegm(obj.timetuple()) * 1000 +
-                        obj.microsecond / 1000
-                    )
-                    return millis
-            iterable = iter(obj)
-        except TypeError:
-            pass
-        else:
-            return list(iterable)
-        return JSONEncoder.default(self, obj)
 
 
 def rest(f):
@@ -80,15 +63,21 @@ def search(model, limit=50, lazy=True):
                          %  model.__table__.columns.keys())
 
 
+class User(MethodView):
+    def get(self, username):
+        recs = Recommendation.query.filter(Recommendation.username == username).all()
+        return render_template("base.html", template="user.html", username=username, recs=recs)
+
+
 class Base(MethodView):
     def get(self, uri="index"):
-        return render_template("base.html", template=f"{uri}.html")
+        return render_template("base.html", template="%s.html" % uri)
 
     
 class Section(MethodView):
     def get(self, resource=""):
         layout = resource.replace(".html", "") if resource else "index"
-        return render_template("base.html", template=f"{layout}.html")
+        return render_template("base.html", template="%s.html" % layout)
     
     def post(self, resource=""):
         """
@@ -99,7 +88,7 @@ class Section(MethodView):
             "ask": Ask,
             "login": Login,
             "observe": Observe,
-            "submit": Submit
+            "submit": Submit,
         }
         form = request.form
         return jsonify(forms[resource]().post())
@@ -115,7 +104,8 @@ class Login(MethodView):
     def post(self):
         email = request.form.get("email")
         password = request.form.get("password")
-        return jsonify(login(email, password))
+        result = login(email, password)
+        return result
 
 class Observe(MethodView):
     def post(self):
@@ -123,8 +113,26 @@ class Observe(MethodView):
         return jsonify(observation)
 
 class Submit(MethodView):
+
     def post(self):
-        pass    
+        topic = request.form.get('topic')
+        winner = request.form.get('winner')
+        candidates = request.form.get('candidates')
+        description = request.form.get('description')
+        source = request.form.get('source')
+        username = session.get('username')
+        if source:
+            description += " (%s)" % source
+
+        if not username:
+            raise Exception('Login required')
+
+        rec = Recommendation.add(
+            topic, winner,
+            [Book.clean_olid(c) for c in candidates.split(' ')],
+            username, description)
+        return rec.dict()
+
 
 class Observations(MethodView):
     MULTI_CHOICE_DELIMITER = "|"
@@ -190,6 +198,13 @@ class Router(MethodView):
             return books.core.models[cls].get(_id).dict(minimal=False)
         return {cls: [v.dict(minimal=True) for v in books.core.models[cls].all()]}
 
+    @rest
+    def post(self, cls, _id=None):
+        if cls=="topics":
+            json_str = request.data 
+            json_dict = loads(json_str) 
+            topic = Topic(name = json_dict["topic"]).create()
+            return json_str 
 
 # Index of all available models: APIs / tables
 
