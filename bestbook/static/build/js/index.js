@@ -135,7 +135,6 @@ $( function() {
       return $("<li />")
         .append('Topic not found. <a id="add-topic" href="javascript:;">Add ' + $(".book-topic-selector").autocomplete('instance').term + '?</a>')
         .appendTo(ul);
-
       return renderItem.call(this, ul, item);
     }
   }
