@@ -134,26 +134,6 @@ class Submit(MethodView):
         return rec.dict()
 
 
-    @rest
-    def post(self):
-        topic = request.form.get('topic')
-        winner = request.form.get('winner')
-        candidates = request.form.get('candidates')
-        description = request.get('description')
-        source = request.get('source')
-        username = session.get('username')
-        if source:
-            description += " (%s)" % source
-
-        if not username:
-            raise Exception('Login required')
-
-        rec = Recommendation.add(
-            topic, winner,
-            [Book.clean_olid(c) for c in candidates.split(' ')],
-            username, description)
-        return rec.__dict__
-    
 class Observations(MethodView):
     MULTI_CHOICE_DELIMITER = "|"
 
