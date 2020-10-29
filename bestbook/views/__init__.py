@@ -24,10 +24,6 @@ from api import db
 
 PRIVATE_ENDPOINTS = []
 
-def jsonencoder(o):
-    if isinstance(o, datetime):
-        return o.__str__()
-
 
 def rest(f):
     def inner(*args, **kwargs):
@@ -75,13 +71,13 @@ class User(MethodView):
 
 class Base(MethodView):
     def get(self, uri="index"):
-        return render_template("base.html", template=f"{uri}.html")
+        return render_template("base.html", template="%s.html" % uri)
 
     
 class Section(MethodView):
     def get(self, resource=""):
         layout = resource.replace(".html", "") if resource else "index"
-        return render_template("base.html", template=f"{layout}.html")
+        return render_template("base.html", template="%s.html" % layout)
     
     def post(self, resource=""):
         """
@@ -118,13 +114,12 @@ class Observe(MethodView):
 
 class Submit(MethodView):
 
-    @rest
     def post(self):
         topic = request.form.get('topic')
         winner = request.form.get('winner')
         candidates = request.form.get('candidates')
-        description = request.get('description')
-        source = request.get('source')
+        description = request.form.get('description')
+        source = request.form.get('source')
         username = session.get('username')
         if source:
             description += " (%s)" % source
@@ -136,8 +131,9 @@ class Submit(MethodView):
             topic, winner,
             [Book.clean_olid(c) for c in candidates.split(' ')],
             username, description)
-        return rec.__dict__
-    
+        return rec.dict()
+
+
 class Observations(MethodView):
     MULTI_CHOICE_DELIMITER = "|"
 

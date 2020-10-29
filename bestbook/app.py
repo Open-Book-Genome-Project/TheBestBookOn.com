@@ -24,6 +24,7 @@ urls = ('/<path:resource>', views.Section,
         '/api/<cls>', views.Router,
         '/', views.Base
         )
+
 app = router(Flask(__name__), urls)
 app.secret_key = SECRET_KEY
 cors = CORS(app)

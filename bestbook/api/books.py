@@ -47,8 +47,8 @@ class Topic(core.Base):
     modified = Column(DateTime(timezone=False), default=None)
 
     @classmethod
-    def upsert(cls, topic):
-        if isinstance(topic, sqlalchemy.ext.declarative.api.DeclarativeMeta):
+    def upsert(cls, topic):        
+        if isinstance(topic, cls):
             return topic
         try:
             return cls.get(name=topic)
@@ -151,14 +151,14 @@ class Recommendation(core.Base):
         """
         topic = Topic.upsert(topic)
         winner = Book.upsert_by_olid(winner_olid)
-        print(winner)
+        print(topic)
         r = cls(topic_id=topic.id, book_id=winner.id,
                 description=description,
                 username=username).create()
         r.candidates.append(winner)
         for olid in candidate_olids:
             r.candidates.append(Book.upsert_by_olid(olid))
-        r.save()
+        db.commit()
         return r
 
 class Aspect(core.Base):
