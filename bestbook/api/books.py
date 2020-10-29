@@ -129,7 +129,6 @@ class Recommendation(core.Base):
     # This is the minimal version (incomplete)
 
     __tablename__ = "recommendations"
-    
     id = Column(BigInteger, primary_key=True)
     topic_id = Column(Integer, ForeignKey("topics.id")) # TBBO what?
     book_id = Column(BigInteger, ForeignKey("books.id"))
