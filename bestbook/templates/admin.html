@@ -1,4 +1,24 @@
 
+<h2>Recommendations</h2>
+<form action="/submit" method="POST">
+  <input name="topic" placeholder="topic (e.g. 'Information Theory')">
+  <input name="winner" placeholder="winner (e.g. OL123W)">
+  <input name="candidates" placeholder="candidates CSV (e.g. OL123W, OL234)">
+  <input name="description" placeholder="description">
+  <input name="source" placeholder="source">
+  <input type="submit">
+</form>
+
+
+{% set recommendations = models['recommendations'].all() -%}
+<div>
+  {% for rec in  recommendations %}
+  <tr>
+    <td>{{ rec }}</td>
+  </tr>
+  {% endfor %}
+</div>
+
 <h2>Books</h2>
 
 <form method="POST" action="/admin">

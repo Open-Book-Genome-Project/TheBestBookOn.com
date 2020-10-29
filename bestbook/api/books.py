@@ -15,6 +15,9 @@ from random import randint
 from datetime import datetime
 # http://web.archive.org/web/20180421223443/https://stackoverflow.com/
 # questions/10059345/sqlalchemy-unique-across-multiple-columns
+import re
+import requests
+import sqlalchemy
 from sqlalchemy import UniqueConstraint
 from sqlalchemy import Column, Unicode, BigInteger, Integer, \
     Boolean, DateTime, ForeignKey, Table, Index, exists, func
@@ -43,18 +46,59 @@ class Topic(core.Base):
                      nullable=False)
     modified = Column(DateTime(timezone=False), default=None)
 
+    @classmethod
+    def upsert(cls, topic):
+        if isinstance(topic, sqlalchemy.ext.declarative.api.DeclarativeMeta):
+            return topic
+        try:
+            return cls.get(name=topic)
+        except:
+            return cls(name=topic).create()
 
 class Book(core.Base):
 
     __tablename__ = "books"
-    PKEY = 'work_olid' 
-    
-    work_olid = Column(Unicode, nullable=False, unique=True, primary_key=True) # Open Library ID (required)
+    __table_args__ = (UniqueConstraint('work_olid', 'edition_olid', name='_work_edition_uc'),)
+
+    id = Column(BigInteger, primary_key=True)
+    work_olid = Column(Unicode, nullable=False) # Open Library ID (required)
     edition_olid = Column(Unicode, nullable=True) # Open Library ID (optional)
     created = Column(DateTime(timezone=False), default=datetime.utcnow,
                      nullable=False)
     modified = Column(DateTime(timezone=False), default=None)
 
+    @staticmethod
+    def clean_olid(olid):
+        """Extract just the olid from some olid-containing string"""
+        if olid.lower().startswith('ol') and olid.lower()[-1] in ['M', 'W']:
+            return olid
+        return re.findall(r'OL[0-9]+[MW]', olid)[0]
+
+    @staticmethod
+    def get_work_and_edition(olid):
+        work_id = None
+        edition_id = None
+        if olid.lower().endswith('m'):
+            edition_id = olid
+            # Fetch the edition's corresponding work_id from Open Library
+            r = requests.get('https://openlibrary.org/books/' + olid).json()
+            work_id = r['works'][0]['key'].split('/')[-1]
+        else:
+            work_id = olid
+        return work_id, edition_id
+    
+    
+    @classmethod
+    def upsert_by_olid(cls, olid):
+        olid = cls.clean_olid(olid)
+        work_olid, edition_olid = cls.get_work_and_edition(olid)    
+        # Does a book exist for this work_id and edition_id?
+        try: # to fetch it   
+            book = Book.get(work_olid=work_olid, edition_olid=edition_olid)
+        except: # if it doesn't exist, create it
+            book = Book(work_olid=work_olid, edition_olid=edition_olid).create()
+        return book
+    
 
 class Request(core.Base):
 
@@ -85,18 +129,38 @@ class Recommendation(core.Base):
     # This is the minimal version (incomplete)
 
     __tablename__ = "recommendations"
-
+    
     id = Column(BigInteger, primary_key=True)
     topic_id = Column(Integer, ForeignKey("topics.id")) # TBBO what?
-    book_id = Column(Unicode, ForeignKey("books.work_olid")) # TBBO what?
+    book_id = Column(BigInteger, ForeignKey("books.id"))
     description = Column(Unicode)
     username = Column(Unicode) # @cdrini - Open Library
     created = Column(DateTime(timezone=False), default=datetime.utcnow,
                      nullable=False)
     modified = Column(DateTime(timezone=False), default=None)
 
-    books = relationship("Book", backref="recommendations")
+    winner = relationship("Book", backref="recommendations", foreign_keys=[book_id])
+    candidates = relationship("Book", secondary='recommendations_to_books')
 
+
+    @classmethod
+    def add(cls, topic, winner_olid, candidate_olids, username, description=""):
+        """
+        params:
+        :topic (api.Topic):
+        :winner_golid: ANY OL ID (e.g. OL123M or OL234W)
+        """
+        topic = Topic.upsert(topic)
+        winner = Book.upsert_by_olid(winner_olid)
+        print(winner)
+        r = cls(topic_id=topic.id, book_id=winner.id,
+                description=description,
+                username=username).create()
+        r.candidates.append(winner)
+        for olid in candidate_olids:
+            r.candidates.append(Book.upsert_by_olid(olid))
+        r.save()
+        return r
 
 class Aspect(core.Base):
 
@@ -126,7 +190,7 @@ class Observation(core.Base):
 
     username = Column(Unicode, primary_key=True) # e.g. @cdrini - Open Library
     aspect_id = Column(Integer, ForeignKey("aspects.id", onupdate="CASCADE"), primary_key=True)
-    book_id = Column(Unicode, ForeignKey("books.work_olid"), primary_key=True)
+    book_id = Column(BigInteger, ForeignKey("books.id"), primary_key=True)
     response = Column(Unicode, nullable=False)
     created = Column(DateTime(timezone=False), default=datetime.utcnow, nullable=False)    
     modified = Column(DateTime(timezone=False), default=None)    
@@ -285,7 +349,7 @@ def register_aspects():
 # Idea: can we add a json blob here?
 recommendation_books = \
     Table('recommendations_to_books', core.Base.metadata,
-          Column('book_id', Unicode, ForeignKey('books.work_olid', onupdate="CASCADE"),
+          Column('book_id', BigInteger, ForeignKey('books.id', onupdate="CASCADE"),
                  primary_key=True, nullable=False),
           Column('recommendation_id', BigInteger, ForeignKey('recommendations.id', onupdate="CASCADE"),
                  primary_key=True, nullable=False),

@@ -130,7 +130,7 @@ class BaseMixin(object):
         db.add(self)
         try:
             db.commit()
-            # return getattr(self, self.PKEY)
+            return self
         except Exception as e:
             db.rollback()
             raise e

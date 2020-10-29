@@ -83,13 +83,62 @@ $( function() {
 	    img: ''
           }
         });
+        
+        if (entities.length === 0) {
+          entities.push({
+            label: $('.book-topic-selector').autocomplete('instance').term,
+            value: '',
+            img: '',
+            lastItem: true
+          });
+        }
         console.log(entities);
         response(entities);
       }
     }
   };    
+
+  var suggest_topic = function(topic) {
+    $.ajax({
+      type: 'POST',
+      url: '/api/topics',
+      contentType: 'application/json',
+      data: JSON.stringify(topic)
+    });
+  }
     
-  bind_autocomplete(self, ".book-winner-selector", search_books);
-  bind_autocomplete(self, ".book-candidate-selector", search_books);
-  bind_autocomplete(self, ".book-topic-selector", search_topics);
+  if ($(".book-winner-selector").length) { bind_autocomplete(self, ".book-winner-selector", search_books); }
+  if ($(".book-candidate-selector").length) { bind_autocomplete(self, ".book-candidate-selector", search_books); }
+  if ($(".book-topic-selector").length) {
+    bind_autocomplete(self, ".book-topic-selector", search_topics);
+    
+    var render = $('.book-topic-selector').autocomplete('instance')._renderMenu;
+
+    $('.book-topic-selector').autocomplete('instance')._renderMenu = function(ul, items) {
+      render.call(this, ul, items);
+
+      $('#add-topic').on('click', function(event) {
+        event.preventDefault();
+
+        var topic = {
+          topic: $('.book-topic-selector').autocomplete('instance').term
+        }
+
+        suggest_topic(topic);
+      });
+    }
+  
+
+    var renderItem = $('.book-topic-selector').autocomplete('instance')._renderItem;
+
+    $(".book-topic-selector").autocomplete('instance')._renderItem = function(ul, item) {
+      if(item.lastItem) {
+        return $("<li />")
+          .append('Topic not found. <a id="add-topic" href="javascript:;">Add ' + $(".book-topic-selector").autocomplete('instance').term + '?</a>')
+          .appendTo(ul);
+      }
+
+      return renderItem.call(this, ul, item);
+    }
+  }
 });

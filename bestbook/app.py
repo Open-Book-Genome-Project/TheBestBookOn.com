@@ -17,6 +17,7 @@ from configs import options, SECRET_KEY
 
 urls = ('/<path:resource>', views.Section,
         '/admin', views.Admin,
+        '/people/<username>', views.User,
         '/api/', views.Index,
         '/api/observations', views.Observations,
         '/api/<cls>/<_id>', views.Router,
