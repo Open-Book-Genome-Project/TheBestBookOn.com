@@ -1,0 +1,8 @@
+name: docker_build
+on: [pull_request, push]
+jobs:
+  docker_build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: docker build -t bestbookon:latest .
