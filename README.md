@@ -86,3 +86,46 @@ Next, there are 2 cases:
 Decision: For now, even if Aasif decides to create a Recommendation in *response* to a Request, there actually won't be a link in the database (between the Request and the Response). This relationship will be implied based on the Topic. Because the Request and the Recommendation both share the same Topic... Then we can show anyone who is viewing the Request page all the corresponding Recommendation for/or the same Topic. Similarly, when we're on a Recommendaion page, we can show all Requests for this Topic, as well as *other* Recommendations for this topic.
 
 Interesting idea: Let's say there are 3 *different* Recommendations on "Artificial Intelligence". One of them is by Aasif, one of them is by Lauren, and one of them is by Mary. We *could* let patrons browse any one of these 3 recommendations independently, *or* we could infer a single best book *across* every recommendation on this topic (either based on how many times a book appears as a winner, or because the community upvotes a specific Recommendation).
+
+
+## Troubleshooting while Installation
+
+ - If you are having troubles while installing the `psycopg2`, make sure you have
+ installed the depndencies for `psycopg2`. This could be done by:
+    ```bash
+    $ sudo apt install python3-dev libpq-dev
+
+    and then run
+    $ pip install -r requirement.txt
+    ```
+
+
+ - while creating the tables, connect to the database first:
+    
+    ```bash
+    $ sudo -U postgres psql #if you are on ubuntu 20.04
+    ```
+    If you run into an error that says:
+    ```bash
+    sqlalchemy.exc.OperationalError: (psycopg2.OperationalError) could not connect to server: Connection refused
+        Is the server running on host "localhost" (127.0.0.1) and accepting
+        TCP/IP connections on port 5433?
+    ```
+    follow these steps:
+
+    ```
+    $ git checkout -b "anyBranchName" #Just to ensure you don't mess up the master branch
+
+    go to the file "THEBESTBOOKON.COM/bestbook/configs/__init__.py" and change the
+    port address to "5432"
+
+    and also create an empty database called "skillsera"
+    $ postgres=# CREATE DATABASE skillsera owner "your user name created during DB setup"
+
+
+    Now you can create the tables:
+    $ python3
+    >> import api
+    >> api.core.Base.metadata.create_all(api.engine)
+    ```
+
