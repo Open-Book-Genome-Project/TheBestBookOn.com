@@ -47,7 +47,7 @@ class Topic(core.Base):
     modified = Column(DateTime(timezone=False), default=None)
 
     @classmethod
-    def upsert(cls, topic):        
+    def upsert(cls, topic):
         if isinstance(topic, cls):
             return topic
         try:
@@ -86,19 +86,19 @@ class Book(core.Base):
         else:
             work_id = olid
         return work_id, edition_id
-    
-    
+
+
     @classmethod
     def upsert_by_olid(cls, olid):
         olid = cls.clean_olid(olid)
-        work_olid, edition_olid = cls.get_work_and_edition(olid)    
+        work_olid, edition_olid = cls.get_work_and_edition(olid)
         # Does a book exist for this work_id and edition_id?
-        try: # to fetch it   
+        try: # to fetch it
             book = Book.get(work_olid=work_olid, edition_olid=edition_olid)
         except: # if it doesn't exist, create it
             book = Book(work_olid=work_olid, edition_olid=edition_olid).create()
         return book
-    
+
 
 class Request(core.Base):
 
@@ -165,7 +165,7 @@ class Aspect(core.Base):
 
     """The full set of possible registered features about which a patron
     may make an observation"""
-    
+
     __tablename__ = "aspects"
 
     id = Column(BigInteger, primary_key=True)
@@ -182,29 +182,29 @@ class Aspect(core.Base):
         flag_modified(self, "schema")
         db.add(self)
         db.commit()
-    
+
 class Observation(core.Base):
-    
+
     __tablename__ = "observations"
 
     username = Column(Unicode, primary_key=True) # e.g. @cdrini - Open Library
     aspect_id = Column(Integer, ForeignKey("aspects.id", onupdate="CASCADE"), primary_key=True)
     book_id = Column(BigInteger, ForeignKey("books.id"), primary_key=True)
     response = Column(Unicode, nullable=False)
-    created = Column(DateTime(timezone=False), default=datetime.utcnow, nullable=False)    
-    modified = Column(DateTime(timezone=False), default=None)    
+    created = Column(DateTime(timezone=False), default=datetime.utcnow, nullable=False)
+    modified = Column(DateTime(timezone=False), default=None)
 
     book = relationship("Book", backref="observations")
     aspect = relationship("Aspect", backref="observations")
 
 class Upvote(core.Base):
-    
+
     __tablename__ = "upvotes"  # for recommendations
 
     username = Column(Unicode, primary_key=True)
     recommendation_id = Column(Integer, ForeignKey("recommendations.id", onupdate="CASCADE"), primary_key=True)
-    created = Column(DateTime(timezone=False), default=datetime.utcnow, nullable=False)    
-    modified = Column(DateTime(timezone=False), default=None)    
+    created = Column(DateTime(timezone=False), default=datetime.utcnow, nullable=False)
+    modified = Column(DateTime(timezone=False), default=None)
 
     recommendation = relationship("Recommendation", backref="votes")
 
@@ -222,7 +222,7 @@ def register_aspects():
            description="How entertaining is this book?",
            schema={
                "values": [
-                   "very entertaining", "entertaining", "neither entertaining nor boring", 
+                   "very entertaining", "entertaining", "neither entertaining nor boring",
                    "boring", "very boring", "not applicable"
                ]
            },
@@ -232,7 +232,7 @@ def register_aspects():
            description='How clearly is this book written?',
            schema={
                "values": [
-                   "very clearly", "clearly", "unclearly", "very unclearly", 
+                   "very clearly", "clearly", "unclearly", "very unclearly",
                    "not applicable"
                ]
            }
@@ -241,7 +241,7 @@ def register_aspects():
            description='How technical is the content?',
            schema={
                "values": [
-                   "very technical", "technical", "somewhat technical", 
+                   "very technical", "technical", "somewhat technical",
                    "not technical", "not applicable"
                ]
            }
@@ -250,7 +250,7 @@ def register_aspects():
            description='How original is this book?',
            schema={
                "values": [
-                   "very original", "somewhat original", "somewhat unoriginal", 
+                   "very original", "somewhat original", "somewhat unoriginal",
                    "very unoriginal", "not applicable"
                ]
            }
@@ -259,8 +259,8 @@ def register_aspects():
            description='How advanced is the subject matter of this book?',
            schema={
                "values": [
-                   "no prior knowledge needed", "some prior knowledge needed", 
-                   "a lot of prior knowledge needed", "requires domain expertise", 
+                   "no prior knowledge needed", "some prior knowledge needed",
+                   "a lot of prior knowledge needed", "requires domain expertise",
                    "not applicable"
                ]
            }
@@ -269,7 +269,7 @@ def register_aspects():
            description='How useful is the content of this book?',
            schema={
                "values": [
-                   "very useful", "useful", "somewhat useful", "not useful", 
+                   "very useful", "useful", "somewhat useful", "not useful",
                    "not applicable"
                ]
            }
@@ -278,7 +278,7 @@ def register_aspects():
            description="Does this book's content cover more breadth or depth of the subject matter?",
            schema={
                "values": [
-                   "much more broad", "somewhat more broad", "equally broad and deep", 
+                   "much more broad", "somewhat more broad", "equally broad and deep",
                    "somewhat more deep", "much more deep", "not applicable"
                ]
            }
@@ -287,8 +287,8 @@ def register_aspects():
            description='Are there causes to question the accuracy of this book?',
            schema={
                "values": [
-                   "yes, it is biased", "yes, it is misleading", "yes, it is inaccurate", 
-                   "yes, it has typos", "yes, it is inflammatory", "yes, it needs citations", 
+                   "yes, it is biased", "yes, it is misleading", "yes, it is inaccurate",
+                   "yes, it has typos", "yes, it is inflammatory", "yes, it needs citations",
                    "no, it seems accurate", "not applicable"
                ]
            },
@@ -331,10 +331,10 @@ def register_aspects():
            description='What are the moods of this book?',
            schema={
                "values": [
-                   "cheerful", "inspiring", "reflective", "gloomy", "humorous", 
-                   "melancholy", "idyllic", "whimsical", "romantic", "mysterious", 
-                   "ominous", "informative", "calm", "lighthearted", "hopeful", 
-                   "angry", "fearful", "tense", "lonely", "dark", "sad", 
+                   "cheerful", "inspiring", "reflective", "gloomy", "humorous",
+                   "melancholy", "idyllic", "whimsical", "romantic", "mysterious",
+                   "ominous", "informative", "calm", "lighthearted", "hopeful",
+                   "angry", "fearful", "tense", "lonely", "dark", "sad",
                    "suspenseful", "strange", "emotional", "dry", "scientific"
                ]
            },

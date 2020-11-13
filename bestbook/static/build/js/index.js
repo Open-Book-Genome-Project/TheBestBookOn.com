@@ -7,30 +7,30 @@ function validateForm(){
   try{
     if(document.forms['recommendations-form'].elements.winner.hasAttribute('eid')){
       document.forms["recommendations-form"].elements["winner"].value = document.forms['recommendations-form'].elements.winner.getAttribute('eid').split("/").slice(-1)[0];
-    }     
-    if(document.forms['recommendations-form'].elements.winner.hasAttribute('eid')){ 
+    }
+    if(document.forms['recommendations-form'].elements.winner.hasAttribute('eid')){
       document.forms["recommendations-form"].elements["candidate1"].value = document.forms['recommendations-form'].elements.candidate1.getAttribute('eid').split("/").slice(-1)[0];
-    } 
-    if(document.forms['recommendations-form'].elements.winner.hasAttribute('eid')){ 
+    }
+    if(document.forms['recommendations-form'].elements.winner.hasAttribute('eid')){
       document.forms["recommendations-form"].elements["candidate2"].value = document.forms['recommendations-form'].elements.candidate2.getAttribute('eid').split("/").slice(-1)[0];
-    } 
-    if(document.forms['recommendations-form'].elements.winner.hasAttribute('eid')){ 
+    }
+    if(document.forms['recommendations-form'].elements.winner.hasAttribute('eid')){
       document.forms["recommendations-form"].elements["candidate3"].value = document.forms['recommendations-form'].elements.candidate3.getAttribute('eid').split("/").slice(-1)[0];
-    } 
+    }
     return true;
   }
   catch(err){
-    document.forms["recommendations-form"].elements["winner"].value = winnerValue; 
-    document.forms["recommendations-form"].elements["candidate1"].value = candidate1Value; 
-    document.forms["recommendations-form"].elements["candidate2"].value = candidate2Value; 
-    document.forms["recommendations-form"].elements["candidate3"].value = candidate3Value; 
+    document.forms["recommendations-form"].elements["winner"].value = winnerValue;
+    document.forms["recommendations-form"].elements["candidate1"].value = candidate1Value;
+    document.forms["recommendations-form"].elements["candidate2"].value = candidate2Value;
+    document.forms["recommendations-form"].elements["candidate3"].value = candidate3Value;
     return false;
   }
-} 
+}
 $( function() {
 
   $.support.cors = true
-    
+
   requests = {
     get: function(url, callback) {
       $.get(url, function(results) {
@@ -54,7 +54,7 @@ $( function() {
     },
   };
 
-  /* This is the main function which registers a <input class="ui-widget"> 
+  /* This is the main function which registers a <input class="ui-widget">
      as an autocomplete
   */
   var bind_autocomplete = function(self, selector, callback) {
@@ -88,7 +88,7 @@ $( function() {
     return {
       url: 'https://openlibrary.org/search.json?limit=10&q=' + request.term,
       success: function(resp) {
-        var entities = $.map(resp.docs, function(book) {              
+        var entities = $.map(resp.docs, function(book) {
           return {
             label: book.title,
             value: book.key,
@@ -112,7 +112,7 @@ $( function() {
 	    img: ''
           }
         });
-        
+
         if (entities.length === 0) {
           entities.push({
             label: $('.book-topic-selector').autocomplete('instance').term,
@@ -125,7 +125,7 @@ $( function() {
         response(entities);
       }
     }
-  };    
+  };
 
   var suggest_topic = function(topic) {
     $.ajax({
@@ -135,14 +135,14 @@ $( function() {
       data: JSON.stringify(topic)
     });
   }
-    
+
   if ($(".book-winner-selector").length) { bind_autocomplete(self, ".book-winner-selector", search_books); }
   if ($(".book-candidate-selector1").length) { bind_autocomplete(self, ".book-candidate-selector1", search_books); }
   if ($(".book-candidate-selector2").length) { bind_autocomplete(self, ".book-candidate-selector2", search_books); }
   if ($(".book-candidate-selector3").length) { bind_autocomplete(self, ".book-candidate-selector3", search_books); }
   if ($(".book-topic-selector").length) {
     bind_autocomplete(self, ".book-topic-selector", search_topics);
-    
+
     var render = $('.book-topic-selector').autocomplete('instance')._renderMenu;
 
     $('.book-topic-selector').autocomplete('instance')._renderMenu = function(ul, items) {
@@ -158,7 +158,7 @@ $( function() {
         suggest_topic(topic);
       });
     }
-  
+
 
     var renderItem = $('.book-topic-selector').autocomplete('instance')._renderItem;
 
@@ -169,7 +169,4 @@ $( function() {
       return renderItem.call(this, ul, item);
     }
   }
-
- 
-
 });

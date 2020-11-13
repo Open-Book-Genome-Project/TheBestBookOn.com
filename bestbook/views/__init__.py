@@ -80,14 +80,14 @@ class Base(MethodView):
     def get(self, uri="index"):
         return render_template("base.html", template="%s.html" % uri)
 
-    
+
 class Section(MethodView):
     def get(self, resource=""):
         if resource in ["ask", "submit"] and not session.get('username'):
             return redirect("/login?redir=/" + resource)
         layout = resource.replace(".html", "") if resource else "index"
         return render_template("base.html", template="%s.html" % layout, models=models)
-    
+
     def post(self, resource=""):
         """
         Generic POST Router which redirects /<form-component> to the right
@@ -115,7 +115,7 @@ class Logout(MethodView):
     def get(self):
         session.pop('username', '')
         return redirect('/login')
-    
+
 class Login(MethodView):
     def post(self):
         email = request.form.get("email")
@@ -145,9 +145,9 @@ class Submit(MethodView):
             raise Exception('Login required')
 
         if not candidates:
-            candidate1 = request.form.get('candidate1') 
+            candidate1 = request.form.get('candidate1')
             candidate2 = request.form.get('candidate2')
-            candidate3 = request.form.get('candidate3') 
+            candidate3 = request.form.get('candidate3')
             candidates = "{0} {1} {2}".format(candidate1, candidate2, candidate3)
         rec = Recommendation.add(
             topic, winner,
@@ -179,14 +179,14 @@ class Observations(MethodView):
             book.create()
 
         all_observations = {}
-        
+
         for elem in data["observations"]:
             key, value = list(elem.items())[0]
             if key in all_observations:
                 all_observations[key] += self.MULTI_CHOICE_DELIMITER + value
             else:
                 all_observations[key] = value
-            
+
         for k, v in all_observations.items():
             aspect = Aspect.get(label=k)
 
@@ -207,7 +207,7 @@ class Observations(MethodView):
 
 
 # API GET Router
-    
+
 class Router(MethodView):
 
     @rest
@@ -223,10 +223,10 @@ class Router(MethodView):
     @rest
     def post(self, cls, _id=None):
         if cls=="topics":
-            json_str = request.data 
-            json_dict = loads(json_str) 
+            json_str = request.data
+            json_dict = loads(json_str)
             topic = Topic(name = json_dict["topic"]).create()
-            return json_str 
+            return json_str
 
 # Index of all available models: APIs / tables
 
