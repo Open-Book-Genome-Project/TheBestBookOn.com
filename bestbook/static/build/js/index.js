@@ -1,7 +1,7 @@
 $( function() {
 
   $.support.cors = true
-    
+
   requests = {
     get: function(url, callback) {
       $.get(url, function(results) {
@@ -25,7 +25,7 @@ $( function() {
     },
   };
 
-  /* This is the main function which registers a <input class="ui-widget"> 
+  /* This is the main function which registers a <input class="ui-widget">
      as an autocomplete
   */
   var bind_autocomplete = function(self, selector, callback) {
@@ -59,7 +59,7 @@ $( function() {
     return {
       url: 'https://openlibrary.org/search.json?limit=10&q=' + request.term,
       success: function(resp) {
-        var entities = $.map(resp.docs, function(book) {              
+        var entities = $.map(resp.docs, function(book) {
           return {
             label: book.title,
             value: book.key,
@@ -83,7 +83,7 @@ $( function() {
 	    img: ''
           }
         });
-        
+
         if (entities.length === 0) {
           entities.push({
             label: $('.book-topic-selector').autocomplete('instance').term,
@@ -96,7 +96,7 @@ $( function() {
         response(entities);
       }
     }
-  };    
+  };
 
   var suggest_topic = function(topic) {
     $.ajax({
@@ -106,12 +106,12 @@ $( function() {
       data: JSON.stringify(topic)
     });
   }
-    
+
   if ($(".book-winner-selector").length) { bind_autocomplete(self, ".book-winner-selector", search_books); }
   if ($(".book-candidate-selector").length) { bind_autocomplete(self, ".book-candidate-selector", search_books); }
   if ($(".book-topic-selector").length) {
     bind_autocomplete(self, ".book-topic-selector", search_topics);
-    
+
     var render = $('.book-topic-selector').autocomplete('instance')._renderMenu;
 
     $('.book-topic-selector').autocomplete('instance')._renderMenu = function(ul, items) {
@@ -127,7 +127,7 @@ $( function() {
         suggest_topic(topic);
       });
     }
-  
+
 
     var renderItem = $('.book-topic-selector').autocomplete('instance')._renderItem;
 
