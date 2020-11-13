@@ -45,9 +45,9 @@ SECRET_KEY = config.getdef('security', 'secret', 'raw=True')
 # DATABASES
 DB_URI = '%(dbn)s://%(user)s:%(pw)s@%(host)s:%(port)s/%(db)s' % {
     'dbn': config.getdef('db', 'dbn', 'postgres'),
-    'port': config.getdef('db', 'port', '5433'),
+    'port': config.getdef('db', 'port', '5432'),
     'host': config.getdef('db', 'host', 'localhost'),
     'user': config.getdef('db', 'user', 'postgres'),
-    'db': config.getdef('db', 'db', 'skillsera'),
+    'db': config.getdef('db', 'db', 'bestbooks'),
     'pw': config.getdef('db', 'pw', '')
     }
