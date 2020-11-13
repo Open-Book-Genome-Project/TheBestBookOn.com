@@ -13,9 +13,9 @@
 import calendar
 import json
 from datetime import datetime
-from flask import Flask, render_template, Response, request, session, jsonify, redirect
+from flask import Flask, render_template, Response, request, session, jsonify, redirect, make_response
 from flask.views import MethodView
-from flask.json import JSONEncoder, loads
+from flask.json import loads
 from api.auth import login
 from api import books
 from api.books import Recommendation, Book, Request, Observation, Aspect, Topic
@@ -24,6 +24,13 @@ from api import db
 
 PRIVATE_ENDPOINTS = []
 
+models = {
+    "recommendations": Recommendation,
+    "books": Book,
+    "requests": Request,
+    "observations": Observation,
+    "aspects": Aspect
+}
 
 def rest(f):
     def inner(*args, **kwargs):
@@ -76,14 +83,18 @@ class Base(MethodView):
 
 class Section(MethodView):
     def get(self, resource=""):
+        if resource in ["ask", "submit"] and not session.get('username'):
+            return redirect("/login?redir=/" + resource)
         layout = resource.replace(".html", "") if resource else "index"
-        return render_template("base.html", template="%s.html" % layout)
+        return render_template("base.html", template="%s.html" % layout, models=models)
 
     def post(self, resource=""):
         """
         Generic POST Router which redirects /<form-component> to the right
         class (e.g. Ask, Login, Observe, Submit)
         """
+        if resource == "login":
+            return Login().post()
         forms = {
             "ask": Ask,
             "login": Login,
@@ -100,12 +111,18 @@ class Ask(MethodView):
         ask = request.form
         return jsonify(ask)
 
+class Logout(MethodView):
+    def get(self):
+        session.pop('username', '')
+        return redirect('/login')
+
 class Login(MethodView):
     def post(self):
         email = request.form.get("email")
         password = request.form.get("password")
+        redir = request.form.get("redir")
         result = login(email, password)
-        return result
+        return redirect(redir)
 
 class Observe(MethodView):
     def post(self):
@@ -127,6 +144,11 @@ class Submit(MethodView):
         if not username:
             raise Exception('Login required')
 
+        if not candidates:
+            candidate1 = request.form.get('candidate1')
+            candidate2 = request.form.get('candidate2')
+            candidate3 = request.form.get('candidate3')
+            candidates = "{0} {1} {2}".format(candidate1, candidate2, candidate3)
         rec = Recommendation.add(
             topic, winner,
             [Book.clean_olid(c) for c in candidates.split(' ')],
@@ -217,10 +239,4 @@ class Index(MethodView):
 
 class Admin(MethodView):
     def get(self):
-        return render_template("base.html", template="admin.html", models={
-            "recommendations": Recommendation,
-            "books": Book,
-            "requests": Request,
-            "observations": Observation,
-            "aspects": Aspect
-        })
+        return render_template("base.html", template="admin.html", models=models)

@@ -138,6 +138,7 @@ class Recommendation(core.Base):
                      nullable=False)
     modified = Column(DateTime(timezone=False), default=None)
 
+    topic = relationship("Topic")
     winner = relationship("Book", backref="recommendations", foreign_keys=[book_id])
     candidates = relationship("Book", secondary='recommendations_to_books')
 
@@ -151,7 +152,6 @@ class Recommendation(core.Base):
         """
         topic = Topic.upsert(topic)
         winner = Book.upsert_by_olid(winner_olid)
-        print(topic)
         r = cls(topic_id=topic.id, book_id=winner.id,
                 description=description,
                 username=username).create()

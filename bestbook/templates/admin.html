@@ -11,13 +11,11 @@
 
 
 {% set recommendations = models['recommendations'].all() -%}
-<div>
+<ul>
   {% for rec in  recommendations %}
-  <tr>
-    <td>{{ rec }}</td>
-  </tr>
+    <li style="font-size: .8em">{{ rec }}</li>
   {% endfor %}
-</div>
+</ul>
 
 <h2>Books</h2>
 

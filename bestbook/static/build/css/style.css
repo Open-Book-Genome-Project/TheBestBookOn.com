@@ -111,7 +111,8 @@ button {
 
 }
 
-input[type=text] {
+input[type=text], textarea {
+    font-family: monospace;
     padding: 10px;
     font-size: 1em;
     background: #fff;
@@ -403,4 +404,12 @@ span[title] {
     margin-bottom: 20px;
     text-decoration: none;
     white-space: nowrap;
+}
+
+.book-topic-selector {
+    max-width: 250px;
+}
+
+.book-winner-selector {
+    width: 100%;
 }

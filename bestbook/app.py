@@ -15,13 +15,14 @@ from flask_cors import CORS
 import views
 from configs import options, SECRET_KEY
 
-urls = ('/<path:resource>', views.Section,
-        '/admin', views.Admin,
+urls = ('/admin', views.Admin,
         '/people/<username>', views.User,
+        '/logout', views.Logout,
         '/api/', views.Index,
         '/api/observations', views.Observations,
         '/api/<cls>/<_id>', views.Router,
         '/api/<cls>', views.Router,
+        '/<path:resource>', views.Section,
         '/', views.Base
         )
 
