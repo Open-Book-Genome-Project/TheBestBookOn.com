@@ -112,15 +112,12 @@ $( function() {
           }
         });
 
-        if (entities.length === 0) {
-          entities.push({
-            label: $('.book-topic-selector').autocomplete('instance').term,
-            value: '',
-            img: '',
-            lastItem: true
-          });
-        }
-        console.log(entities);
+        entities.push({
+          label: $('.book-topic-selector').autocomplete('instance').term,
+          value: '',
+          img: '',
+          lastItem: true
+        });
         response(entities);
       }
     }
@@ -162,9 +159,12 @@ $( function() {
     var renderItem = $('.book-topic-selector').autocomplete('instance')._renderItem;
 
     $(".book-topic-selector").autocomplete('instance')._renderItem = function(ul, item) {
-      return $("<li />")
-        .append('Topic not found. <a id="add-topic" href="javascript:;">Add ' + $(".book-topic-selector").autocomplete('instance').term + '?</a>')
-        .appendTo(ul);
+      if(item.lastItem) {
+        return $("<li />").append(
+          'Topic not found. Add <a id="add-topic" href="javascript:;">' +
+          $(".book-topic-selector").autocomplete('instance').term + '?</a>'
+        ).appendTo(ul);
+      }
       return renderItem.call(this, ul, item);
     }
   }
