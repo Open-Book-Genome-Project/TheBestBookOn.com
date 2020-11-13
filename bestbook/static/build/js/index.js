@@ -1,5 +1,4 @@
 function validateForm(){
-  console.log("validing this form");
   var winnerValue = document.forms["recommendations-form"].elements["winner"].value;
   var candidate1Value = document.forms["recommendations-form"].elements["candidate1"].value;
   var candidate2Value = document.forms["recommendations-form"].elements["candidate2"].value;
