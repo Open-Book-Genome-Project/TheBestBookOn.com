@@ -1,3 +1,32 @@
+function validateForm(){
+  console.log("validing this form");
+  var winnerValue = document.forms["recommendations-form"].elements["winner"].value;
+  var candidate1Value = document.forms["recommendations-form"].elements["candidate1"].value;
+  var candidate2Value = document.forms["recommendations-form"].elements["candidate2"].value;
+  var candidate3Value = document.forms["recommendations-form"].elements["candidate3"].value;
+  try{
+    if(document.forms['recommendations-form'].elements.winner.hasAttribute('eid')){
+      document.forms["recommendations-form"].elements["winner"].value = document.forms['recommendations-form'].elements.winner.getAttribute('eid').split("/").slice(-1)[0];
+    }     
+    if(document.forms['recommendations-form'].elements.winner.hasAttribute('eid')){ 
+      document.forms["recommendations-form"].elements["candidate1"].value = document.forms['recommendations-form'].elements.candidate1.getAttribute('eid').split("/").slice(-1)[0];
+    } 
+    if(document.forms['recommendations-form'].elements.winner.hasAttribute('eid')){ 
+      document.forms["recommendations-form"].elements["candidate2"].value = document.forms['recommendations-form'].elements.candidate2.getAttribute('eid').split("/").slice(-1)[0];
+    } 
+    if(document.forms['recommendations-form'].elements.winner.hasAttribute('eid')){ 
+      document.forms["recommendations-form"].elements["candidate3"].value = document.forms['recommendations-form'].elements.candidate3.getAttribute('eid').split("/").slice(-1)[0];
+    } 
+    return true;
+  }
+  catch(err){
+    document.forms["recommendations-form"].elements["winner"].value = winnerValue; 
+    document.forms["recommendations-form"].elements["candidate1"].value = candidate1Value; 
+    document.forms["recommendations-form"].elements["candidate2"].value = candidate2Value; 
+    document.forms["recommendations-form"].elements["candidate3"].value = candidate3Value; 
+    return false;
+  }
+} 
 $( function() {
 
   $.support.cors = true
@@ -108,7 +137,9 @@ $( function() {
   }
     
   if ($(".book-winner-selector").length) { bind_autocomplete(self, ".book-winner-selector", search_books); }
-  if ($(".book-candidate-selector").length) { bind_autocomplete(self, ".book-candidate-selector", search_books); }
+  if ($(".book-candidate-selector1").length) { bind_autocomplete(self, ".book-candidate-selector1", search_books); }
+  if ($(".book-candidate-selector2").length) { bind_autocomplete(self, ".book-candidate-selector2", search_books); }
+  if ($(".book-candidate-selector3").length) { bind_autocomplete(self, ".book-candidate-selector3", search_books); }
   if ($(".book-topic-selector").length) {
     bind_autocomplete(self, ".book-topic-selector", search_topics);
     
@@ -138,4 +169,7 @@ $( function() {
       return renderItem.call(this, ul, item);
     }
   }
+
+ 
+
 });

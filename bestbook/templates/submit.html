@@ -1,82 +1,39 @@
 
-<form method="POST" action="/submit">
+<form name="recommendations-form" method="POST" onsubmit="return validateForm()" action="/submit">
   <div class="block">
     <div class="step step--1">
       <div class="picker">
-        <h2>1. ⚖️ "<span class="bbo">The Best Book On</span>"</h2>
-	<div class="ui-widget" style="display: inline;">
-          <input type="text" placeholder="Physics..."
-		 class="book-topic-selector"
-		 style="max-width: 250px">
-	</div> is
-        <div class="ui-widget" style="display: inline;">
+        <h2>
+	  1. ⚖️ "<span class="bbo">The Best Book On</span>"
+	  <span class="ui-widget">
+            <input type="text" name="topic" placeholder="Physics..."
+		   class="book-topic-selector" style="max-width: 250px;">
+	  </span> is...
+	</h2>
+        <span class="ui-widget">
           <label for="book-winner-selector"></label>
-          <input type="text" class="book-winner-selector" placeholder="Search title, author, or isbn">
-        </div>.
+          <input type="text" name="winner" class="book-winner-selector"
+		 placeholder="Choose winning book by title, author, or isbn">
+        </span>
       </div>
     </div>
     
     <div class="step step--2">
       <div class="picker">
-        <h2>2. 📚 I know because I've also read</h2>
-        <div class="ui-widget">
-          <label for="book-candidate-selector"></label>
-          <input type="text" class="book-candidate-selector" placeholder="Search title, author, or isbn">
-        </div>
+        <h2>2. 📚 I know because I've also read:</h2>
+	<span class="ui-widget">
+          <input type="text" name="candidate1" class="book-candidate-selector1" placeholder="this book...">
+	</span> and <span class="ui-widget">
+          <input type="text" name="candidate2" class="book-candidate-selector2" placeholder="this book...">
+	</span>
       </div>
-      <div class="display">
-        <!--
-            <div class="book-placeholder"></div>
-            -->
-      </div>
+      <p>In order to ensure each recommendation is rigorous, we require reviewers to have read at least two other books on the same topic.</p>
     </div>
 
     <div class="step step--3">
       <div class="picker">
-        <h2>3. 📏  Score card</h2>
-        <table class="rules">
-          <thead>
-            <tr>
-              <td></td>
-              <th class="selected">Book 1</th>
-              <th>Book 2</th>
-              <th>Book 3</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <th>Length</th>
-              <td></td>
-              <td></td>
-              <td></td>
-            </tr>
-            <tr>
-              <th>Subject Accuracy</th>
-              <td></td>
-              <td></td>
-              <td></td>
-            </tr>
-            <tr>
-              <th>Clarity</th>
-              <td></td>
-              <td></td>
-              <td></td>
-            </tr>
-            <tr>
-              <th>Brevity</th>
-              <td></td>
-              <td></td>
-              <td></td>
-            </tr>
-          </tbody>
-        </table>
-
-        <div>
-          <div class="opt"><input type="checkbox"> Faster Paced</div>
-          <div class="opt"><input type="checkbox"> More entertaining</div>
-          <div class="opt"><input type="checkbox"> Easier to understand</div>
-        </div>
-        <input type="text" placeholder="Also must...">
+        <h2>3. 📏  Review:</h2>
+        <textarea type="text" name="description" placeholder="The winner was chosen because..." style="width: 100%"></textarea>
       </div>
     </div>
   </div>

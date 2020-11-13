@@ -1,3 +1,25 @@
+<h2>Browse recommendations</h2>
+
+{% for rec in models["recommendations"].all() %}
+<div class="block">
+  <div class="recommendation">
+    <div><a href="https://openlibrary.org/{{rec.winner.work_olid}}"><img src="https://covers.openlibrary.org/b/olid/{{rec.winner.work_olid.split('/')[-1]}}-M.jpg"></a></div>
+    <div>
+      <p>The best book on: "{{ rec.topic.name }}" by {{ rec.username }}:</p>
+      <p>{{ rec.description }}</p>
+      <ul>
+	{% for candidate in rec.candidates %}
+        <p>{{ candidate }}</p>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+</div>
+{% endfor %}
+
+
+
+<h1>Example...</h1>
 
 <div class="block">
   <div class="recommendation">
@@ -20,8 +42,6 @@
       <div class="byline">
         by <a href="https://openlibrary.org/authors/OL217191A/Norman_Melchert">Norman Melchert</a>
       </div>
-
-
 
       <p><strong>Criteria</strong></p>
       <ul>

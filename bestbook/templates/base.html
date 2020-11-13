@@ -37,9 +37,19 @@
         <div class="container">
           <span class="navigation">
             <a class="filter {{'selected' if request.path in ['/browse'] else ''}}" href="/browse">Browse</a>,
+	    {% if not session.get('username') %}
+	    or <a href="/login">login</a> to
+	    {% endif %}
             <a class="filter {{'selected' if request.path in ['/ask', '/'] else ''}}" href="/ask">Request</a>, or
-            <a class="filter {{'selected' if request.path == '/submit' else ''}}" href="https://forms.gle/8xfqt6m8Li3kV3My6">Make</a> Recommendations.
+            <!-- <a class="filter {{'selected' if request.path == '/submit' else ''}}" href="https://forms.gle/8xfqt6m8Li3kV3My6">Make</a> Recommendations. -->
+            <a class="filter {{'selected' if request.path == '/submit' else ''}}" href="/submit">Make</a> Recommendations.
+
+	  <span style="display: inline; float: right;">
+  	    {% if session.get('username') %}
+ 	      Welcome {{session.get('username')}}! (<a href="/logout">logout</a>)
+	    {% endif %}	    
           </span>
+	  
           {% include template %}
         </div>
 
