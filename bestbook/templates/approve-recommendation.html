@@ -16,11 +16,14 @@
         <p><span class="bold">Created:</span> {{ recommendation['created'] }}</p>
         <p><span class="bold">Username:</span> {{ recommendation['username'] }}</p>
     </div>
-    <div class="approval-item-buttons">
-        <button class="btn btn-success">Accept</button>
-        <button class="btn btn-danger">Reject</button>
+    {# TODO: Only show buttons if logged in user is admin: #}
+    {% if session.get('username') %}
+    <div class="approval-item-buttons" id="button-group-{{ recommendation['id'] }}">
+        <button class="btn btn-success" onclick="approveRecommendation( {{ recommendation['id'] }} )">Accept</button>
+        <button class="btn btn-danger" onclick="rejectRecommendation( {{ recommendation['id'] }} )">Reject</button>
         <!-- <button class="btn btn-primary">Request Clarification</button> -->
     </div>
+    {% endif %}
 </div>
 <hr>
 {% endfor %}

@@ -228,6 +228,37 @@ class Router(MethodView):
             json_dict = loads(json_str)
             topic = Topic(name = json_dict["topic"]).create()
             return json_str
+        elif cls=="requests":
+            data = loads(request.data)
+            if data['approved']:
+                req = Request.get(_id)
+                req.is_approved = True
+                req.update()
+                return 'Request approved'
+
+        elif cls=="recommendations":
+            print("POST recommendations/{}".format(_id))
+            data = loads(request.data)
+            print("Data: {}".format(data))
+            if data['approved']:
+                print("Data['approved'] is True")
+                recommendation = Recommendation.get(_id)
+                recommendation.is_approved = True
+                recommendation.update()
+                return 'Recommendation approved'
+
+    @rest
+    def delete(self, cls, _id=None):
+        if cls=="requests":
+            print("DELETE requests/{}".format(_id))
+            req = Request.get(_id)
+            req.remove()
+            return 'Request deleted'
+        elif cls=="recommendations":
+            print("DELETE recommendations/()".format(_id))
+            recommendation = Recommendation.get(_id)
+            recommendation.remove()
+            return 'Recommendation deleted'
 
 # Index of all available models: APIs / tables
 

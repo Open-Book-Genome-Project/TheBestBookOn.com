@@ -433,6 +433,7 @@ span[title] {
     margin-top: 0;
     padding: 10px;
     border-radius:5px;
+    cursor: pointer;
 }
 
 .btn-primary {

@@ -13,10 +13,12 @@
         <p><span class="bold">Created:</span> {{ request['created'] }}</p>
         <p><span class="bold">Username:</span> {{ request['username'] }}</p>
     </div>
-    <div class="approval-item-buttons">
-        <button class="btn btn-success">Accept</button>
-        <button class="btn btn-danger">Reject</button>
+    {% if session.get('username') %}
+    <div class="approval-item-buttons" id="button-group-{{ request['id'] }}">
+        <button class="btn btn-success" onclick="approveRequest( {{ request['id'] }} )">Accept</button>
+        <button class="btn btn-danger" onclick="rejectRequest( {{ request['id'] }} )">Reject</button>
     </div>
+    {% endif %}
 </div>
 <hr>
 {% endfor %}

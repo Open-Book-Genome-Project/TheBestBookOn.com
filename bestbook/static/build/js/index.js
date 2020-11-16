@@ -169,3 +169,58 @@ $( function() {
     }
   }
 });
+
+function approveRequest(requestId) {
+  let payload = { approved: true }
+
+  $.ajax({
+    type: 'POST',
+    url: `/api/requests/${requestId}`,
+    contentType: 'application/json',
+    data: JSON.stringify(payload),
+    success: function(msg) {
+      updateButtonGroup(requestId, msg);
+    }
+  })
+
+}
+
+function rejectRequest(requestId) {
+  $.ajax({
+    type: 'DELETE',
+    url: `/api/requests/${requestId}`,
+    success: function(msg) {
+      updateButtonGroup(requestId, msg);
+    }
+  })
+}
+
+function approveRecommendation(recommendationId) {
+  let payload = { approved: true }
+
+  $.ajax({
+    type: 'POST',
+    url: `/api/recommendations/${recommendationId}`,
+    contentType: 'application/json',
+    data: JSON.stringify(payload),
+    success: function(msg) {
+      updateButtonGroup(recommendationId, msg);
+    }
+  })
+}
+
+function rejectRecommendation(recommendationId) {
+  $.ajax({
+    type: 'DELETE',
+    url: `/api/recommendations/${recommendationId}`,
+    success: function(msg) {
+      updateButtonGroup(recommendationId, msg);
+    }
+  })
+}
+
+function updateButtonGroup(id, msg) {
+  let div = $(`#button-group-${id}`)
+  div.children().hide()
+  div.append(`<p>${msg}</p>`)
+}
