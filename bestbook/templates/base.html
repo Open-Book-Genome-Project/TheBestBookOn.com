@@ -55,6 +55,7 @@
           <span style="display: inline; float: right;">
             {% if session.get('username') %}
               Welcome {{session.get('username')}}! (<a href="/logout">logout</a>)
+            {% endif %}
           </span>
           {% include template %}
         </div>
