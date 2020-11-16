@@ -453,6 +453,7 @@ span[title] {
 .approval-item {
     display: flex;
     flex-direction: row;
+    justify-content: space-between;
 }
 
 .approval-item-buttons {

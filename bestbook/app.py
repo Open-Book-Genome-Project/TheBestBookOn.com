@@ -18,6 +18,7 @@ from configs import options, SECRET_KEY
 
 urls = ('/admin', views.Admin,
         '/admin/approve/recommendations', views.RecommendationApproval,
+        '/admin/approve/requests', views.RequestApproval,
         '/people/<username>', views.User,
         '/logout', views.Logout,
         '/api/', views.Index,

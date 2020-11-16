@@ -49,6 +49,7 @@
             {% else %}
               <a class="filter {{'selected' if request.path in ['/admin'] else ''}}" href="/admin">Debug</a>
               <a class="filter {{'selected' if request.path in ['/admin/approve/recommendations'] else ''}}" href="/admin/approve/recommendations">Approve Recommendations</a>
+              <a class="filter {{'selected' if request.path in ['/admin/approve/requests'] else ''}}" href="/admin/approve/requests">Approve Requests</a>
             {% endif %}
           </span>
           <span style="display: inline; float: right;">
