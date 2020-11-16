@@ -4,6 +4,8 @@
 {% for recommendation in recommendations %}
 {% set book = models['books'].get(recommendation['book_id']) %}
 {% set topic = models['topics'].get(recommendation['topic_id']) %}
+
+{# TODO: Fetch info specific to an edition if edition_olid exists #}
 {% set book_details = fetch_work(book['work_olid']) %}
 
 <div class="approval-item">

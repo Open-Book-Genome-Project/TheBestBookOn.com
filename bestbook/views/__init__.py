@@ -245,7 +245,7 @@ class Admin(MethodView):
 
 class RecommendationApproval(MethodView):
     def get(self):
-        return render_template("base.html", template="approval.html", models = {
+        return render_template("base.html", template="approve-recommendation.html", models = {
             "recommendations": Recommendation,
             "books": Book,
             "topics": Topic
