@@ -13,9 +13,11 @@ from flask import Flask
 from flask_routing import router
 from flask_cors import CORS
 import views
+from views import fetch_work
 from configs import options, SECRET_KEY
 
 urls = ('/admin', views.Admin,
+        '/admin/approve/recommendations', views.RecommendationApproval,
         '/people/<username>', views.User,
         '/logout', views.Logout,
         '/api/', views.Index,
@@ -29,6 +31,8 @@ urls = ('/admin', views.Admin,
 app = router(Flask(__name__), urls)
 app.secret_key = SECRET_KEY
 cors = CORS(app)
+
+app.jinja_env.globals.update(fetch_work=fetch_work)
 
 if __name__ == "__main__":
     app.run(**options)

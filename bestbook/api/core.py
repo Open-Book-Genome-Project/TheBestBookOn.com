@@ -70,6 +70,17 @@ class BaseMixin(object):
             cause=list(cause.keys()) if kwargs else cause)
 
     @classmethod
+    def get_all(cls, *args, **kwargs):
+        if len(args) == 1 and not isinstance(args[0], ClauseElement):
+            terms = [getattr(cls, cls.PKEY) == args[0]]
+        else:
+            terms = list(args) + \
+                [getattr(cls, k) == v for k, v in kwargs.items()]
+
+        results = cls.query.filter(*terms).all()
+        return results
+
+    @classmethod
     def all(cls):
         return cls.query.all()
     

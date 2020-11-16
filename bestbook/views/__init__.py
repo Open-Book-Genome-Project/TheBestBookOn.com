@@ -12,6 +12,7 @@
 
 import calendar
 import json
+import requests
 from datetime import datetime
 from flask import Flask, render_template, Response, request, session, jsonify, redirect, make_response
 from flask.views import MethodView
@@ -240,3 +241,30 @@ class Index(MethodView):
 class Admin(MethodView):
     def get(self):
         return render_template("base.html", template="admin.html", models=models)
+
+
+class RecommendationApproval(MethodView):
+    def get(self):
+        return render_template("base.html", template="approval.html", models = {
+            "recommendations": Recommendation,
+            "books": Book,
+            "topics": Topic
+        })
+
+
+def fetch_work(work_olid):
+    base_url = "https://openlibrary.org/works/"
+    url = "{}{}.json".format(base_url, work_olid)
+    resp = requests.get(url)
+
+    result = {}
+
+    if resp.status_code == 200:
+        data = resp.json()
+        result['title'] = data['title']
+    else:
+        result['title'] = work_olid
+
+    result['link'] = "{}{}".format(base_url, work_olid)
+
+    return result
