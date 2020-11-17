@@ -233,29 +233,26 @@ class Router(MethodView):
             if data['approved']:
                 req = Request.get(_id)
                 req.is_approved = True
+                req.modified = datetime.utcnow()
                 req.update()
                 return 'Request approved'
 
         elif cls=="recommendations":
-            print("POST recommendations/{}".format(_id))
             data = loads(request.data)
-            print("Data: {}".format(data))
             if data['approved']:
-                print("Data['approved'] is True")
                 recommendation = Recommendation.get(_id)
                 recommendation.is_approved = True
+                recommendation.modified = datetime.utcnow()
                 recommendation.update()
                 return 'Recommendation approved'
 
     @rest
     def delete(self, cls, _id=None):
         if cls=="requests":
-            print("DELETE requests/{}".format(_id))
             req = Request.get(_id)
             req.remove()
             return 'Request deleted'
         elif cls=="recommendations":
-            print("DELETE recommendations/()".format(_id))
             recommendation = Recommendation.get(_id)
             recommendation.remove()
             return 'Recommendation deleted'
