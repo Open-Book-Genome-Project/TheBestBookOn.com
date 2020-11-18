@@ -78,13 +78,13 @@ class User(MethodView):
 
 class Base(MethodView):
     def get(self, uri="index"):
-        return render_template("base.html", template="%s.html" % uri)
+        return render_template("base.html", template="%s.html" % uri, models=models)
 
 
 class Section(MethodView):
     def get(self, resource=""):
         if resource in ["ask", "submit"] and not session.get('username'):
-            return redirect("/login?redir=/" + resource)
+            return redirect(request.url_root + "login?redir=/" + resource)
         layout = resource.replace(".html", "") if resource else "index"
         return render_template("base.html", template="%s.html" % layout, models=models)
 
