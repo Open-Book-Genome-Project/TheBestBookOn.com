@@ -288,18 +288,10 @@ class RequestApproval(MethodView):
 
 
 def fetch_work(work_olid):
-    base_url = "https://openlibrary.org/works/"
-    url = "{}{}.json".format(base_url, work_olid)
-    resp = requests.get(url)
+    base_url = "https://openlibrary.org/works/{}".format(work_olid)
+    response = requests.get(base_url + ".json")
 
-    result = {}
-
-    if resp.status_code == 200:
-        data = resp.json()
-        result['title'] = data['title']
-    else:
-        result['title'] = work_olid
-
-    result['link'] = "{}{}".format(base_url, work_olid)
-
-    return result
+    return {
+        "title": response.json()["title"] if response.status_code == 200 else work_olid,
+        "link": base_url
+    }
