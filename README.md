@@ -53,6 +53,18 @@ Once your database and user have been created, and the user has the correct perm
     >>> import api
     >>> api.core.Base.metadata.create_all(api.engine)  # creates tables from sqlalchemy models inherited from api root
 
+### Configuring Logfiles
+
+If you would like to persist the application's logs to a file, you are able to configure a rotating file handler.  You can do so by adding the following options to `settings.cfg`, replacing the values with whatever is suitable to you:
+    
+    [logging]
+    file_name = /var/log/TheBestBookOn/output.log
+    log_level = DEBUG
+    max_bytes = 268435456
+    backup_count = 2
+
+Of the above options, `file_name` is the only one that is required.  Default values will be used for the other options if they are not present.
+
 ## Run server
 
     $ python app.py

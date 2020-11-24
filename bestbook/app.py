@@ -12,8 +12,9 @@
 from flask import Flask
 from flask_routing import router
 from flask_cors import CORS
+from logging.config import dictConfig
 import views
-from configs import options, SECRET_KEY
+from configs import options, SECRET_KEY, LOGGER
 
 urls = ('/admin', views.Admin,
         '/people/<username>', views.User,
@@ -29,6 +30,8 @@ urls = ('/admin', views.Admin,
 app = router(Flask(__name__), urls)
 app.secret_key = SECRET_KEY
 cors = CORS(app)
+
+dictConfig(LOGGER)
 
 if __name__ == "__main__":
     app.run(**options)
