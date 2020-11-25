@@ -51,3 +51,27 @@ DB_URI = '%(dbn)s://%(user)s:%(pw)s@%(host)s:%(port)s/%(db)s' % {
     'db': config.getdef('db', 'db', 'bestbooks'),
     'pw': config.getdef('db', 'pw', '')
     }
+
+# Default logging configuration:
+LOGGER = {
+    'version': 1,
+    'handlers': {'wsgi': {
+        'class': 'logging.StreamHandler',
+        'stream': 'ext://flask.logging.wsgi_errors_stream',
+    }},
+    'root': {
+        'level': config.getdef('logging', 'log_level', 'INFO'),
+        'handlers': ['wsgi']
+    }
+}
+
+# Log file configuration:
+if config.has_section('logging') and config.has_option('logging', 'file_name'):
+    LOGGER['handlers'].update(
+        {'file': {
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': config.get('logging', 'file_name'),
+            'maxBytes': int(config.getdef('logging', 'max_bytes', '268435456')),
+            'backupCount': int(config.getdef('logging', 'backup_count', '2'))
+        }})
+    LOGGER['root']['handlers'].append('file')
