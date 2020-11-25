@@ -1,3 +1,5 @@
+var api_url = '//' + window.location.hostname + '/api';
+
 function validateForm(){
   var winnerValue = document.forms["recommendations-form"].elements["winner"].value;
   var candidate1Value = document.forms["recommendations-form"].elements["candidate1"].value;
@@ -102,7 +104,7 @@ $( function() {
 
   var search_topics = function(request, response) {
     return {
-      url: 'https://dev.thebestbookon.com/api/topics?query=' + request.term + '&field=name&action=search',
+      url: api_url + '/topics?query=' + request.term + '&field=name&action=search',
       success: function(resp) {
         var entities = $.map(resp.topics, function(topic) {
           return {
