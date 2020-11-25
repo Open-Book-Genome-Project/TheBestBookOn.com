@@ -1,4 +1,4 @@
-var api_url = '//' + window.location.hostname + '/api';
+var api_url = '//' + window.location.host + '/api';
 
 function validateForm(){
   var winnerValue = document.forms["recommendations-form"].elements["winner"].value;
