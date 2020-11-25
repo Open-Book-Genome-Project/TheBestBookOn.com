@@ -413,3 +413,58 @@ span[title] {
 .book-winner-selector {
     width: 100%;
 }
+
+.header a {
+    text-decoration: none;
+    color: inherit;
+}
+
+.bold {
+    font-weight: 800;
+}
+
+/* Buttons: */
+.btn {
+    text-align: center;
+    text-decoration: none;
+    font-size: .8em;
+    border: none;
+    margin: 20px 0;
+    margin-top: 0;
+    padding: 10px;
+    border-radius:5px;
+    cursor: pointer;
+}
+
+.btn-primary {
+    color: #fff;
+    background-color: #226699;
+}
+
+.btn-danger {
+    color: #fff;
+    background-color: red;
+}
+
+.btn-success {
+    color: #fff;
+    background-color: green;
+}
+
+.approval-item {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.approval-item-buttons {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding-bottom: .8em;
+    margin-left: .5em;
+}
+
+.approval-item-buttons button {
+    width: 100%;
+}

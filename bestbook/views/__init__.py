@@ -12,6 +12,7 @@
 
 import calendar
 import json
+import requests
 from datetime import datetime
 from flask import Flask, render_template, Response, request, session, jsonify, redirect, make_response
 from flask.views import MethodView
@@ -227,6 +228,34 @@ class Router(MethodView):
             json_dict = loads(json_str)
             topic = Topic(name = json_dict["topic"]).create()
             return json_str
+        elif cls=="requests":
+            data = loads(request.data)
+            if data['approved']:
+                req = Request.get(_id)
+                req.is_approved = True
+                req.modified = datetime.utcnow()
+                req.update()
+                return 'Request approved'
+
+        elif cls=="recommendations":
+            data = loads(request.data)
+            if data['approved']:
+                recommendation = Recommendation.get(_id)
+                recommendation.is_approved = True
+                recommendation.modified = datetime.utcnow()
+                recommendation.update()
+                return 'Recommendation approved'
+
+    @rest
+    def delete(self, cls, _id=None):
+        if cls=="requests":
+            req = Request.get(_id)
+            req.remove()
+            return 'Request deleted'
+        elif cls=="recommendations":
+            recommendation = Recommendation.get(_id)
+            recommendation.remove()
+            return 'Recommendation deleted'
 
 # Index of all available models: APIs / tables
 
@@ -240,3 +269,29 @@ class Index(MethodView):
 class Admin(MethodView):
     def get(self):
         return render_template("base.html", template="admin.html", models=models)
+
+
+class RecommendationApproval(MethodView):
+    def get(self):
+        return render_template("base.html", template="approve-recommendation.html", models={
+            "recommendations": Recommendation,
+            "books": Book,
+            "topics": Topic
+        })
+
+class RequestApproval(MethodView):
+    def get(self):
+        return render_template("base.html", template="approve-request.html", models={
+            "requests": Request,
+            "topics": Topic
+        })
+
+
+def fetch_work(work_olid):
+    base_url = "https://openlibrary.org/works/{}".format(work_olid)
+    response = requests.get(base_url + ".json")
+
+    return {
+        "title": response.json()["title"] if response.status_code == 200 else work_olid,
+        "link": base_url
+    }

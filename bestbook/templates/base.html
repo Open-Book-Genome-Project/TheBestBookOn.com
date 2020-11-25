@@ -25,31 +25,38 @@
         </div>
 
         <header class="header">
-          <h1 class="main-logo">
-            <span>The Best</span>
-            <img src="/static/imgs/best-book-on.png">
-            <span>Book On</span>
-          </h1>
+          <a href="/">
+            <h1 class="main-logo">
+              <span>The Best</span>
+              <img src="/static/imgs/best-book-on.png">
+              <span>Book On</span>
+            </h1>
+          </a>
           <h2 class="tagline">Recommendations by <a href="http://lesswrong.com/lw/3gu/the_best_textbooks_on_every_subject/">Rigorous Review</a></h2>
         </header>
 
         <!-- Add your site or application content here -->
         <div class="container">
           <span class="navigation">
-            <a class="filter {{'selected' if request.path in ['/browse'] else ''}}" href="/browse">Browse</a>,
-            {% if not session.get('username') %}
-            or <a href="/login">login</a> to
+            {% if not request.path.startswith('/admin') %}
+              <a class="filter {{'selected' if request.path in ['/browse'] else ''}}" href="/browse">Browse</a>,
+              {% if not session.get('username') %}
+              or <a href="/login">login</a> to
+              {% endif %}
+              <a class="filter {{'selected' if request.path in ['/ask', '/'] else ''}}" href="/ask">Request</a>, or
+              <!-- <a class="filter {{'selected' if request.path == '/submit' else ''}}" href="https://forms.gle/8xfqt6m8Li3kV3My6">Make</a> Recommendations. -->
+              <a class="filter {{'selected' if request.path == '/submit' else ''}}" href="/submit">Make</a> Recommendations.
+            {% else %}
+              <a class="filter {{'selected' if request.path in ['/admin'] else ''}}" href="/admin">Debug</a>
+              <a class="filter {{'selected' if request.path in ['/admin/approve/recommendations'] else ''}}" href="/admin/approve/recommendations">Approve Recommendations</a>
+              <a class="filter {{'selected' if request.path in ['/admin/approve/requests'] else ''}}" href="/admin/approve/requests">Approve Requests</a>
             {% endif %}
-            <a class="filter {{'selected' if request.path in ['/ask', '/'] else ''}}" href="/ask">Request</a>, or
-            <!-- <a class="filter {{'selected' if request.path == '/submit' else ''}}" href="https://forms.gle/8xfqt6m8Li3kV3My6">Make</a> Recommendations. -->
-            <a class="filter {{'selected' if request.path == '/submit' else ''}}" href="/submit">Make</a> Recommendations.
-
+          </span>
           <span style="display: inline; float: right;">
             {% if session.get('username') %}
               Welcome {{session.get('username')}}! (<a href="/logout">logout</a>)
             {% endif %}
           </span>
-
           {% include template %}
         </div>
 

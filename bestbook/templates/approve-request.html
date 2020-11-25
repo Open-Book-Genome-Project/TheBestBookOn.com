@@ -1,0 +1,24 @@
+<h2>Requests Pending Approval:</h2>
+
+{% set requests = models['requests'].get_all(is_approved=False) %}
+
+{% for request in requests %}
+{% set topic = models['topics'].get(request['topic_id']) %}
+
+<div class="approval-item">
+    <div class="approval-item-data">
+        <p><span class="bold">Topic:</span> {{ topic['name'] }}</p>
+        <p><span class="bold">Criteria:</span> {{ request['data'] }}</p>
+        <p><span class="bold">Description:</span> {{ request['description'] }}</p>
+        <p><span class="bold">Created:</span> {{ request['created'] }}</p>
+        <p><span class="bold">Username:</span> {{ request['username'] }}</p>
+    </div>
+    {% if session.get('username') %}
+    <div class="approval-item-buttons" id="button-group-{{ request['id'] }}">
+        <button class="btn btn-success" onclick="approveRequest( {{ request['id'] }} )">Accept</button>
+        <button class="btn btn-danger" onclick="rejectRequest( {{ request['id'] }} )">Reject</button>
+    </div>
+    {% endif %}
+</div>
+<hr>
+{% endfor %}

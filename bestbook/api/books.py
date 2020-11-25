@@ -116,6 +116,7 @@ class Request(core.Base):
     data = Column(JSON)
     description = Column(Unicode) # Free-form answer
     username = Column(Unicode) # @cdrini - Open Library
+    is_approved = Column(Boolean, default=False, nullable=False)
     created = Column(DateTime(timezone=False), default=datetime.utcnow,
                      nullable=False)
     modified = Column(DateTime(timezone=False), default=None)
@@ -134,6 +135,7 @@ class Recommendation(core.Base):
     book_id = Column(BigInteger, ForeignKey("books.id"))
     description = Column(Unicode)
     username = Column(Unicode) # @cdrini - Open Library
+    is_approved = Column(Boolean, default=False, nullable=False)
     created = Column(DateTime(timezone=False), default=datetime.utcnow,
                      nullable=False)
     modified = Column(DateTime(timezone=False), default=None)

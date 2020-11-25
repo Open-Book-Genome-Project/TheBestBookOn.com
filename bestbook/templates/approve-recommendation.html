@@ -1,0 +1,29 @@
+<h2>Recommendations Pending Approval:</h2>
+{% set recommendations = models['recommendations'].get_all(is_approved=False) %}
+
+{% for recommendation in recommendations %}
+{% set book = models['books'].get(recommendation['book_id']) %}
+{% set topic = models['topics'].get(recommendation['topic_id']) %}
+
+{# TODO: Fetch info specific to an edition if edition_olid exists #}
+{% set book_details = fetch_work(book['work_olid']) %}
+
+<div class="approval-item">
+    <div class="approval-item-data">
+        <p><span class="bold">Title:</span> <a href="{{ book_details['link'] }}" target="_blank">{{ book_details['title'] }}</a></p>
+        <p><span class="bold">Topic:</span> {{ topic['name'] }}</p>
+        <p><span class="bold">Description:</span> {{ recommendation['description'] }}</p>
+        <p><span class="bold">Created:</span> {{ recommendation['created'] }}</p>
+        <p><span class="bold">Username:</span> {{ recommendation['username'] }}</p>
+    </div>
+    {# TODO: Only show buttons if logged in user is admin: #}
+    {% if session.get('username') %}
+    <div class="approval-item-buttons" id="button-group-{{ recommendation['id'] }}">
+        <button class="btn btn-success" onclick="approveRecommendation( {{ recommendation['id'] }} )">Accept</button>
+        <button class="btn btn-danger" onclick="rejectRecommendation( {{ recommendation['id'] }} )">Reject</button>
+        <!-- <button class="btn btn-primary">Request Clarification</button> -->
+    </div>
+    {% endif %}
+</div>
+<hr>
+{% endfor %}
