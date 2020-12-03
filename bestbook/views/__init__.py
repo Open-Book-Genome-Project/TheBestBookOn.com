@@ -157,58 +157,7 @@ class Submit(MethodView):
         return rec.dict()
 
 
-class Observations(MethodView):
-    MULTI_CHOICE_DELIMITER = "|"
-
-    def post(self):
-        # Ensure that data was sent
-        if not request.data:
-            return "Bad Request", 400
-
-        data = loads(request.data)
-
-        if not all(data.get(x) for x in ("username", "work_id", "observations")):
-            return "Bad Request", 400
-
-        try:
-            book = Book.get(work_olid=data['work_id'])
-        except RexException:
-            book = Book(work_olid=data['work_id'])
-            if 'edition_id' in data:
-                book.edition_olid = data['edition_id']
-
-            book.create()
-
-        all_observations = {}
-
-        for elem in data["observations"]:
-            key, value = list(elem.items())[0]
-            if key in all_observations:
-                all_observations[key] += self.MULTI_CHOICE_DELIMITER + value
-            else:
-                all_observations[key] = value
-
-        for k, v in all_observations.items():
-            aspect = Aspect.get(label=k)
-
-            try:
-                observation = Observation.get(username=data["username"],
-                                              aspect_id=aspect.id,
-                                              book_id=book.work_olid)
-                observation.response = v
-                observation.modified = datetime.utcnow()
-                observation.update()
-            except RexException:
-                observation = Observation(username=data["username"],
-                                          aspect_id=aspect.id,
-                                          book_id=book.work_olid,
-                                          response=v).create()
-
-        return "OK", 200
-
-
 # API GET Router
-
 class Router(MethodView):
 
     @rest
@@ -245,6 +194,54 @@ class Router(MethodView):
                 recommendation.modified = datetime.utcnow()
                 recommendation.update()
                 return 'Recommendation approved'
+
+        elif cls=="observations":
+            MULTI_CHOICE_DELIMITER = "|"
+
+            # Ensure that data was sent
+            if not request.data:
+                return "Bad Request"
+
+            data = loads(request.data)
+
+            if not all(data.get(x) for x in ("username", "work_id", "observations")):
+                return "Bad Request"
+
+            try:
+                book = Book.get(work_olid=data['work_id'])
+            except RexException:
+                book = Book(work_olid=data['work_id'])
+                if 'edition_id' in data:
+                    book.edition_olid = data['edition_id']
+
+                book.create()
+
+            all_observations = {}
+
+            for elem in data["observations"]:
+                key, value = list(elem.items())[0]
+                if key in all_observations:
+                    all_observations[key] += self.MULTI_CHOICE_DELIMITER + value
+                else:
+                    all_observations[key] = value
+
+            for k, v in all_observations.items():
+                aspect = Aspect.get(label=k)
+
+                try:
+                    observation = Observation.get(username=data["username"],
+                                                aspect_id=aspect.id,
+                                                book_id=book.work_olid)
+                    observation.response = v
+                    observation.modified = datetime.utcnow()
+                    observation.update()
+                except RexException:
+                    observation = Observation(username=data["username"],
+                                            aspect_id=aspect.id,
+                                            book_id=book.work_olid,
+                                            response=v).create()
+
+            return "OK"
 
     @rest
     def delete(self, cls, _id=None):

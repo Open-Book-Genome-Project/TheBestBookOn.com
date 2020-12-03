@@ -23,7 +23,6 @@ urls = ('/admin', views.Admin,
         '/people/<username>', views.User,
         '/logout', views.Logout,
         '/api/', views.Index,
-        '/api/observations', views.Observations,
         '/api/<cls>/<_id>', views.Router,
         '/api/<cls>', views.Router,
         '/<path:resource>', views.Section,
@@ -32,7 +31,10 @@ urls = ('/admin', views.Admin,
 
 app = router(Flask(__name__), urls)
 app.secret_key = SECRET_KEY
-cors = CORS(app)
+cors = CORS(app, resources={
+    r"/api/*": {"methods": ["GET"], "origins": "*"},
+    r"/api/observations": {"methods": ["POST"], "origins": r"https://((dev|staging)\.)?openlibrary\.org"}
+})
 
 app.jinja_env.globals.update(fetch_work=fetch_work)
 dictConfig(LOGGER)
