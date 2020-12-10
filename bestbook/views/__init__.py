@@ -148,8 +148,7 @@ class Submit(MethodView):
         if not candidates:
             candidate1 = request.form.get('candidate1')
             candidate2 = request.form.get('candidate2')
-            candidate3 = request.form.get('candidate3')
-            candidates = "{0} {1} {2}".format(candidate1, candidate2, candidate3)
+            candidates = "{0} {1}".format(candidate1, candidate2)
         rec = Recommendation.add(
             topic, winner,
             [Book.clean_olid(c) for c in candidates.split(' ')],

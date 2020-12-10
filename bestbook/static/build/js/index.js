@@ -1,33 +1,5 @@
 var api_url = '//' + window.location.host + '/api';
 
-function validateForm(){
-  var winnerValue = document.forms["recommendations-form"].elements["winner"].value;
-  var candidate1Value = document.forms["recommendations-form"].elements["candidate1"].value;
-  var candidate2Value = document.forms["recommendations-form"].elements["candidate2"].value;
-  var candidate3Value = document.forms["recommendations-form"].elements["candidate3"].value;
-  try{
-    if(document.forms['recommendations-form'].elements.winner.hasAttribute('eid')){
-      document.forms["recommendations-form"].elements["winner"].value = document.forms['recommendations-form'].elements.winner.getAttribute('eid').split("/").slice(-1)[0];
-    }
-    if(document.forms['recommendations-form'].elements.winner.hasAttribute('eid')){
-      document.forms["recommendations-form"].elements["candidate1"].value = document.forms['recommendations-form'].elements.candidate1.getAttribute('eid').split("/").slice(-1)[0];
-    }
-    if(document.forms['recommendations-form'].elements.winner.hasAttribute('eid')){
-      document.forms["recommendations-form"].elements["candidate2"].value = document.forms['recommendations-form'].elements.candidate2.getAttribute('eid').split("/").slice(-1)[0];
-    }
-    if(document.forms['recommendations-form'].elements.winner.hasAttribute('eid')){
-      document.forms["recommendations-form"].elements["candidate3"].value = document.forms['recommendations-form'].elements.candidate3.getAttribute('eid').split("/").slice(-1)[0];
-    }
-    return true;
-  }
-  catch(err){
-    document.forms["recommendations-form"].elements["winner"].value = winnerValue;
-    document.forms["recommendations-form"].elements["candidate1"].value = candidate1Value;
-    document.forms["recommendations-form"].elements["candidate2"].value = candidate2Value;
-    document.forms["recommendations-form"].elements["candidate3"].value = candidate3Value;
-    return false;
-  }
-}
 $( function() {
 
   $.support.cors = true
@@ -55,6 +27,7 @@ $( function() {
     },
   };
 
+  var formData = {}
   /* This is the main function which registers a <input class="ui-widget">
      as an autocomplete
   */
@@ -73,6 +46,14 @@ $( function() {
       select: function (event, ui) {
         $(selector).val(ui.item.label);
         $(selector).attr('eid', ui.item.value);
+
+        var targetId = event.target.id;
+        if (targetId === 'topic') {
+          formData[targetId] = ui.item.label
+        } else {
+          formData[targetId] = ui.item.value;
+        }
+
         return false;
       }
     }).data("ui-autocomplete")._renderItem = function (ul, item) {
@@ -96,7 +77,6 @@ $( function() {
             img: 'https://covers.openlibrary.org/b/olid/' + book.cover_edition_key + '-S.jpg'
           }
         });
-	console.log(entities);
         response(entities);
       }
     }
@@ -132,6 +112,19 @@ $( function() {
       contentType: 'application/json',
       data: JSON.stringify(topic)
     });
+  }
+
+  if ($('#recommendations-form').length) {
+    $(this).on('submit', function(event) {
+      event.preventDefault()
+
+      // TODO: Handle success and failure
+      $.ajax({
+        type: 'POST',
+        url: '/submit',
+        data: formData,
+      })
+    })
   }
 
   if ($(".book-winner-selector").length) { bind_autocomplete(self, ".book-winner-selector", search_books); }

@@ -1,19 +1,19 @@
 
-<form name="recommendations-form" method="POST" onsubmit="return validateForm()" action="/submit">
+<form id="recommendations-form" name="recommendations-form" method="POST" action="/submit">
   <div class="block">
     <div class="step step--1">
       <div class="picker">
         <h2>
 	  1. ⚖️ "<span class="bbo">The Best Book On</span>"
 	  <span class="ui-widget">
-            <input type="text" name="topic" placeholder="Physics..."
-		   class="book-topic-selector" style="max-width: 250px;">
+            <input id="topic" type="text" name="topic" placeholder="Physics..."
+		   class="book-topic-selector" style="max-width: 250px;" required>
 	  </span> is...
 	</h2>
         <span class="ui-widget">
           <label for="book-winner-selector"></label>
-          <input type="text" name="winner" class="book-winner-selector"
-		 placeholder="Choose winning book by title, author, or isbn">
+          <input id="winner" type="text" name="winner" class="book-winner-selector"
+		 placeholder="Choose winning book by title, author, or isbn" required>
         </span>
       </div>
     </div>
@@ -22,9 +22,9 @@
       <div class="picker">
         <h2>2. 📚 I know because I've also read:</h2>
 	<span class="ui-widget">
-          <input type="text" name="candidate1" class="book-candidate-selector1" placeholder="this book...">
+          <input id="candidate1" type="text" name="candidate1" class="book-candidate-selector1" placeholder="this book..." required>
 	</span> and <span class="ui-widget">
-          <input type="text" name="candidate2" class="book-candidate-selector2" placeholder="this book...">
+          <input id="candidate2" type="text" name="candidate2" class="book-candidate-selector2" placeholder="this book..." required>
 	</span>
       </div>
       <p>In order to ensure each recommendation is rigorous, we require reviewers to have read at least two other books on the same topic.</p>
