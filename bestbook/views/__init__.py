@@ -146,12 +146,15 @@ class Submit(MethodView):
             raise Exception('Login required')
 
         if not candidates:
-            candidate1 = request.form.get('candidate1')
-            candidate2 = request.form.get('candidate2')
-            candidates = "{0} {1}".format(candidate1, candidate2)
+            candidate_list = request.form.getlist('candidates[]')
+            candidates = ''
+
+            for item in candidate_list:
+                candidates = candidates + item + ' '
+
         rec = Recommendation.add(
             topic, winner,
-            [Book.clean_olid(c) for c in candidates.split(' ')],
+            [Book.clean_olid(c) for c in candidates.strip().split(' ')],
             username, description)
         return rec.dict()
 
