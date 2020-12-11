@@ -468,3 +468,37 @@ span[title] {
 .approval-item-buttons button {
     width: 100%;
 }
+
+/* Candidate list */
+#candidate-list {
+    list-style: none;
+}
+
+#candidate-list li {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1em;
+}
+
+.candidate-link {
+    display: flex;
+}
+
+.candidate-link img {
+    margin-right: 1em;
+}
+
+.candidate-link span {
+    align-self: center;
+}
+
+.list-delete {
+    cursor: pointer;
+    align-self: center;
+}
+
+/* Prevents selected items from autocomplete forms from
+being rendered at the bottom of the page */
+.ui-helper-hidden-accessible {
+    display: none !important;
+}

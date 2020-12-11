@@ -44,12 +44,11 @@ $( function() {
     // Create list item and append to list
     var listItem = `
       <li id="candidate-list-item${++candidateIndex}">
-        <a href="https://openlibrary.org${candidate.olid}" target="_blank">
-          <img src="${candidate.image}">
-          <span class="book-title">${candidate.title}</span>
+        <a class="candidate-link" href="https://openlibrary.org${candidate.olid}" target="_blank">
+          <img src="${candidate.image}"><span class="book-title">${candidate.title}</span>
         </a>
         <span id="list-delete${candidateIndex}" class="list-delete">
-        X
+        &times;
         </span>
       </li>`;
 
