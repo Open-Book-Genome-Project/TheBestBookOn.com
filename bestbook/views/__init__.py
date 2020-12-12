@@ -162,13 +162,7 @@ class Submit(MethodView):
         if not username:
             raise Exception('Login required')
 
-        if not candidates:
-            candidate_list = request.form.getlist('candidates[]')
-            candidates = ''
-
-            for item in candidate_list:
-                candidates = candidates + item + ' '
-
+        candidates = candidates or ' '.join(request.form.getlist('candidates[]'))
         rec = Recommendation.add(
             topic, winner,
             [Book.clean_olid(c) for c in candidates.strip().split(' ')],
@@ -288,12 +282,10 @@ class Router(MethodView):
             pass
 
         if cls=="requests":
-            req = Request.get(_id)
-            req.remove()
+            Request.get(_id).remove()
             return 'Request deleted'
         elif cls=="recommendations":
-            recommendation = Recommendation.get(_id)
-            recommendation.remove()
+            Recommendation.get(_id).remove()
             return 'Recommendation deleted'
 
 # Index of all available models: APIs / tables
@@ -301,7 +293,7 @@ class Router(MethodView):
 class Index(MethodView):
     @rest
     def get(self):
-        return {"endpoints": list(set(books.core.models.keys()) - set(PRIVATE_ENDPOINTS))}
+        return {"endpoints": list(set(books.core.models) - set(PRIVATE_ENDPOINTS))}
 
 # Admin Dashboard & CMS (todo: should be protected by auth)
 
