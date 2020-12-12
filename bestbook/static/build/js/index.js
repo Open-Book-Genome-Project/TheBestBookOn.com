@@ -1,33 +1,5 @@
 var api_url = '//' + window.location.host + '/api';
 
-function validateForm(){
-  var winnerValue = document.forms["recommendations-form"].elements["winner"].value;
-  var candidate1Value = document.forms["recommendations-form"].elements["candidate1"].value;
-  var candidate2Value = document.forms["recommendations-form"].elements["candidate2"].value;
-  var candidate3Value = document.forms["recommendations-form"].elements["candidate3"].value;
-  try{
-    if(document.forms['recommendations-form'].elements.winner.hasAttribute('eid')){
-      document.forms["recommendations-form"].elements["winner"].value = document.forms['recommendations-form'].elements.winner.getAttribute('eid').split("/").slice(-1)[0];
-    }
-    if(document.forms['recommendations-form'].elements.winner.hasAttribute('eid')){
-      document.forms["recommendations-form"].elements["candidate1"].value = document.forms['recommendations-form'].elements.candidate1.getAttribute('eid').split("/").slice(-1)[0];
-    }
-    if(document.forms['recommendations-form'].elements.winner.hasAttribute('eid')){
-      document.forms["recommendations-form"].elements["candidate2"].value = document.forms['recommendations-form'].elements.candidate2.getAttribute('eid').split("/").slice(-1)[0];
-    }
-    if(document.forms['recommendations-form'].elements.winner.hasAttribute('eid')){
-      document.forms["recommendations-form"].elements["candidate3"].value = document.forms['recommendations-form'].elements.candidate3.getAttribute('eid').split("/").slice(-1)[0];
-    }
-    return true;
-  }
-  catch(err){
-    document.forms["recommendations-form"].elements["winner"].value = winnerValue;
-    document.forms["recommendations-form"].elements["candidate1"].value = candidate1Value;
-    document.forms["recommendations-form"].elements["candidate2"].value = candidate2Value;
-    document.forms["recommendations-form"].elements["candidate3"].value = candidate3Value;
-    return false;
-  }
-}
 $( function() {
 
   $.support.cors = true
@@ -55,6 +27,68 @@ $( function() {
     },
   };
 
+  var formData = {};
+
+  var candidates = [];
+  var candidateIndex = 0;
+
+  function selectCandidateWork(title, image, olid) {
+    // Store candidate data
+    var candidate = {
+      title: title,
+      image: image,
+      olid: olid
+    };
+    candidates.push(candidate);
+
+    // Create list item and append to list
+    var listItem = `
+      <li id="candidate-list-item${++candidateIndex}">
+        <a class="candidate-link" href="https://openlibrary.org${candidate.olid}" target="_blank">
+          <img src="${candidate.image}"><span class="book-title">${candidate.title}</span>
+        </a>
+        <span id="list-delete${candidateIndex}" class="list-delete">
+        &times;
+        </span>
+      </li>`;
+
+    $('#candidate-list').append(listItem);
+
+    // Add delete listener
+    $(`#list-delete${candidateIndex}`).on('click', function() {
+      deleteListItem($(this).parent());
+    });
+
+    // Add olid to list item
+    $(`#candidate-list-item${candidateIndex}`).attr('data-olid', candidate.olid)
+
+    // Clear input and remove required attribute
+    $('#candidate').val('');
+    $('#candidate').removeAttr('required');
+  }
+
+  var deleteListItem = function($selector) {
+    // Find and remove item from candidates list
+    var olid = $selector.attr('data-olid')
+    var index = -1
+    for(var i = 0; i < candidates.length && index === -1; ++i) {
+      if(candidates[i].olid === olid) {
+        index = i;
+      }
+    }
+
+    candidates.splice(index, 1);
+
+    // Remove list item from UI
+    $selector.remove()
+
+    // If candidates list is empty, add 'required' attribute to candidate text box
+    if(candidates.length === 0) {
+      $('#candidate').attr('required', true)
+    }
+  }
+
+
   /* This is the main function which registers a <input class="ui-widget">
      as an autocomplete
   */
@@ -73,6 +107,19 @@ $( function() {
       select: function (event, ui) {
         $(selector).val(ui.item.label);
         $(selector).attr('eid', ui.item.value);
+
+        var targetId = event.target.id;
+        switch(targetId) {
+          case 'topic':
+            formData[targetId] = ui.item.label;
+            break;
+          case 'candidate':
+            selectCandidateWork(ui.item.label, ui.item.img, ui.item.value);
+            break;
+          default:
+            formData[targetId] = ui.item.value;
+        }
+
         return false;
       }
     }).data("ui-autocomplete")._renderItem = function (ul, item) {
@@ -96,7 +143,6 @@ $( function() {
             img: 'https://covers.openlibrary.org/b/olid/' + book.cover_edition_key + '-S.jpg'
           }
         });
-	console.log(entities);
         response(entities);
       }
     }
@@ -134,10 +180,25 @@ $( function() {
     });
   }
 
+  if ($('#recommendations-form').length) {
+    $(this).on('submit', function(event) {
+      event.preventDefault()
+
+      formData.candidates = [];
+      for(var i = 0; i < candidates.length; ++i) {
+        formData.candidates.push(candidates[i].olid)
+      }
+      // TODO: Handle success and failure
+      $.ajax({
+        type: 'POST',
+        url: '/submit',
+        data: formData,
+      })
+    })
+  }
+
   if ($(".book-winner-selector").length) { bind_autocomplete(self, ".book-winner-selector", search_books); }
-  if ($(".book-candidate-selector1").length) { bind_autocomplete(self, ".book-candidate-selector1", search_books); }
-  if ($(".book-candidate-selector2").length) { bind_autocomplete(self, ".book-candidate-selector2", search_books); }
-  if ($(".book-candidate-selector3").length) { bind_autocomplete(self, ".book-candidate-selector3", search_books); }
+  if ($("#candidate").length) { bind_autocomplete(self, "#candidate", search_books); }
   if ($(".book-topic-selector").length) {
     bind_autocomplete(self, ".book-topic-selector", search_topics);
 
@@ -172,6 +233,7 @@ $( function() {
   }
 });
 
+/* Admin functions: */
 function approveRequest(requestId) {
   let payload = { approved: true }
 
