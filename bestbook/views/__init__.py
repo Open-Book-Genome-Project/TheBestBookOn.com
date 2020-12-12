@@ -17,7 +17,7 @@ from datetime import datetime
 from flask import Flask, render_template, Response, request, session, jsonify, redirect, make_response
 from flask.views import MethodView
 from flask.json import loads
-from api.auth import login
+from api.auth import login, is_admin
 from api import books
 from api.books import Recommendation, Book, Request, Observation, Aspect, Topic
 from api.core import RexException
@@ -33,6 +33,23 @@ models = {
     "aspects": Aspect
 }
 
+def require_login(f):
+    def inner(*args, **kwargs):
+        username = session.get('username')
+        if username:
+            return f(*args, **kwargs)
+        url = request.url_root + "login"
+        return redirect(url + "?redir=/" + request.full_path)
+    return inner
+
+def require_admin(f):
+    def inner(*args, **kwargs):
+        username = session.get('username')
+        if username and is_admin(username):
+            return f(*args, **kwargs)
+        return "Administrators Only", 401
+    return inner
+    
 def rest(f):
     def inner(*args, **kwargs):
         try:
@@ -223,6 +240,14 @@ class Router(MethodView):
 
     @rest
     def post(self, cls, _id=None):
+        """To prevent a service like Open Library (or anyone else) from
+        making a POST on behalf of another patron, we should require
+        s3 keys.
+
+        Open Library has s3 keys and we can fetch s3 keys from
+        bestbook during the auth stage.
+        """
+
         if cls=="topics":
             json_str = request.data
             json_dict = loads(json_str)
@@ -248,6 +273,18 @@ class Router(MethodView):
 
     @rest
     def delete(self, cls, _id=None):
+        """Likely requires a refactor after MVP for more granular perms"""
+        username = session.get('username')
+
+        if not username:
+            return "Authorization Required", 401
+
+        if not is_admin(username):
+            # XXX this is a vulnerability, we SHOULD check s3 keys
+            # from the POST and ensure the object indb they're
+            # deleting was created by them.
+            pass
+
         if cls=="requests":
             req = Request.get(_id)
             req.remove()
@@ -267,6 +304,7 @@ class Index(MethodView):
 # Admin Dashboard & CMS (todo: should be protected by auth)
 
 class Admin(MethodView):
+    @require_admin
     def get(self):
         return render_template("base.html", template="admin.html", models=models)
 
