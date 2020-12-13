@@ -171,6 +171,7 @@ class Submit(MethodView):
 
 
 class Observations(MethodView):
+    """ Used to delimit multiple values of a multiple choice response. """
     MULTI_CHOICE_DELIMITER = "|"
 
     def post(self):
@@ -184,7 +185,10 @@ class Observations(MethodView):
             return "Bad Request", 400
 
         try:
-            book = Book.get(work_olid=data['work_id'])
+            if 'edition_id' in data:
+                book = Book.get(work_olid=data['work_id'], edition_olid=data['edition_id'])
+            else:
+                book = Book.get(work_olid=data['work_id'], edition_olid=None)
         except RexException:
             book = Book(work_olid=data['work_id'])
             if 'edition_id' in data:
@@ -207,14 +211,14 @@ class Observations(MethodView):
             try:
                 observation = Observation.get(username=data["username"],
                                               aspect_id=aspect.id,
-                                              book_id=book.work_olid)
+                                              book_id=book.id)
                 observation.response = v
                 observation.modified = datetime.utcnow()
                 observation.update()
             except RexException:
                 observation = Observation(username=data["username"],
                                           aspect_id=aspect.id,
-                                          book_id=book.work_olid,
+                                          book_id=book.id,
                                           response=v).create()
 
         return "OK", 200
