@@ -185,10 +185,9 @@ class Observations(MethodView):
             return "Bad Request", 400
 
         try:
-            if 'edition_id' in data:
-                book = Book.get(work_olid=data['work_id'], edition_olid=data['edition_id'])
-            else:
-                book = Book.get(work_olid=data['work_id'], edition_olid=None)
+            book = Book.get(
+                work_olid=data['work_id'], edition_olid=data.get('edition_id')
+            )
         except RexException:
             book = Book(work_olid=data['work_id'])
             if 'edition_id' in data:
