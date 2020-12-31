@@ -79,7 +79,8 @@ class Book(core.Base):
         """
         if not olid:
             return ''
-        if olid.lower().startswith('ol') and olid.lower()[-1] in ['M', 'W']:
+        olid = olid.upper()
+        if olid.startswith('OL') and olid.endswith(('M', 'W')):
             return olid
         return re.findall(r'OL[0-9]+[MW]', olid)[0]
 
