@@ -73,7 +73,7 @@ class Book(core.Base):
         olid = olid or ''
         if olid.lower().startswith('ol') and olid.lower()[-1] in ['M', 'W']:
             return olid
-        return re.findall(r'OL[0-9]+[MW]', olid)[0]
+        return olid and re.findall(r'OL[0-9]+[MW]', olid)[0] or ''
 
     @staticmethod
     def get_work_and_edition(olid):
