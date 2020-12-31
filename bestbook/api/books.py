@@ -69,7 +69,14 @@ class Book(core.Base):
 
     @staticmethod
     def clean_olid(olid):
-        """Extract just the olid from some olid-containing string"""
+        """
+        Extract just the olid from some olid-containing string
+        
+        >>> Book.clean_olid(None)
+        ''
+        >>> Book.clean_olid('')
+        ''
+        """
         olid = olid or ''
         if olid.lower().startswith('ol') and olid.lower()[-1] in ['M', 'W']:
             return olid
