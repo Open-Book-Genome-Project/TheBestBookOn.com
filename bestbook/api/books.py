@@ -77,10 +77,11 @@ class Book(core.Base):
         >>> Book.clean_olid('')
         ''
         """
-        olid = olid or ''
+        if not olid:
+            return ''
         if olid.lower().startswith('ol') and olid.lower()[-1] in ['M', 'W']:
             return olid
-        return olid and re.findall(r'OL[0-9]+[MW]', olid)[0] or ''
+        return re.findall(r'OL[0-9]+[MW]', olid)[0]
 
     @staticmethod
     def get_work_and_edition(olid):
