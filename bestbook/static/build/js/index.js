@@ -1,4 +1,6 @@
-var api_url = '//' + window.location.host + '/api';
+var base_url = '//' + window.location.host;
+var recommendation_redirect_url = base_url + '/browse';
+var api_url = base_url + '/api';
 
 $( function() {
 
@@ -188,11 +190,17 @@ $( function() {
       for(var i = 0; i < candidates.length; ++i) {
         formData.candidates.push(candidates[i].olid)
       }
-      // TODO: Handle success and failure
+
+      formData.description = $('#description').val()
+      
+      // TODO: Handle failure cases
       $.ajax({
         type: 'POST',
         url: '/submit',
         data: formData,
+        success: function() {
+          window.location = recommendation_redirect_url;
+        }
       })
     })
   }
