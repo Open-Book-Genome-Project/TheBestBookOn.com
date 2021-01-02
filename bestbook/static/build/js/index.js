@@ -191,18 +191,60 @@ $( function() {
         formData.candidates.push(candidates[i].olid)
       }
 
-      formData.description = $('#description').val()
-      
-      // TODO: Handle failure cases
-      $.ajax({
-        type: 'POST',
-        url: '/submit',
-        data: formData,
-        success: function() {
-          window.location = recommendation_redirect_url;
-        }
-      })
+      let $description = $('#description');
+      // Sets whitespace only description to an empty string, 
+      // which will trigger UI hint from browser
+      $description.val($(this).val().trim());
+      formData.description = $description.val();
+
+      // TODO: Handle failure cases (invalid form or server error)
+      if(validateRecommendationFormData()) {
+        $.ajax({
+          type: 'POST',
+          url: '/submit',
+          data: formData,
+          success: function() {
+            window.location = recommendation_redirect_url;
+          }
+        })
+      }
     })
+  }
+
+  /**
+   * Validates recommendation form data before the form is submitted.
+   * 
+   * Valid form data will contain the following fields: topic, winner, description,
+   * and candidates (which is an array).  There must be at least one candidate in
+   * the candidates array.  Both the winner and each candidate most contain a valid 
+   * olid.
+   * 
+   * @returns {boolean} True if form data is valid, false otherwise.
+   */
+  function validateRecommendationFormData() {
+    if (!formData.topic || 
+        !formData.winner ||
+        !formData.description ||
+        !formData.candidates) {
+      return false;
+    }
+
+    if (!formData.candidates.length) {
+      return false;
+    }
+
+    let validOlidRe = /OL[0-9]+[MW]/i;
+    if (!validOlidRe.test(formData.winner)) {
+      return false;
+    }
+    
+    for (const candidate of formData.candidates) {
+      if(!validOlidRe.test(candidate)) {
+        return false;
+      }
+    }
+
+    return true;
   }
 
   if ($(".book-winner-selector").length) { bind_autocomplete(self, ".book-winner-selector", search_books); }
