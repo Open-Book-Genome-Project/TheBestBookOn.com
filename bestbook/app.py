@@ -26,6 +26,8 @@ urls = ('/admin', views.Admin,
         '/api/observations', views.Observations,
         '/api/<cls>/<_id>', views.Router,
         '/api/<cls>', views.Router,
+        '/recommendations/<slug>/<rid>', views.RecommendationPage,
+        '/recommendations/<rid>', views.RecommendationPage,
         '/<path:resource>', views.Section,
         '/', views.Base
         )
