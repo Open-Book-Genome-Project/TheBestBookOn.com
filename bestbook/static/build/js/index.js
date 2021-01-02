@@ -194,11 +194,11 @@ $( function() {
       let $description = $('#description');
       // Sets whitespace only description to an empty string, 
       // which will trigger UI hint from browser
-      $description.val($(this).val().trim());
+      $description.val($description.val().trim());
       formData.description = $description.val();
 
-      // TODO: Handle failure cases (invalid form or server error)
       if(validateRecommendationFormData()) {
+        // TODO: Handle failure cases (server error)
         $.ajax({
           type: 'POST',
           url: '/submit',
@@ -207,6 +207,13 @@ $( function() {
             window.location = recommendation_redirect_url;
           }
         })
+      } else {
+        let header = 'Invalid Submission';
+        let body = `Please ensure that you've selected the topic and 
+        books from the autocomplete options and that the review field
+        has been filled out.`;
+
+        displayModal(header, body);
       }
     })
   }
@@ -245,6 +252,48 @@ $( function() {
     }
 
     return true;
+  }
+
+  /**
+   * Displays an information modal.
+   * 
+   * Creates and displays a modal with the given header and body.
+   * Listens for clicks outside of the modal and on the modal close
+   * symbol (X), and removes the modal on these events.
+   * 
+   * @listens window.onclick
+   * @listens .modal.onclick
+   * 
+   * @param {string} header   Text that will be displayed in the modal's header.
+   * @param {string} body     Text that will be displayed in the modal's body.
+   */
+  function displayModal(header, body) {
+    let modalMarkup = `
+      <div id="modal" class="modal">
+        <div class="modal-content">
+          <div class="modal-header">
+            <span id="modal-close">&times;</span>
+            <h2>${header}</h2>
+          </div>
+          <div class="modal-body">
+            <p>${body}</p>
+          </div>
+        </div>
+      </div>
+    `
+    let $modal = $(modalMarkup);
+
+    $('body').append($modal);
+
+    window.onclick = function(event) {
+      if (event.target == document.querySelector('#modal')) {
+        $modal.remove();
+      }
+    }
+
+    $('#modal-close').on('click', function() {
+      $modal.remove();
+    })
   }
 
   if ($(".book-winner-selector").length) { bind_autocomplete(self, ".book-winner-selector", search_books); }
