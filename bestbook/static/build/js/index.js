@@ -1,4 +1,6 @@
-var api_url = '//' + window.location.host + '/api';
+var base_url = '//' + window.location.host;
+var recommendation_redirect_url = base_url + '/browse';
+var api_url = base_url + '/api';
 
 $( function() {
 
@@ -188,12 +190,109 @@ $( function() {
       for(var i = 0; i < candidates.length; ++i) {
         formData.candidates.push(candidates[i].olid)
       }
-      // TODO: Handle success and failure
-      $.ajax({
-        type: 'POST',
-        url: '/submit',
-        data: formData,
-      })
+
+      let $description = $('#description');
+      // Sets whitespace only description to an empty string, 
+      // which will trigger UI hint from browser
+      $description.val($description.val().trim());
+      formData.description = $description.val();
+
+      if(validateRecommendationFormData()) {
+        // TODO: Handle failure cases (server error)
+        $.ajax({
+          type: 'POST',
+          url: '/submit',
+          data: formData,
+          success: function() {
+            window.location = recommendation_redirect_url;
+          }
+        })
+      } else {
+        let header = 'Invalid Submission';
+        let body = `Please ensure that you've selected the topic and 
+        books from the autocomplete options and that the review field
+        has been filled out.`;
+
+        displayModal(header, body);
+      }
+    })
+  }
+
+  /**
+   * Validates recommendation form data before the form is submitted.
+   * 
+   * Valid form data will contain the following fields: topic, winner, description,
+   * and candidates (which is an array).  There must be at least one candidate in
+   * the candidates array.  Both the winner and each candidate most contain a valid 
+   * olid.
+   * 
+   * @returns {boolean} True if form data is valid, false otherwise.
+   */
+  function validateRecommendationFormData() {
+    if (!formData.topic || 
+        !formData.winner ||
+        !formData.description ||
+        !formData.candidates) {
+      return false;
+    }
+
+    if (!formData.candidates.length) {
+      return false;
+    }
+
+    let validOlidRe = /OL[0-9]+[MW]/i;
+    if (!validOlidRe.test(formData.winner)) {
+      return false;
+    }
+    
+    for (const candidate of formData.candidates) {
+      if(!validOlidRe.test(candidate)) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  /**
+   * Displays an information modal.
+   * 
+   * Creates and displays a modal with the given header and body.
+   * Listens for clicks outside of the modal and on the modal close
+   * symbol (X), and removes the modal on these events.
+   * 
+   * @listens window.onclick
+   * @listens .modal.onclick
+   * 
+   * @param {string} header   Text that will be displayed in the modal's header.
+   * @param {string} body     Text that will be displayed in the modal's body.
+   */
+  function displayModal(header, body) {
+    let modalMarkup = `
+      <div id="modal" class="modal">
+        <div class="modal-content">
+          <div class="modal-header">
+            <span id="modal-close">&times;</span>
+            <h2>${header}</h2>
+          </div>
+          <div class="modal-body">
+            <p>${body}</p>
+          </div>
+        </div>
+      </div>
+    `
+    let $modal = $(modalMarkup);
+
+    $('body').append($modal);
+
+    window.onclick = function(event) {
+      if (event.target == document.querySelector('#modal')) {
+        $modal.remove();
+      }
+    }
+
+    $('#modal-close').on('click', function() {
+      $modal.remove();
     })
   }
 
