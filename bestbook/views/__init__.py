@@ -49,7 +49,7 @@ def require_admin(f):
             return f(*args, **kwargs)
         return "Administrators Only", 401
     return inner
-    
+
 def rest(f):
     def inner(*args, **kwargs):
         try:
@@ -313,6 +313,14 @@ class RecommendationApproval(MethodView):
             "books": Book,
             "topics": Topic
         })
+
+class RecommendationPage(MethodView):
+    def get(self, rid=None, slug=""):
+        try:
+            rec = Recommendation.get(int(rid))
+        except RexException as e:
+            return redirect(request.url_root)
+        return render_template("base.html", template="recommendation.html", rec=rec)
 
 class RequestApproval(MethodView):
     def get(self):
