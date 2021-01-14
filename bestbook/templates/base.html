@@ -42,12 +42,12 @@
         <div class="container">
           <span class="navigation">
             {% if not request.path.startswith('/admin') %}
-              <a class="filter {{'selected' if request.path in ['/browse'] else ''}}" href="/browse">Browse</a>,
+              <a class="filter {{'selected' if request.path in ['/browse', '/'] else ''}}" href="/browse">Browse</a>,
               {% if not session.get('username') %}
               or <a href="/login">login</a> to
               {% endif %}
               <!-- <a class="filter {{'selected' if request.path in ['/ask', '/'] else ''}}" href="/ask">Request</a>, or -->
-              <a class="filter {{'selected' if request.path in ['/ask', '/'] else ''}}" href="https://forms.gle/FQGbrTNY3kYfPoAA6" target="_blank">Request</a>, or
+              <a class="filter {{'selected' if request.path in ['/ask'] else ''}}" href="https://forms.gle/FQGbrTNY3kYfPoAA6" target="_blank">Request</a>, or
               <a class="filter {{'selected' if request.path == '/submit' else ''}}" href="/submit">Make</a> Recommendations.
             {% else %}
               <a class="filter {{'selected' if request.path in ['/admin'] else ''}}" href="/admin">Debug</a>
