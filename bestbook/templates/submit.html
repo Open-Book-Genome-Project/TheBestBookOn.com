@@ -1,5 +1,6 @@
 
 <form id="recommendations-form" name="recommendations-form" method="POST" action="/submit">
+  <input type="hidden" name="username" value="{{ session.get('username') }}">
   <div class="block">
     <div class="step step--1">
       <div class="picker">

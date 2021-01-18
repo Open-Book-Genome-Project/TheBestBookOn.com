@@ -17,7 +17,7 @@ from datetime import datetime
 from flask import Flask, render_template, Response, request, session, jsonify, redirect, make_response
 from flask.views import MethodView
 from flask.json import loads
-from api.auth import login, is_admin
+from api.auth import login, authenticate, is_admin
 from api import books
 from api.books import (
     Recommendation, Book, Request, Observation, Aspect, Topic,
@@ -125,11 +125,28 @@ class Section(MethodView):
             "submit": Submit,
         }
         form = request.form
+
         return jsonify(forms[resource]().post())
 
 # API POST Handlers
 
+def require_auth(func):
+    def authed_func(*args, **kwargs):
+        # username needs to be added to the front-end forms
+        # as a hidden field (populated by session.get('username')
+        # Note: we may not want to keep username + s3 in request.form
+        username = request.form.get('username')
+        s3_keys = {
+            'access': request.form.get('s3_access'),
+            'secret': request.form.get('s3_secret'),
+        }
+        # An auth error will raise AuthenticationError
+        user = authenticate(s3_keys=s3_keys, expected_username=username)
+        return func(*args, **kwargs)
+    return authed_func
+
 class Ask(MethodView):
+    @require_auth
     def post(self):
         ask = request.form
         return jsonify(ask)
@@ -148,12 +165,14 @@ class Login(MethodView):
         return redirect(redir)
 
 class Observe(MethodView):
+    @require_auth
     def post(self):
         observation = request.form
         return jsonify(observation)
 
 class Submit(MethodView):
 
+    @require_auth
     def post(self):
         topic = request.form.get('topic')
         winner = request.form.get('winner')
@@ -186,6 +205,7 @@ class Observations(MethodView):
     """ Used to delimit multiple values of a multiple choice response. """
     MULTI_CHOICE_DELIMITER = "|"
 
+    @require_auth
     def post(self):
         # Ensure that data was sent
         if not request.data:

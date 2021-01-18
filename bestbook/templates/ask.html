@@ -1,4 +1,5 @@
 <form action="/ask" method="post">
+  <input type="hidden" name="username" value="{{ session.get('username') }}">
   <div class="block">
     <div class="step step--1">
       <h2>1. ⚖️ What is "<span class="bbo">The Best Book On</span>"</h2>
