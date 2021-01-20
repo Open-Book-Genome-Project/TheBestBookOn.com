@@ -1,0 +1,433 @@
+diff --git a/bestbook/api/books.py b/bestbook/api/books.py
+index 4b92a85..a5b166b 100644
+--- a/bestbook/api/books.py
++++ b/bestbook/api/books.py
+@@ -138,6 +138,7 @@ class Recommendation(core.Base):
+                      nullable=False)
+     modified = Column(DateTime(timezone=False), default=None)
+ 
++    topic = relationship("Topic")
+     winner = relationship("Book", backref="recommendations", foreign_keys=[book_id])
+     candidates = relationship("Book", secondary='recommendations_to_books')
+ 
+@@ -151,7 +152,6 @@ class Recommendation(core.Base):
+         """
+         topic = Topic.upsert(topic)
+         winner = Book.upsert_by_olid(winner_olid)
+-        print(topic)
+         r = cls(topic_id=topic.id, book_id=winner.id,
+                 description=description,
+                 username=username).create()
+diff --git a/bestbook/app.py b/bestbook/app.py
+index ea650c9..38a788a 100644
+--- a/bestbook/app.py
++++ b/bestbook/app.py
+@@ -15,13 +15,14 @@ from flask_cors import CORS
+ import views
+ from configs import options, SECRET_KEY
+ 
+-urls = ('/<path:resource>', views.Section,
+-        '/admin', views.Admin,
++urls = ('/admin', views.Admin,
+         '/people/<username>', views.User,
++        '/logout', views.Logout,
+         '/api/', views.Index,
+         '/api/observations', views.Observations,
+         '/api/<cls>/<_id>', views.Router,
+         '/api/<cls>', views.Router,
++        '/<path:resource>', views.Section,
+         '/', views.Base
+         )
+ 
+diff --git a/bestbook/static/build/css/style.css b/bestbook/static/build/css/style.css
+index c6a1484..d8eefd7 100644
+--- a/bestbook/static/build/css/style.css
++++ b/bestbook/static/build/css/style.css
+@@ -111,7 +111,8 @@ button {
+ 
+ }
+ 
+-input[type=text] {
++input[type=text], textarea {
++    font-family: monospace;
+     padding: 10px;
+     font-size: 1em;
+     background: #fff;
+@@ -404,3 +405,11 @@ span[title] {
+     text-decoration: none;
+     white-space: nowrap;
+ }
++
++.book-topic-selector {
++    max-width: 250px;
++}
++
++.book-winner-selector {
++    width: 100%;
++}
+diff --git a/bestbook/static/build/js/index.js b/bestbook/static/build/js/index.js
+index a8e7eac..9c32050 100644
+--- a/bestbook/static/build/js/index.js
++++ b/bestbook/static/build/js/index.js
+@@ -1,3 +1,32 @@
++function validateForm(){
++  console.log("validing this form");
++  var winnerValue = document.forms["recommendations-form"].elements["winner"].value;
++  var candidate1Value = document.forms["recommendations-form"].elements["candidate1"].value;
++  var candidate2Value = document.forms["recommendations-form"].elements["candidate2"].value;
++  var candidate3Value = document.forms["recommendations-form"].elements["candidate3"].value;
++  try{
++    if(document.forms['recommendations-form'].elements.winner.hasAttribute('eid')){
++      document.forms["recommendations-form"].elements["winner"].value = document.forms['recommendations-form'].elements.winner.getAttribute('eid').split("/").slice(-1)[0];
++    }
++    if(document.forms['recommendations-form'].elements.winner.hasAttribute('eid')){
++      document.forms["recommendations-form"].elements["candidate1"].value = document.forms['recommendations-form'].elements.candidate1.getAttribute('eid').split("/").slice(-1)[0];
++    }
++    if(document.forms['recommendations-form'].elements.winner.hasAttribute('eid')){
++      document.forms["recommendations-form"].elements["candidate2"].value = document.forms['recommendations-form'].elements.candidate2.getAttribute('eid').split("/").slice(-1)[0];
++    }
++    if(document.forms['recommendations-form'].elements.winner.hasAttribute('eid')){
++      document.forms["recommendations-form"].elements["candidate3"].value = document.forms['recommendations-form'].elements.candidate3.getAttribute('eid').split("/").slice(-1)[0];
++    }
++    return true;
++  }
++  catch(err){
++    document.forms["recommendations-form"].elements["winner"].value = winnerValue;
++    document.forms["recommendations-form"].elements["candidate1"].value = candidate1Value;
++    document.forms["recommendations-form"].elements["candidate2"].value = candidate2Value;
++    document.forms["recommendations-form"].elements["candidate3"].value = candidate3Value;
++    return false;
++  }
++}
+ $( function() {
+ 
+   $.support.cors = true
+@@ -108,7 +137,9 @@ $( function() {
+   }
+ 
+   if ($(".book-winner-selector").length) { bind_autocomplete(self, ".book-winner-selector", search_books); }
+-  if ($(".book-candidate-selector").length) { bind_autocomplete(self, ".book-candidate-selector", search_books); }
++  if ($(".book-candidate-selector1").length) { bind_autocomplete(self, ".book-candidate-selector1", search_books); }
++  if ($(".book-candidate-selector2").length) { bind_autocomplete(self, ".book-candidate-selector2", search_books); }
++  if ($(".book-candidate-selector3").length) { bind_autocomplete(self, ".book-candidate-selector3", search_books); }
+   if ($(".book-topic-selector").length) {
+     bind_autocomplete(self, ".book-topic-selector", search_topics);
+ 
+@@ -132,12 +163,9 @@ $( function() {
+     var renderItem = $('.book-topic-selector').autocomplete('instance')._renderItem;
+ 
+     $(".book-topic-selector").autocomplete('instance')._renderItem = function(ul, item) {
+-      if(item.lastItem) {
+-        return $("<li />")
+-          .append('Topic not found. <a id="add-topic" href="javascript:;">Add ' + $(".book-topic-selector").autocomplete('instance').term + '?</a>')
+-          .appendTo(ul);
+-      }
+-
++      return $("<li />")
++        .append('Topic not found. <a id="add-topic" href="javascript:;">Add ' + $(".book-topic-selector").autocomplete('instance').term + '?</a>')
++        .appendTo(ul);
+       return renderItem.call(this, ul, item);
+     }
+   }
+diff --git a/bestbook/templates/admin.html b/bestbook/templates/admin.html
+index 68add68..03e2c08 100644
+--- a/bestbook/templates/admin.html
++++ b/bestbook/templates/admin.html
+@@ -11,13 +11,11 @@
+ 
+ 
+ {% set recommendations = models['recommendations'].all() -%}
+-<div>
++<ul>
+   {% for rec in  recommendations %}
+-  <tr>
+-    <td>{{ rec }}</td>
+-  </tr>
++    <li style="font-size: .8em">{{ rec }}</li>
+   {% endfor %}
+-</div>
++</ul>
+ 
+ <h2>Books</h2>
+ 
+diff --git a/bestbook/templates/base.html b/bestbook/templates/base.html
+index 20f3dc3..0aba36e 100644
+--- a/bestbook/templates/base.html
++++ b/bestbook/templates/base.html
+@@ -19,7 +19,7 @@
+         <![endif]-->
+ 
+         <div class="banner">
+-            <div class="banner-content"> 
++            <div class="banner-content">
+                  <span>This site is a work in progress. To <a href="/volunteer">contribute</a>, please check out our <a href="https://github.com/Open-Book-Genome-Project/TheBestBookOn.com/" target="_blank">Github</a> or  <a href="https://forms.gle/SFmgvBvRF9pAJN2B7" target="_blank">take our survey</a>!</span>
+             </div>
+         </div>
+@@ -37,9 +37,19 @@
+         <div class="container">
+           <span class="navigation">
+             <a class="filter {{'selected' if request.path in ['/browse'] else ''}}" href="/browse">Browse</a>,
++	    {% if not session.get('username') %}
++	    or <a href="/login">login</a> to
++	    {% endif %}
+             <a class="filter {{'selected' if request.path in ['/ask', '/'] else ''}}" href="/ask">Request</a>, or
+-            <a class="filter {{'selected' if request.path == '/submit' else ''}}" href="https://forms.gle/8xfqt6m8Li3kV3My6">Make</a> Recommendations.
++            <!-- <a class="filter {{'selected' if request.path == '/submit' else ''}}" href="https://forms.gle/8xfqt6m8Li3kV3My6">Make</a> Recommendations. -->
++            <a class="filter {{'selected' if request.path == '/submit' else ''}}" href="/submit">Make</a> Recommendations.
++
++	  <span style="display: inline; float: right;">
++  	    {% if session.get('username') %}
++ 	      Welcome {{session.get('username')}}! (<a href="/logout">logout</a>)
++	    {% endif %}
+           </span>
++
+           {% include template %}
+         </div>
+ 
+diff --git a/bestbook/templates/browse.html b/bestbook/templates/browse.html
+index 2ce149c..b1c4e5f 100644
+--- a/bestbook/templates/browse.html
++++ b/bestbook/templates/browse.html
+@@ -1,3 +1,25 @@
++<h2>Browse recommendations</h2>
++
++{% for rec in models["recommendations"].all() %}
++<div class="block">
++  <div class="recommendation">
++    <div><a href="https://openlibrary.org/{{rec.winner.work_olid}}"><img src="https://covers.openlibrary.org/b/olid/{{rec.winner.work_olid.split('/')[-1]}}-M.jpg"></a></div>
++    <div>
++      <p>The best book on: "{{ rec.topic.name }}" by {{ rec.username }}:</p>
++      <p>{{ rec.description }}</p>
++      <ul>
++	{% for candidate in rec.candidates %}
++        <p>{{ candidate }}</p>
++        {% endfor %}
++      </ul>
++    </div>
++  </div>
++</div>
++{% endfor %}
++
++
++
++<h1>Example...</h1>
+ 
+ <div class="block">
+   <div class="recommendation">
+@@ -21,8 +43,6 @@
+         by <a href="https://openlibrary.org/authors/OL217191A/Norman_Melchert">Norman Melchert</a>
+       </div>
+ 
+-
+-
+       <p><strong>Criteria</strong></p>
+       <ul>
+         <li>Subject Accuracy</li>
+diff --git a/bestbook/templates/submit.html b/bestbook/templates/submit.html
+index f1b575e..4c5bfb7 100644
+--- a/bestbook/templates/submit.html
++++ b/bestbook/templates/submit.html
+@@ -1,86 +1,43 @@
+ 
+-<form method="POST" action="/submit">
++<form name="recommendations-form" method="POST" onsubmit="return validateForm()" action="/submit">
+   <div class="block">
+     <div class="step step--1">
+       <div class="picker">
+-        <h2>1. ⚖️ "<span class="bbo">The Best Book On</span>"</h2>
+-	<div class="ui-widget" style="display: inline;">
+-          <input type="text" placeholder="Physics..."
+-		 class="book-topic-selector"
+-		 style="max-width: 250px">
+-	</div> is
+-        <div class="ui-widget" style="display: inline;">
++        <h2>
++	  1. ⚖️ "<span class="bbo">The Best Book On</span>"
++	  <span class="ui-widget">
++            <input type="text" name="topic" placeholder="Physics..."
++		   class="book-topic-selector" style="max-width: 250px;">
++	  </span> is...
++	</h2>
++        <span class="ui-widget">
+           <label for="book-winner-selector"></label>
+-          <input type="text" class="book-winner-selector" placeholder="Search title, author, or isbn">
+-        </div>.
++          <input type="text" name="winner" class="book-winner-selector"
++		 placeholder="Choose winning book by title, author, or isbn">
++        </span>
+       </div>
+     </div>
+-    
++
+     <div class="step step--2">
+       <div class="picker">
+-        <h2>2. 📚 I know because I've also read</h2>
+-        <div class="ui-widget">
+-          <label for="book-candidate-selector"></label>
+-          <input type="text" class="book-candidate-selector" placeholder="Search title, author, or isbn">
+-        </div>
+-      </div>
+-      <div class="display">
+-        <!--
+-            <div class="book-placeholder"></div>
+-            -->
++        <h2>2. 📚 I know because I've also read:</h2>
++	<span class="ui-widget">
++          <input type="text" name="candidate1" class="book-candidate-selector1" placeholder="this book...">
++	</span> and <span class="ui-widget">
++          <input type="text" name="candidate2" class="book-candidate-selector2" placeholder="this book...">
++	</span>
+       </div>
++      <p>In order to ensure each recommendation is rigorous, we require reviewers to have read at least two other books on the same topic.</p>
+     </div>
+ 
+     <div class="step step--3">
+       <div class="picker">
+-        <h2>3. 📏  Score card</h2>
+-        <table class="rules">
+-          <thead>
+-            <tr>
+-              <td></td>
+-              <th class="selected">Book 1</th>
+-              <th>Book 2</th>
+-              <th>Book 3</th>
+-            </tr>
+-          </thead>
+-          <tbody>
+-            <tr>
+-              <th>Length</th>
+-              <td></td>
+-              <td></td>
+-              <td></td>
+-            </tr>
+-            <tr>
+-              <th>Subject Accuracy</th>
+-              <td></td>
+-              <td></td>
+-              <td></td>
+-            </tr>
+-            <tr>
+-              <th>Clarity</th>
+-              <td></td>
+-              <td></td>
+-              <td></td>
+-            </tr>
+-            <tr>
+-              <th>Brevity</th>
+-              <td></td>
+-              <td></td>
+-              <td></td>
+-            </tr>
+-          </tbody>
+-        </table>
+-
+-        <div>
+-          <div class="opt"><input type="checkbox"> Faster Paced</div>
+-          <div class="opt"><input type="checkbox"> More entertaining</div>
+-          <div class="opt"><input type="checkbox"> Easier to understand</div>
+-        </div>
+-        <input type="text" placeholder="Also must...">
++        <h2>3. 📏  Review:</h2>
++        <textarea type="text" name="description" placeholder="The winner was chosen because..." style="width: 100%"></textarea>
+       </div>
+     </div>
+   </div>
+-  <div class="cta">      
++  <div class="cta">
+     <span class="cta-btn">
+       <button type="submit">Submit Request</button>
+     </span>
+diff --git a/bestbook/views/__init__.py b/bestbook/views/__init__.py
+index 95baef4..cccb5de 100644
+--- a/bestbook/views/__init__.py
++++ b/bestbook/views/__init__.py
+@@ -13,9 +13,9 @@
+ import calendar
+ import json
+ from datetime import datetime
+-from flask import Flask, render_template, Response, request, session, jsonify, redirect
++from flask import Flask, render_template, Response, request, session, jsonify, redirect, make_response
+ from flask.views import MethodView
+-from flask.json import JSONEncoder, loads
++from flask.json import loads
+ from api.auth import login
+ from api import books
+ from api.books import Recommendation, Book, Request, Observation, Aspect, Topic
+@@ -24,6 +24,13 @@ from api import db
+ 
+ PRIVATE_ENDPOINTS = []
+ 
++models = {
++    "recommendations": Recommendation,
++    "books": Book,
++    "requests": Request,
++    "observations": Observation,
++    "aspects": Aspect
++}
+ 
+ def rest(f):
+     def inner(*args, **kwargs):
+@@ -76,14 +83,18 @@ class Base(MethodView):
+ 
+ class Section(MethodView):
+     def get(self, resource=""):
++        if resource in ["ask", "submit"] and not session.get('username'):
++            return redirect("/login?redir=/" + resource)
+         layout = resource.replace(".html", "") if resource else "index"
+-        return render_template("base.html", template="%s.html" % layout)
++        return render_template("base.html", template="%s.html" % layout, models=models)
+ 
+     def post(self, resource=""):
+         """
+         Generic POST Router which redirects /<form-component> to the right
+         class (e.g. Ask, Login, Observe, Submit)
+         """
++        if resource == "login":
++            return Login().post()
+         forms = {
+             "ask": Ask,
+             "login": Login,
+@@ -100,12 +111,18 @@ class Ask(MethodView):
+         ask = request.form
+         return jsonify(ask)
+ 
++class Logout(MethodView):
++    def get(self):
++        session.pop('username', '')
++        return redirect('/login')
++
+ class Login(MethodView):
+     def post(self):
+         email = request.form.get("email")
+         password = request.form.get("password")
++        redir = request.form.get("redir")
+         result = login(email, password)
+-        return result
++        return redirect(redir)
+ 
+ class Observe(MethodView):
+     def post(self):
+@@ -127,6 +144,11 @@ class Submit(MethodView):
+         if not username:
+             raise Exception('Login required')
+ 
++        if not candidates:
++            candidate1 = request.form.get('candidate1')
++            candidate2 = request.form.get('candidate2')
++            candidate3 = request.form.get('candidate3')
++            candidates = "{0} {1} {2}".format(candidate1, candidate2, candidate3)
+         rec = Recommendation.add(
+             topic, winner,
+             [Book.clean_olid(c) for c in candidates.split(' ')],
+@@ -217,10 +239,4 @@ class Index(MethodView):
+ 
+ class Admin(MethodView):
+     def get(self):
+-        return render_template("base.html", template="admin.html", models={
+-            "recommendations": Recommendation,
+-            "books": Book,
+-            "requests": Request,
+-            "observations": Observation,
+-            "aspects": Aspect
+-        })
++        return render_template("base.html", template="admin.html", models=models)

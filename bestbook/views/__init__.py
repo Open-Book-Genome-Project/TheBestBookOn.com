@@ -224,6 +224,21 @@ class Observations(MethodView):
 
 
 # API GET Router
+class UserObservations(MethodView):
+    @rest
+    def get(self, username):
+        return {
+        "observations": [r.dict() for r in Observation.query.filter(
+            Observation.username == username).all()]
+        }
+
+class BookObservations(MethodView):
+    @rest
+    def get(self, bookid):
+        return {
+        "observations": [r.dict() for r in Observation.query.filter(
+            Observation.book_id == bookid).all()]
+        }
 
 class Router(MethodView):
 
