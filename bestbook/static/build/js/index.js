@@ -146,6 +146,7 @@ $( function() {
             break;
           case 'winner':
             selectBestBook(ui.item.label, ui.item.img, ui.item.value);
+	    break;
         }
 
         return false;
