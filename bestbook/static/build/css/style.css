@@ -471,12 +471,14 @@ span[title] {
 
 /* Preview lists */
 #candidate-list,
-#winner-list {
+#winner-list,
+#selection-list {
     list-style: none;
 }
 
 #candidate-list li,
-#winner-list li {
+#winner-list li,
+#selection-list li {
     display: flex;
     justify-content: space-between;
     margin-bottom: 1em;
@@ -503,6 +505,24 @@ span[title] {
 .list-delete {
     cursor: pointer;
     align-self: center;
+}
+
+/* Specific recommendation selection list rules */
+#selection-list {
+    padding-left: 0px;
+}
+
+#selection-list li {
+    display: block;
+    margin-bottom: 1em;
+}
+
+#selection-list .preview-link {
+    margin-bottom: 1em;
+}
+
+.selection-review textarea {
+    width: 100%;
 }
 
 /* Prevents selected items from autocomplete forms from
