@@ -234,7 +234,7 @@ class UserObservations(MethodView):
 
 class BookObservations(MethodView):
     @rest
-    def get(self, bookid):
+    def get(self, olid):
         book = Book(edition_id=olid) if 'M' in olid else Book(work_id=olid)
         return {
         "observations": [r.dict() for r in Observation.query.filter(
