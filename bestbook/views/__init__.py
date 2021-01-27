@@ -235,9 +235,10 @@ class UserObservations(MethodView):
 class BookObservations(MethodView):
     @rest
     def get(self, bookid):
+        book = Book(edition_id=olid) if 'M' in olid else Book(work_id=olid)
         return {
         "observations": [r.dict() for r in Observation.query.filter(
-            Observation.book_id == bookid).all()]
+            Observation.book_id == book.id).all()]
         }
 
 class Router(MethodView):
