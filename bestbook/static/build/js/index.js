@@ -30,12 +30,21 @@ $( function() {
   };
 
   var formData = {};
+  var winner = {}
 
   var candidates = [];
   var candidateIndex = 0;
 
+  var $noSelectionMessage = $('#no-selections-message');
+
   function selectBestBook(title, image, olid) {
     formData['winner'] = olid;
+
+    winner = {
+      title: title,
+      image: image,
+      olid: olid
+    };
 
     var bestBookListItem = `
       <li id="best-book-preview">
@@ -50,12 +59,24 @@ $( function() {
       $('#winner-list').append(bestBookListItem);
       $('#winner').prop('hidden', true);
 
+      // Add to selection list
+      addReviewListItem(winner, true);
+      $noSelectionMessage.prop('hidden', true);
+
       $('#best-book-delete').on('click', function() {
         $(this).parent().remove();
         $winner = $('#winner');
         $winner.val('');
         $winner.prop('hidden', false);
-        delete formData['winner']
+        delete formData['winner'];
+        winner = {};
+
+        // remove from selection list
+        $('#description').parent().parent().remove();
+
+        if(!candidates.length) {
+          $noSelectionMessage.prop('hidden', false);
+        }
       })
   }
 
@@ -63,15 +84,17 @@ $( function() {
   function selectCandidateWork(title, image, olid) {
     // Store candidate data
     var candidate = {
+      id: ++candidateIndex,
       title: title,
       image: image,
-      olid: olid
+      olid: olid,
+      review: ''
     };
     candidates.push(candidate);
 
     // Create list item and append to list
     var listItem = `
-      <li id="candidate-list-item${++candidateIndex}">
+      <li id="candidate-list-item${candidateIndex}">
         <a class="preview-link" href="https://openlibrary.org${candidate.olid}" target="_blank">
           <img src="${candidate.image}"><span class="book-title">${candidate.title}</span>
         </a>
@@ -82,9 +105,22 @@ $( function() {
 
     $('#candidate-list').append(listItem);
 
+    // Add to selection review list
+    addReviewListItem(candidate, false);
+    $noSelectionMessage.prop('hidden', true);
+
     // Add delete listener
     $(`#list-delete${candidateIndex}`).on('click', function() {
+      
       deleteListItem($(this).parent());
+
+      // Remove from selection review list
+      $(`#candidate-review${candidate.id}`).parent().parent().remove();
+      console.log('Is winner empty:');
+      console.log($.isEmptyObject(winner));
+      if(!candidates.length && $.isEmptyObject(winner)) {
+        $noSelectionMessage.prop('hidden', false);
+      }
     });
 
     // Add olid to list item
@@ -116,6 +152,50 @@ $( function() {
     }
   }
 
+  /**
+   * Adds a selected work to the book review list.
+   * 
+   * Creates and displays a new selected work review list item.  List item
+   * contains a section with the book's title and cover image (if available),
+   * and a review section.
+   * 
+   * Books that are desginated as the best book on a subject will appear first
+   * in the list.
+   * 
+   * @param {Object}  book      Contains book title, cover image, and OLID.
+   * @param {boolean} isWinner  True if the book is the best book on a subject.
+   */
+  function addReviewListItem(book, isWinner) {
+    var listItemMarkUp = `
+    <li>
+      <div class="selection-info">
+        <a class="preview-link" href="https://openlibrary.org${book.olid}" target="_blank">
+          <img src="${book.image}"><span class="book-title">${book.title}</span>
+        </a>
+      </div>
+      <div class="selection-review">
+    `;
+    if(isWinner) {
+      listItemMarkUp += ' <textarea id="description" type="text" name="selection" placeholder="The winner was chosen because..." required></textarea>';
+    } else {
+      listItemMarkUp += ` <textarea id="candidate-review${candidateIndex}" class="candidate-review" type="text" name="selection" placeholder="${book.title} was a candidate because..." required></textarea>`;
+    }
+
+    listItemMarkUp += `
+      </div>
+    </li>
+    `
+
+    if(isWinner) {
+      $('#selection-list').prepend(listItemMarkUp);
+    } else {
+      $('#selection-list').append(listItemMarkUp);
+    }
+  }
+
+  function removeReviewListItem() {
+
+  }
 
   /* This is the main function which registers a <input class="ui-widget">
      as an autocomplete
@@ -146,7 +226,7 @@ $( function() {
             break;
           case 'winner':
             selectBestBook(ui.item.label, ui.item.img, ui.item.value);
-	    break;
+            break;
         }
 
         return false;
@@ -213,16 +293,23 @@ $( function() {
     $(this).on('submit', function(event) {
       event.preventDefault()
 
+      setCandidateReviews();
+
       formData.candidates = [];
+      formData.reviews = [];
       for(var i = 0; i < candidates.length; ++i) {
-        formData.candidates.push(candidates[i].olid)
+        formData.candidates.push(candidates[i].olid);
+        formData.reviews.push(candidates[i].review);
       }
 
       let $description = $('#description');
-      // Sets whitespace only description to an empty string, 
-      // which will trigger UI hint from browser
-      $description.val($description.val().trim());
-      formData.description = $description.val();
+
+      if($description.length) {
+        // Sets whitespace only description to an empty string, 
+        // which will trigger UI hint from browser
+        $description.val($description.val().trim());
+        formData.description = $description.val();
+      }
 
       if(validateRecommendationFormData()) {
         // TODO: Handle failure cases (server error)
@@ -243,6 +330,22 @@ $( function() {
         displayModal(header, body);
       }
     })
+  }
+
+  /**
+   * Adds each review to its respective candidate object.
+   * 
+   * If any textarea contains a string of only whitespace characters, that string
+   * is replaced by an empty string.
+   */
+  function setCandidateReviews() {
+    var $reviewTextAreas = $('.candidate-review');
+    $reviewTextAreas.each(function(index) {
+      // Sets whitespace only review to an empty string, 
+      // which will trigger UI hint from browser
+      $(this).val($(this).val().trim());
+      candidates[index].review = $(this).val();
+    });
   }
 
   /**
@@ -274,6 +377,12 @@ $( function() {
     
     for (const candidate of formData.candidates) {
       if(!validOlidRe.test(candidate)) {
+        return false;
+      }
+    }
+
+    for (const review of formData.reviews) {
+      if(!review.length) {
         return false;
       }
     }
