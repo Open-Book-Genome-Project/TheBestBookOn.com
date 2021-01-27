@@ -34,6 +34,32 @@ $( function() {
   var candidates = [];
   var candidateIndex = 0;
 
+  function selectBestBook(title, image, olid) {
+    formData['winner'] = olid;
+
+    var bestBookListItem = `
+      <li id="best-book-preview">
+        <a class="preview-link" href="https://openlibrary.org${olid}" target="_blank">
+          <img src="${image}"><span class="book-title">${title}</span>
+        </a>
+        <span id="best-book-delete" class="list-delete">
+        &times;
+        </span>
+      </li>`;
+
+      $('#winner-list').append(bestBookListItem);
+      $('#winner').prop('hidden', true);
+
+      $('#best-book-delete').on('click', function() {
+        $(this).parent().remove();
+        $winner = $('#winner');
+        $winner.val('');
+        $winner.prop('hidden', false);
+        delete formData['winner']
+      })
+  }
+
+
   function selectCandidateWork(title, image, olid) {
     // Store candidate data
     var candidate = {
@@ -46,7 +72,7 @@ $( function() {
     // Create list item and append to list
     var listItem = `
       <li id="candidate-list-item${++candidateIndex}">
-        <a class="candidate-link" href="https://openlibrary.org${candidate.olid}" target="_blank">
+        <a class="preview-link" href="https://openlibrary.org${candidate.olid}" target="_blank">
           <img src="${candidate.image}"><span class="book-title">${candidate.title}</span>
         </a>
         <span id="list-delete${candidateIndex}" class="list-delete">
@@ -118,8 +144,9 @@ $( function() {
           case 'candidate':
             selectCandidateWork(ui.item.label, ui.item.img, ui.item.value);
             break;
-          default:
-            formData[targetId] = ui.item.value;
+          case 'winner':
+            selectBestBook(ui.item.label, ui.item.img, ui.item.value);
+	    break;
         }
 
         return false;

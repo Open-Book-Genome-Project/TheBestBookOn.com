@@ -469,26 +469,34 @@ span[title] {
     width: 100%;
 }
 
-/* Candidate list */
-#candidate-list {
+/* Preview lists */
+#candidate-list,
+#winner-list {
     list-style: none;
 }
 
-#candidate-list li {
+#candidate-list li,
+#winner-list li {
     display: flex;
     justify-content: space-between;
     margin-bottom: 1em;
 }
 
-.candidate-link {
+.preview-link {
     display: flex;
+    color: black;
+    text-decoration: none;
 }
 
-.candidate-link img {
+.preview-link:hover {
+    text-decoration: underline;
+}
+
+.preview-link img {
     margin-right: 1em;
 }
 
-.candidate-link span {
+.preview-link span {
     align-self: center;
 }
 
