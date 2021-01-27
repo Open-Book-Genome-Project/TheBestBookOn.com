@@ -19,7 +19,10 @@ from flask.views import MethodView
 from flask.json import loads
 from api.auth import login, is_admin
 from api import books
-from api.books import Recommendation, Book, Request, Observation, Aspect, Topic
+from api.books import (
+    Recommendation, Book, Request, Observation, Aspect, Topic,
+    Review
+)
 from api.core import RexException
 from api import db
 
@@ -30,7 +33,8 @@ models = {
     "books": Book,
     "requests": Request,
     "observations": Observation,
-    "aspects": Aspect
+    "aspects": Aspect,
+    "reviews": Review,
 }
 
 def require_login(f):
