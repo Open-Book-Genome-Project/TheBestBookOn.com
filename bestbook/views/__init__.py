@@ -228,6 +228,22 @@ class Observations(MethodView):
 
 
 # API GET Router
+class UserObservations(MethodView):
+    @rest
+    def get(self, username):
+        return {
+        "observations": [r.dict() for r in Observation.query.filter(
+            Observation.username == username).all()]
+        }
+
+class BookObservations(MethodView):
+    @rest
+    def get(self, olid):
+        book = Book(edition_id=olid) if 'M' in olid else Book(work_id=olid)
+        return {
+        "observations": [r.dict() for r in Observation.query.filter(
+            Observation.book_id == book.id).all()]
+        }
 
 class Router(MethodView):
 
