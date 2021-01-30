@@ -342,7 +342,7 @@ def register_aspects():
            description='Is this book a work of fact or fiction?',
            schema={
                "values": [
-                   "fiction", "nonfiction"
+                   "fiction", "nonfiction", "biography"
                ]
            }
     ).create()
