@@ -160,7 +160,7 @@ $( function() {
    * and a review section.
    * 
    * Each review section contains a free-form textarea for a review, and a 
-   * collapsable section that contains several predefined observations that
+   * collapsible section that contains several predefined observations that
    * can improve the review.
    * 
    * Books that are desginated as the best book on a subject will appear first
@@ -203,10 +203,10 @@ $( function() {
   }
 
   /**
-   * Creates markup for collapsable set of predefined observation inputs.
+   * Creates markup for collapsible set of predefined observation inputs.
    * 
-   * All observations nested inside of a single collapsable element, and each
-   * observation is itself collapsable.  An observation consists of a category
+   * All observations nested inside of a single collapsible element, and each
+   * observation is itself collapsible.  An observation consists of a category
    * that expands into a question with a set of predefined answers, displayed as
    * either radio buttons or checkboxes. 
    * 
