@@ -252,6 +252,15 @@ $( function() {
     return aspectMarkup;
   }
 
+  /**
+   * Handles clicks on a collapsible element.
+   * 
+   * Toggles the "active" class on the collapible that was clicked, highlighting
+   * expanded section headings.  Resizes the maximum height of the collapsible 
+   * content divs, and the parenet element if necessary.
+   * 
+   * @param {ClickEvent} event
+   */
   function collapseHandler(event) {
     this.classList.toggle("active");
     var content = this.nextElementSibling;
@@ -267,6 +276,9 @@ $( function() {
     }
   }
 
+  /**
+   * Adds a collapsible handler to all collapsible elements.
+   */
   function addCollapsibleListeners() {
     var collapsibles = document.getElementsByClassName("collapsible");
 
@@ -276,6 +288,16 @@ $( function() {
 
   }
 
+  /**
+   * Resizes the given element by its scroll height plus an additional amount.
+   * 
+   * This function is used to resize a parent element when one of its collapsible
+   * children are expanded.  The additional height should be equal to the child's scroll
+   * height.
+   * 
+   * @param {HTMLElement} element     The element being resized
+   * @param {Number} additionalHeight Additional amount by which to resize the element.
+   */
   function adjustMaxHeight(element, additionalHeight) {
     element.style.maxHeight = (element.scrollHeight + additionalHeight) + "px";
   }
