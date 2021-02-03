@@ -35,6 +35,8 @@ $( function() {
   var candidates = [];
   var candidateIndex = 0;
 
+  var observations = [];
+
   var $noSelectionMessage = $('#no-selections-message');
 
   function selectBestBook(title, image, olid) {
@@ -116,8 +118,6 @@ $( function() {
 
       // Remove from selection review list
       $(`#candidate-review${candidate.id}`).parent().parent().remove();
-      console.log('Is winner empty:');
-      console.log($.isEmptyObject(winner));
       if(!candidates.length && $.isEmptyObject(winner)) {
         $noSelectionMessage.prop('hidden', false);
       }
@@ -159,6 +159,10 @@ $( function() {
    * contains a section with the book's title and cover image (if available),
    * and a review section.
    * 
+   * Each review section contains a free-form textarea for a review, and a 
+   * collapsable section that contains several predefined observations that
+   * can improve the review.
+   * 
    * Books that are desginated as the best book on a subject will appear first
    * in the list.
    * 
@@ -181,7 +185,10 @@ $( function() {
       listItemMarkUp += ` <textarea id="candidate-review${candidateIndex}" class="candidate-review" type="text" name="selection" placeholder="${book.title} was a candidate because..." required></textarea>`;
     }
 
+    var observationId = (isWinner) ? "best-book-observations" : `candidate-observations-${candidateIndex}`;
+
     listItemMarkUp += `
+      ${addObservationSection(window.aspects.aspects, observationId)}
       </div>
     </li>
     `
@@ -191,10 +198,86 @@ $( function() {
     } else {
       $('#selection-list').append(listItemMarkUp);
     }
+
+    addCollapsibleListeners();
   }
 
-  function removeReviewListItem() {
+  /**
+   * Creates markup for collapsable set of predefined observation inputs.
+   * 
+   * All observations nested inside of a single collapsable element, and each
+   * observation is itself collapsable.  An observation consists of a category
+   * that expands into a question with a set of predefined answers, displayed as
+   * either radio buttons or checkboxes. 
+   * 
+   * @param {Array<Object>} aspectList  A list of Aspect objects.
+   * @param {String} id                 A string that uniquely identifies an aspect.
+   * 
+   * @return {String} A string containing the HTML markup of the observations section.
+   */
+  function addObservationSection(aspectList, id) {
+    var aspectMarkup = `
+      <div class="collapsible">Additional Observations (Highly recommended):</div>
+      <div class="collapsible-content nested observations">
+    `;
 
+    for(var i = 0; i < aspectList.length; ++i) {
+      var className = aspectList[i].multi_choice ? "multi-choice" : "single-choice";
+
+      aspectMarkup += `
+        <div class="collapsible aspect-category">${aspectList[i].label}</div>
+        <div class="collapsible-content">
+          <div class="aspect-description">${aspectList[i].description}</div>
+          <div class="${className}">
+      `;
+
+
+      for(var j = aspectList[i].schema.values.length - 1; j >= 0; --j) {
+        var choiceId = `${id}-${aspectList[i].label}-${j}`;
+        aspectMarkup += `
+          <label class="${className}-label" for="${choiceId}">
+            <input type="${aspectList[i].multi_choice ? 'checkbox' : 'radio'}" name="${aspectList[i].label}" id="${choiceId}" value="${aspectList[i].schema.values[j]}">
+            ${aspectList[i].schema.values[j]}
+          </label>
+        `
+      }
+
+      aspectMarkup += `
+          </div>
+        </div>
+      `;
+    }
+
+    aspectMarkup += "</div>"
+    return aspectMarkup;
+  }
+
+  function collapseHandler(event) {
+    this.classList.toggle("active");
+    var content = this.nextElementSibling;
+
+    if(content.style.maxHeight) {
+      content.style.maxHeight = null;
+    } else {
+      if(content.parentElement.classList.contains("nested")) {
+        adjustMaxHeight(content.parentElement, content.scrollHeight);
+      }
+
+      content.style.maxHeight = content.scrollHeight + "px";
+    }
+  }
+
+  function addCollapsibleListeners() {
+    var collapsibles = document.getElementsByClassName("collapsible");
+
+    for(var i = 0; i < collapsibles.length; ++i) {
+      collapsibles[i].addEventListener("click", collapseHandler);
+    }
+
+  }
+
+  function adjustMaxHeight(element, additionalHeight) {
+    element.style.maxHeight = (element.scrollHeight + additionalHeight) + "px";
   }
 
   /* This is the main function which registers a <input class="ui-widget">
@@ -294,9 +377,11 @@ $( function() {
       event.preventDefault()
 
       setCandidateReviews();
+      setObservations();
 
       formData.candidates = [];
       formData.reviews = [];
+
       for(var i = 0; i < candidates.length; ++i) {
         formData.candidates.push(candidates[i].olid);
         formData.reviews.push(candidates[i].review);
@@ -312,6 +397,25 @@ $( function() {
       }
 
       if(validateRecommendationFormData()) {
+        formData.observations = [];
+
+        // Set work OLID for each observation
+        for(var i = 0; i < observations.length; ++i) {
+          // Check that observations array has at least one observation:
+          if(observations[i].observations.length) {
+            var currentObservation = observations[i];
+
+            // Best book will be in the first index
+            if(i === 0){
+              currentObservation.work_id = winner.olid;
+            } else {
+              currentObservation.work_id = candidates[i - 1].olid;
+            }
+
+            formData.observations.push(JSON.stringify(currentObservation));
+          }
+        }
+        
         // TODO: Handle failure cases (server error)
         $.ajax({
           type: 'POST',
@@ -345,6 +449,41 @@ $( function() {
       // which will trigger UI hint from browser
       $(this).val($(this).val().trim());
       candidates[index].review = $(this).val();
+    });
+  }
+
+  /**
+   * Stores the names and values of all observations in each review.
+   * 
+   * Composes an observation object for each review section in the form.
+   * Observation objects include key value pairs for each of the checked
+   * inputs in a section, with the keys being the value of the Aspect's
+   * label field.
+   * 
+   * Observation objects are stored in the `observations` array in the order
+   * that they appear in the form.
+   */
+  function setObservations() {
+    observations = [];
+    var $observationSections = $('.observations');
+
+    $observationSections.each(function(index) {
+      observationsObject = {};
+      observationsObject.observations = [];
+
+      $(this).find('input[type=radio]:checked').each(function() {
+        var keyValuePair = {};
+        keyValuePair[$(this).attr('name')] = $(this).val();
+        observationsObject.observations.push(keyValuePair);
+      });
+
+      $(this).find('input[type=checkbox]:checked').each(function() {
+        var keyValuePair = {};
+        keyValuePair[$(this).attr('name')] = $(this).val();
+        observationsObject.observations.push(keyValuePair);
+      });
+
+      observations[index] = observationsObject;
     });
   }
 
