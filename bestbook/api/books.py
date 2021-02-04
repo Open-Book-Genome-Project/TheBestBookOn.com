@@ -184,7 +184,7 @@ class Recommendation(core.Base):
         for r in recs:
             for c in r.candidates:
                 olids.append(c.work_olid)
-        recs.data = Book.get_many(olids)
+        recs.works = Book.get_many(olids)
         return recs
 
     @classmethod
