@@ -70,7 +70,7 @@ class Book(core.Base):
     def clean_olid(olid):
         """
         Extract just the olid from some olid-containing string
-        
+
         >>> Book.clean_olid(None)
         ''
         >>> Book.clean_olid('')
@@ -82,6 +82,12 @@ class Book(core.Base):
         if olid.startswith('OL') and olid.endswith(('M', 'W')):
             return olid
         return re.findall(r'OL[0-9]+[MW]', olid)[0]
+
+    @staticmethod
+    def get_many(olids):
+        url = 'https://dev.openlibrary.org/get_many?ids=' + ','.join(olids)
+        r = requests.get(url)
+        return r.json()
 
     @staticmethod
     def get_work_and_edition(olid):
@@ -113,7 +119,7 @@ class Review(core.Base):
     """
     Maps a single patron to a single to a single book record
     """
-    
+
     __tablename__ = "reviews"
     __table_args__ = (
         PrimaryKeyConstraint('book_id', 'username'),
@@ -171,6 +177,15 @@ class Recommendation(core.Base):
     winner = relationship("Book", backref="recommendations", foreign_keys=[book_id])
     candidates = relationship("Book", secondary='recommendations_to_books')
 
+    @classmethod
+    def paginate(cls, page, limit=10):
+        olids = []
+        recs = cls.query.filter().limit(limit).offset(page * limit)
+        for r in recs:
+            for c in r.candidates:
+                olids.append(c.work_olid)
+        recs.works = Book.get_many(olids)
+        return recs
 
     @classmethod
     def add(cls, topic, winner_olid, candidate_olids, username, description=""):
