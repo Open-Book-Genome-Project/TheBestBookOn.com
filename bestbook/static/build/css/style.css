@@ -525,6 +525,50 @@ span[title] {
     width: 100%;
 }
 
+/* Aspect review inputs */
+.aspect-category {
+    text-transform: capitalize;
+}
+
+.aspect-description {
+    font-size: .8em;
+    margin: 0 0 .8em .4em;
+}
+
+.multi-choice {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.multi-choice-label {
+    flex: 0 0 25%;
+    margin: .5em 0;
+    text-transform: capitalize;
+    font-size: .8em;
+}
+
+.multi-choice input {
+    margin-right: .3em;
+}
+
+.single-choice {
+    display: flex;
+}
+
+.single-choice input {
+    display: block;
+    margin: 0 auto 5px;
+}
+
+.single-choice-label {
+    display: inline-block;
+    text-align: center;
+    text-transform: capitalize;
+    width: 16%;
+    font-size: .8em;
+    margin-right: .4em;
+}
+
 /* Prevents selected items from autocomplete forms from
 being rendered at the bottom of the page */
 .ui-helper-hidden-accessible {
@@ -569,4 +613,33 @@ being rendered at the bottom of the page */
     color: black;
     text-decoration: none;
     cursor: pointer;
+}
+
+/* Collapsible sections */
+.collapsible {
+    cursor: pointer;
+    padding: .5em;
+    margin: .5em 0;
+}
+
+.collapsible:after {
+    content: "\02795";
+    float: right;
+    padding-right: 18px;
+}
+
+.active,
+.collapsible:hover {
+    background-color: hsla(206, 51%, 26%, .25);
+}
+
+.active:after {
+    content: "\2796";
+}
+
+.collapsible-content {
+    padding: 0 .5em;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.2s ease-out;
 }

@@ -108,7 +108,8 @@ class Section(MethodView):
         if resource in ["ask", "submit"] and not session.get('username'):
             return redirect(request.url_root + "login?redir=/" + resource)
         layout = resource.replace(".html", "") if resource else "index"
-        return render_template("base.html", template="%s.html" % layout, models=models)
+        aspects = {'aspects': [v.dict(minimal=True) for v in books.core.models['aspects'].all()]}
+        return render_template("base.html", template="%s.html" % layout, models=models, data=aspects)
 
     def post(self, resource=""):
         """
@@ -166,6 +167,13 @@ class Submit(MethodView):
         if not username:
             raise Exception('Login required')
 
+        observations = request.form.getlist('observations[]') or []
+
+        for o in observations:
+            observation = loads(o)
+            observation['username'] = username
+            Observations.persist_observation(observation)
+
         candidates = candidates or ' '.join(request.form.getlist('candidates[]'))
         rec = Recommendation.add(
             topic, winner,
@@ -188,6 +196,12 @@ class Observations(MethodView):
         if not all(data.get(x) for x in ("username", "work_id", "observations")):
             return "Bad Request", 400
 
+        self.persist_observation(data)
+
+        return "OK", 200
+
+    @classmethod
+    def persist_observation(cls, data):
         try:
             book = Book.get(
                 work_olid=data['work_id'], edition_olid=data.get('edition_id')
@@ -204,7 +218,7 @@ class Observations(MethodView):
         for elem in data["observations"]:
             key, value = list(elem.items())[0]
             if key in all_observations:
-                all_observations[key] += self.MULTI_CHOICE_DELIMITER + value
+                all_observations[key] += cls.MULTI_CHOICE_DELIMITER + value
             else:
                 all_observations[key] = value
 
@@ -223,8 +237,6 @@ class Observations(MethodView):
                                           aspect_id=aspect.id,
                                           book_id=book.id,
                                           response=v).create()
-
-        return "OK", 200
 
 
 # API GET Router
