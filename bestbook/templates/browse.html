@@ -24,13 +24,17 @@
     </div>
     <div>
       <p>The best book on: "<span class="bold">{{ rec.topic.name }}</span>" by <span class="bold">{{ rec.username }}</span>:</p>
-      <p class="italic">{{ rec.description }}</p>
+      <p class="italic">{{ rec.winner.work_olid }}</p>
+      <h4>Why this is the best book...</h4>
+      <p>{{ rec.description }}</p>
+      <h4>Candidates</h4>
       <ul>
 	{% for candidate in rec.candidates %}
 	  {% set candidate_work = recs.works[candidate.work_olid] %}
-          <p>{{ candidate }}</p>
-	  <p>{{ candidate_work }}</p>
-          {{ candidate.work_olid }}, {{ candidate.title }}
+    <!-- <p>{{ candidate_work }}</p> -->
+
+    <li class="italic"><a href="https://openlibrary.org{{candidate_work.work_key}}">{{ candidate_work.title }}</a> by {{ candidate_work.authors[0]['name']}}</li>
+    
         {% endfor %}
       </ul>
     </div>
