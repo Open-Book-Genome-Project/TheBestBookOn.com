@@ -251,11 +251,19 @@ class UserObservations(MethodView):
 class BookObservations(MethodView):
     @rest
     def get(self, olid):
-        book = Book(edition_id=olid) if 'M' in olid else Book(work_id=olid)
-        return {
-        "observations": [r.dict() for r in Observation.query.filter(
-            Observation.book_id == book.id).all()]
-        }
+        book = Book.get(edition_olid=olid) if 'M' in olid else Book.get(work_olid=olid, edition_olid=None)
+
+        if request.args.get('username'):
+            return {
+            "observations": [r.dict() for r in Observation.query.filter(
+                Observation.book_id == book.id,
+                Observation.username == request.args.get('username')).all()]
+            }
+        else:
+            return {
+            "observations": [r.dict() for r in Observation.query.filter(
+                Observation.book_id == book.id).all()]
+            }
 
 class Router(MethodView):
 
