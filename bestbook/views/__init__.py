@@ -222,6 +222,14 @@ class Observations(MethodView):
             else:
                 all_observations[key] = value
 
+        existing_observations = Observation.get_all(username=data["username"],
+                                                    book_id=book.id)
+        
+        for elem in existing_observations:
+            aspect = Aspect.get(id=elem.aspect_id)
+            if aspect.label not in all_observations.keys():
+                elem.remove()
+
         for k, v in all_observations.items():
             aspect = Aspect.get(label=k)
 
