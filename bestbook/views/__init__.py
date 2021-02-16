@@ -227,7 +227,7 @@ class Observations(MethodView):
         
         for elem in existing_observations:
             aspect = Aspect.get(id=elem.aspect_id)
-            if aspect.label not in all_observations.keys():
+            if aspect.label not in all_observations:
                 elem.remove()
 
         for k, v in all_observations.items():
