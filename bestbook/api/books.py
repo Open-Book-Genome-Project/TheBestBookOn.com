@@ -196,12 +196,16 @@ class Recommendation(core.Base):
         """
         topic = Topic.upsert(topic)
         winner = Book.upsert_by_olid(winner_olid)
+        candidates = []
+        candidates.append(winner)
+        for olid in candidate_olids:
+            candidates.append(Book.upsert_by_olid(olid))
+
         r = cls(topic_id=topic.id, book_id=winner.id,
                 description=description,
-                username=username).create()
-        r.candidates.append(winner)
-        for olid in candidate_olids:
-            r.candidates.append(Book.upsert_by_olid(olid))
+                username=username,
+                candidates=candidates).create()
+
         db.commit()
         return r
 
