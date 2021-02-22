@@ -257,6 +257,23 @@ class BookObservations(MethodView):
             Observation.book_id == book.id).all()]
         }
 
+    def delete(self, olid):
+        try:
+            book = Book.get(edition_olid=olid) if 'M' in olid else Book.get(work_olid=olid)
+        except RexException:
+            return "Not Found", 404
+        # TODO: Change this to fetch username using request header S3 keys:
+        username = request.args.get('username')
+
+        if username:
+            observations = Observation.get_all(book_id=book.id,
+                                               username=username)
+            for o in observations:
+                o.remove()
+            return "OK", 200
+        else:
+            return "Bad Request", 400
+
 class Router(MethodView):
 
     @rest
