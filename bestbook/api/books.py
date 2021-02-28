@@ -54,6 +54,7 @@ class Topic(core.Base):
             return cls.get(name=topic)
         except:
             return cls(name=topic).create()
+
 class Book(core.Base):
 
     __tablename__ = "books"

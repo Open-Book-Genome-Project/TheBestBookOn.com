@@ -7,6 +7,7 @@
 {% set page = request.args.get("page", 0) | int %}
 {% set recs = models["recommendations"].paginate(page) %}
 
+
 {% for rec in recs %}
 <div class="block">
   <div class="recommendation">
@@ -24,7 +25,14 @@
     </div>
     <div>
       <p>The best book on: "<span class="bold">{{ rec.topic.name }}</span>" by <span class="bold">{{ rec.username }}</span>:</p>
-      <p class="italic">{{ rec.winner.work_olid }}</p>
+      <div class="italic">{{ recs.works[rec.winner.work_olid].title }}</div>
+      <div>{{ recs.works[rec.winner.work_olid].authors[0]['name'] }}</div>
+      {% for o in rec.winner.observations %}
+        <div>
+	  {{ o.aspect.label }}:
+          {{ o.response }}
+        </div>
+      {% endfor %}
       <h4>Why this is the best book...</h4>
       <p>{{ rec.description }}</p>
       <h4>Candidates</h4>
