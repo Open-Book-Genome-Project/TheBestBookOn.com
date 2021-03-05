@@ -5,7 +5,7 @@
 <!-- send all of their book keys to Open Library -->
 
 {% set page = request.args.get("page", 0) | int %}
-{% set recs = models["recommendations"].paginate(page) %}
+{% set recs = models["recommendations"].paginate(page, is_approved=True) %}
 
 {% for rec in recs %}
 <div class="block">
