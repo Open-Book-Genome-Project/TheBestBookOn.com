@@ -85,6 +85,8 @@ class Book(core.Base):
 
     @staticmethod
     def get_many(olids):
+        if not olids:
+            return {}
         url = 'https://dev.openlibrary.org/get_many?ids=' + ','.join(olids)
         r = requests.get(url)
         return r.json()
