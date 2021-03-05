@@ -1,4 +1,5 @@
 
+from typing import Dict, Optional
 import requests
 from flask import session
 from internetarchive.config import get_auth_config
@@ -14,10 +15,9 @@ def is_admin(username):
     return '/people/%s' % username in admins
 
 
-def authenticate(email=None, password=None, s3_keys=None, expected_username=None):
+def authenticate(email=None, password=None, s3_keys=None):
     """
     :parm dict s3_keys: a dict {'secret': 'xxx', 'access': 'yyy'}
-    :param str expected_username: expected username for account w/ s3_keys
     """
     username = None
 
@@ -48,8 +48,6 @@ def authenticate(email=None, password=None, s3_keys=None, expected_username=None
 
     if not username:
         raise AuthenticationError("Incorrect credentials")
-    if expected_username and username != expected_username:
-        raise AuthenticationError("Usernames don't match")
     return {
         'username': username,
         's3_keys': s3_keys

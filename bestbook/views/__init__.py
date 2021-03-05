@@ -132,16 +132,12 @@ class Section(MethodView):
 
 def require_auth(func):
     def authed_func(*args, **kwargs):
-        # username needs to be added to the front-end forms
-        # as a hidden field (populated by session.get('username')
-        # Note: we may not want to keep username + s3 in request.form
-        username = request.form.get('username')
         s3_keys = {
-            'access': request.form.get('s3_access'),
-            'secret': request.form.get('s3_secret'),
+            'access': request.data.get('s3_access'),
+            'secret': request.data.get('s3_secret'),
         }
         # An auth error will raise AuthenticationError
-        user = authenticate(s3_keys=s3_keys, expected_username=username)
+        user = authenticate(s3_keys=s3_keys)        
         return func(*args, **kwargs)
     return authed_func
 
