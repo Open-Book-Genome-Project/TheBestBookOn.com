@@ -15,6 +15,7 @@ from flask_cors import CORS
 from logging.config import dictConfig
 import views
 from views import fetch_work
+from api import db
 from configs import options, SECRET_KEY, LOGGER
 
 urls = ('/admin', views.Admin,
@@ -43,3 +44,8 @@ dictConfig(LOGGER)
 
 if __name__ == "__main__":
     app.run(**options)
+
+@app.teardown_appcontext
+def shutdown_session(exception=None):
+    # Removes db session at the end of each request
+    db.remove()
