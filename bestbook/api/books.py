@@ -87,6 +87,12 @@ class Book(core.Base):
     def get_many(olids):
         url = 'https://dev.openlibrary.org/get_many?ids=' + ','.join(olids)
         r = requests.get(url)
+
+        try:
+            r.raise_for_status()
+        except requests.exceptions.HTTPError:
+            return {}
+
         return r.json()
 
     @staticmethod
