@@ -523,6 +523,7 @@ span[title] {
 
 .selection-review textarea {
     width: 100%;
+    margin-bottom: 1em;
 }
 
 /* Aspect review inputs */

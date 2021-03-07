@@ -90,7 +90,6 @@ $( function() {
       title: title,
       image: image,
       olid: olid,
-      review: ''
     };
     candidates.push(candidate);
 
@@ -171,19 +170,24 @@ $( function() {
    */
   function addReviewListItem(book, isWinner) {
     var listItemMarkUp = `
-    <li>
+      <li> 
+    `;
+
+    if(isWinner) {
+      listItemMarkUp += `
+        <div class="selection-review">
+          <textarea id="description" type="text" name="selection" placeholder="The winner was chosen because..." required></textarea>
+        </div>
+      `;
+    }
+    listItemMarkUp += `
       <div class="selection-info">
         <a class="preview-link" href="https://openlibrary.org${book.olid}" target="_blank">
           <img src="${book.image}"><span class="book-title">${book.title}</span>
         </a>
       </div>
-      <div class="selection-review">
+      <div>
     `;
-    if(isWinner) {
-      listItemMarkUp += ' <textarea id="description" type="text" name="selection" placeholder="The winner was chosen because..." required></textarea>';
-    } else {
-      listItemMarkUp += ` <textarea id="candidate-review${candidateIndex}" class="candidate-review" type="text" name="selection" placeholder="${book.title} was a candidate because..." required></textarea>`;
-    }
 
     var observationId = (isWinner) ? "best-book-observations" : `candidate-observations-${candidateIndex}`;
 
@@ -398,15 +402,12 @@ $( function() {
     $(this).on('submit', function(event) {
       event.preventDefault()
 
-      setCandidateReviews();
       setObservations();
 
       formData.candidates = [];
-      formData.reviews = [];
 
       for(var i = 0; i < candidates.length; ++i) {
         formData.candidates.push(candidates[i].olid);
-        formData.reviews.push(candidates[i].review);
       }
 
       let $description = $('#description');
@@ -538,12 +539,6 @@ $( function() {
     
     for (const candidate of formData.candidates) {
       if(!validOlidRe.test(candidate)) {
-        return false;
-      }
-    }
-
-    for (const review of formData.reviews) {
-      if(!review.length) {
         return false;
       }
     }
