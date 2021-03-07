@@ -460,22 +460,6 @@ $( function() {
   }
 
   /**
-   * Adds each review to its respective candidate object.
-   * 
-   * If any textarea contains a string of only whitespace characters, that string
-   * is replaced by an empty string.
-   */
-  function setCandidateReviews() {
-    var $reviewTextAreas = $('.candidate-review');
-    $reviewTextAreas.each(function(index) {
-      // Sets whitespace only review to an empty string, 
-      // which will trigger UI hint from browser
-      $(this).val($(this).val().trim());
-      candidates[index].review = $(this).val();
-    });
-  }
-
-  /**
    * Stores the names and values of all observations in each review.
    * 
    * Composes an observation object for each review section in the form.
