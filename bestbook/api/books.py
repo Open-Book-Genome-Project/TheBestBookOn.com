@@ -85,6 +85,8 @@ class Book(core.Base):
 
     @staticmethod
     def get_many(olids):
+        if not olids:
+            return {}
         url = 'https://dev.openlibrary.org/get_many?ids=' + ','.join(olids)
         r = requests.get(url)
         return r.json()
@@ -184,7 +186,7 @@ class Recommendation(core.Base):
         for r in recs:
             for c in r.candidates:
                 olids.append(c.work_olid)
-        recs.works = Book.get_many(olids) if olids else {}
+        recs.works = Book.get_many(olids)
         return recs
 
     @classmethod
