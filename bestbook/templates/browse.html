@@ -9,19 +9,16 @@
 
 
 {% for rec in recs %}
-<div class="block">
+<div class="block-rec">
   <div class="recommendation">
-<<<<<<< eb98fc79d63e515a9e8a0f9c86f244bf8124de0f
     <div>
       <a href="https://openlibrary.org/works/{{rec.winner.work_olid}}">
         {% if recs.works|length > 0 and recs.works[rec.winner.work_olid].get('cover_url') %}
         <img src="{{recs.works[rec.winner.work_olid].get('cover_url')}}">
         {% endif %}
       </a>
-=======
     <div><a href="https://openlibrary.org/works/{{rec.winner.work_olid}}">
 	<img class="bookcover" src="{{recs.works[rec.winner.work_olid].get('cover_url')}}"></a>
->>>>>>> add dashed bottom border
     </div>
     <div>
       <p>The best book on: "<span class="bold">{{ rec.topic.name }}</span>" by <span class="bold">{{ rec.username }}</span>:</p>

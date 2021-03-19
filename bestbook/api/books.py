@@ -88,7 +88,7 @@ class Book(core.Base):
     def get_many(olids):
         if not olids:
             return {}
-        url = 'https://dev.openlibrary.org/get_many?ids=' + ','.join(olids)
+        url = 'http://staging.openlibrary.org/get_many?ids=' + ','.join(olids)
         r = requests.get(url)
 
         try:
