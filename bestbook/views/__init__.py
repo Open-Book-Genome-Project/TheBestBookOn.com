@@ -204,7 +204,8 @@ class Observations(MethodView):
     def persist_observation(cls, data):
         try:
             book = Book.get(
-                work_olid=data['work_id'], edition_olid=data.get('edition_id')
+                work_olid=Book.clean_olid(data['work_id']), 
+                edition_olid=Book.clean_olid(data.get('edition_id'))
             )
         except RexException:
             book = Book(work_olid=data['work_id'])
