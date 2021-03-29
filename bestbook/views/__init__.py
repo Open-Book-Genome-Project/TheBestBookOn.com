@@ -208,9 +208,9 @@ class Observations(MethodView):
                 edition_olid=Book.clean_olid(data.get('edition_id'))
             )
         except RexException:
-            book = Book(work_olid=data['work_id'])
+            book = Book(work_olid=Book.clean_olid(data['work_id']))
             if 'edition_id' in data:
-                book.edition_olid = data['edition_id']
+                book.edition_olid = Book.clean_olid(data['edition_id'])
 
             book.create()
 
