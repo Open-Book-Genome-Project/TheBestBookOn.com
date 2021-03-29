@@ -186,9 +186,9 @@ class Recommendation(core.Base):
     candidates = relationship("Book", secondary='recommendations_to_books')
 
     @classmethod
-    def paginate(cls, page, limit=10):
+    def paginate(cls, page, limit=10, **kwargs):
         olids = []
-        recs = cls.query.filter().limit(limit).offset(page * limit)
+        recs = cls.query.filter_by(**kwargs).limit(limit).offset(page * limit)
         for r in recs:
             for c in r.candidates:
                 olids.append(c.work_olid)
