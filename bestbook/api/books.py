@@ -67,6 +67,7 @@ class Book(core.Base):
                      nullable=False)
     modified = Column(DateTime(timezone=False), default=None)
 
+
     @staticmethod
     def clean_olid(olid):
         """
@@ -98,8 +99,8 @@ class Book(core.Base):
 
         return r.json()
 
-    @staticmethod
-    def get_work_and_edition(olid):
+    @classmethod
+    def get_work_and_edition(cls, olid):
         work_id = None
         edition_id = None
         if olid.lower().endswith('m'):
@@ -109,18 +110,21 @@ class Book(core.Base):
             work_id = r['works'][0]['key'].split('/')[-1]
         else:
             work_id = olid
-        return work_id, edition_id
+        return (
+            work_id and cls.clean_olid(work_id),
+            edition_id and cls.clean_olid(edition_id)
+        )
 
 
     @classmethod
     def upsert_by_olid(cls, olid):
-        olid = cls.clean_olid(olid)
         work_olid, edition_olid = cls.get_work_and_edition(olid)
+        print("Upsert: %s" % (work_olid))
         # Does a book exist for this work_id and edition_id?
-        try: # to fetch it
-            book = Book.get(work_olid=work_olid, edition_olid=edition_olid)
-        except: # if it doesn't exist, create it
-            book = Book(work_olid=work_olid, edition_olid=edition_olid).create()
+        #try: # to fetch it
+        book = Book.get(work_olid=work_olid, edition_olid=edition_olid)
+        #except: # if it doesn't exist, create it
+        #    book = Book(work_olid=work_olid, edition_olid=edition_olid).create()
         return book
 
 
@@ -205,10 +209,11 @@ class Recommendation(core.Base):
         :winner_golid: ANY OL ID (e.g. OL123M or OL234W)
         """
         topic = Topic.upsert(topic)
-        winner = Book.upsert_by_olid(winner_olid)
+        winner = Book.upsert_by_olid(Book.clean_olid(winner_olid))
         candidates = []
         candidates.append(winner)
         for olid in candidate_olids:
+            olid = Book.clean_olid(olid)  # xxx
             candidates.append(Book.upsert_by_olid(olid))
 
         r = cls(topic_id=topic.id, book_id=winner.id,
@@ -252,8 +257,10 @@ class Observation(core.Base):
     created = Column(DateTime(timezone=False), default=datetime.utcnow, nullable=False)
     modified = Column(DateTime(timezone=False), default=None)
 
-    book = relationship("Book", backref="observations")
-    aspect = relationship("Aspect", backref="observations")
+    book = relationship("Book", foreign_keys=[book_id],
+                        backref="observations")
+    aspect = relationship("Aspect", foreign_keys=[aspect_id]
+                          , backref="observations")
 
 class Upvote(core.Base):
 
