@@ -21,13 +21,13 @@
 
     <div>
       <p>The best book on: "<span class="bold">{{ rec.topic.name }}</span>" by <span class="bold">{{ rec.username }}</span>:</p>
-      <div class="italic">{{ recs.works[rec.winner.work_olid].title }}</div>
+      <div class="bold italic">{{ recs.works[rec.winner.work_olid].title }}</div>
       <div>{{ recs.works[rec.winner.work_olid].authors[0]['name'] }}</div>
       {% for c in rec.candidates %}
         {% for o in c.observations %}
           <div>
-            {{ o.aspect.label }}:
-            {{ o.response }}
+            <h4 class="aspect-label">{{ o.aspect.label }}</h4>
+            <div class="aspect-response">{{ o.response }}</div>
           </div>
         {% endfor %}
       {% endfor %}

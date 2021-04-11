@@ -655,3 +655,26 @@ being rendered at the bottom of the page */
     overflow: hidden;
     transition: max-height 0.2s ease-out;
 }
+
+/* Aspect review outputs */
+.aspect-label {
+    text-transform: capitalize;
+    font-style: normal;
+    font-weight: bold;
+    /* identical to box height */
+
+    color: #233045;
+}
+.aspect-response {
+    background: #FFFFFF;
+    border: 1px solid #A2A5AA;
+    box-sizing: border-box;
+    border-radius: 20px;
+
+    font-style: normal;
+    font-weight: normal;
+    text-align: center;
+    text-transform: capitalize;
+
+    color: #233045;
+}
