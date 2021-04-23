@@ -119,12 +119,11 @@ class Book(core.Base):
     @classmethod
     def upsert_by_olid(cls, olid):
         work_olid, edition_olid = cls.get_work_and_edition(olid)
-        print("Upsert: %s" % (work_olid))
         # Does a book exist for this work_id and edition_id?
-        #try: # to fetch it
-        book = Book.get(work_olid=work_olid, edition_olid=edition_olid)
-        #except: # if it doesn't exist, create it
-        #    book = Book(work_olid=work_olid, edition_olid=edition_olid).create()
+        try: # to fetch it
+            book = Book.get(work_olid=work_olid, edition_olid=edition_olid)
+        except: # if it doesn't exist, create it
+            book = Book(work_olid=work_olid, edition_olid=edition_olid).create()
         return book
 
 
@@ -259,8 +258,7 @@ class Observation(core.Base):
 
     book = relationship("Book", foreign_keys=[book_id],
                         backref="observations")
-    aspect = relationship("Aspect", foreign_keys=[aspect_id]
-                          , backref="observations")
+    aspect = relationship("Aspect", foreign_keys=[aspect_id], backref="observations")
 
 class Upvote(core.Base):
 
