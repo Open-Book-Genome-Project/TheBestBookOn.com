@@ -9,7 +9,7 @@
   <div class="recommendation">
     <div>
       <a href="https://openlibrary.org/works/{{rec.winner.work_olid}}">
-	{% if recs.works|length > 0 and recs.works[rec.winner.work_olid].get('cover_url') %}
+        {% if recs.works|length > 0 and recs.works[rec.winner.work_olid].get('cover_url') %}
         <img class="bookcover" src="{{recs.works[rec.winner.work_olid].get('cover_url')}}">
         {% endif %}
       </a>
@@ -30,11 +30,11 @@
       <p>{{ rec.description }}</p>
       <h4>Candidates</h4>
       <ul>
-	{% for candidate in rec.candidates %}
-	  {% set candidate_work = recs.works[candidate.work_olid] %}
+        {% for candidate in rec.candidates %}
+	        {% set candidate_work = recs.works[candidate.work_olid] %}
           <li class="italic">
             <a href="https://openlibrary.org{{candidate_work.work_key}}">{{ candidate_work.title }}</a> by {{ candidate_work.authors[0]['name']}}
-	  </li>
+          </li>
         {% endfor %}
       </ul>
     </div>
