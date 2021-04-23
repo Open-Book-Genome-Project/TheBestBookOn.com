@@ -3,7 +3,6 @@
 {% set page = request.args.get("page", 0) | int %}
 {% set recs = models["recommendations"].paginate(page, is_approved=True) %}
 
-<!-- get every candidate from every recommendation... -->
 {% for rec in recs %}
 <div class="block-rec">
   <div class="recommendation">
