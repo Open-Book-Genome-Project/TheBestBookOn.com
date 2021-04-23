@@ -1,13 +1,9 @@
 <h2>Browse recommendations</h2>
 
-<!-- get every candidate from every recommendation... -->
-
-<!-- send all of their book keys to Open Library -->
-
 {% set page = request.args.get("page", 0) | int %}
 {% set recs = models["recommendations"].paginate(page, is_approved=True) %}
 
-
+<!-- get every candidate from every recommendation... -->
 {% for rec in recs %}
 <div class="block-rec">
   <div class="recommendation">
@@ -15,10 +11,9 @@
       <a href="https://openlibrary.org/works/{{rec.winner.work_olid}}">
 	{% if recs.works|length > 0 and recs.works[rec.winner.work_olid].get('cover_url') %}
         <img class="bookcover" src="{{recs.works[rec.winner.work_olid].get('cover_url')}}">
-        {% endif %}	
+        {% endif %}
       </a>
     </div>
-
     <div>
       <p>The best book on: "<span class="bold">{{ rec.topic.name }}</span>" by <span class="bold">{{ rec.username }}</span>:</p>
       <div class="bold italic">{{ recs.works[rec.winner.work_olid].title }}</div>
@@ -37,10 +32,9 @@
       <ul>
 	{% for candidate in rec.candidates %}
 	  {% set candidate_work = recs.works[candidate.work_olid] %}
-    <!-- <p>{{ candidate_work }}</p> -->
-
-    <li class="italic"><a href="https://openlibrary.org{{candidate_work.work_key}}">{{ candidate_work.title }}</a> by {{ candidate_work.authors[0]['name']}}</li>
-
+          <li class="italic">
+            <a href="https://openlibrary.org{{candidate_work.work_key}}">{{ candidate_work.title }}</a> by {{ candidate_work.authors[0]['name']}}
+	  </li>
         {% endfor %}
       </ul>
     </div>
