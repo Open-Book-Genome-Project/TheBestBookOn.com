@@ -90,6 +90,12 @@ class Book(core.Base):
             return {}
         url = 'http://staging.openlibrary.org/get_many?ids=' + ','.join(olids)
         r = requests.get(url)
+
+        try:
+            r.raise_for_status()
+        except requests.exceptions.HTTPError:
+            return {}
+
         return r.json()
 
     @staticmethod
@@ -181,9 +187,9 @@ class Recommendation(core.Base):
     candidates = relationship("Book", secondary='recommendations_to_books')
 
     @classmethod
-    def paginate(cls, page, limit=10):
+    def paginate(cls, page, limit=10, **kwargs):
         olids = []
-        recs = cls.query.filter().limit(limit).offset(page * limit)
+        recs = cls.query.filter_by(**kwargs).limit(limit).offset(page * limit)
         for r in recs:
             for c in r.candidates:
                 olids.append(c.work_olid)
@@ -200,12 +206,16 @@ class Recommendation(core.Base):
         """
         topic = Topic.upsert(topic)
         winner = Book.upsert_by_olid(winner_olid)
+        candidates = []
+        candidates.append(winner)
+        for olid in candidate_olids:
+            candidates.append(Book.upsert_by_olid(olid))
+
         r = cls(topic_id=topic.id, book_id=winner.id,
                 description=description,
-                username=username).create()
-        r.candidates.append(winner)
-        for olid in candidate_olids:
-            r.candidates.append(Book.upsert_by_olid(olid))
+                username=username,
+                candidates=candidates).create()
+
         db.commit()
         return r
 

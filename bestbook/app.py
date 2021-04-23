@@ -16,6 +16,7 @@ from logging.config import dictConfig
 import views
 from views import fetch_work
 from api import db
+from api.auth import is_admin
 from configs import options, SECRET_KEY, LOGGER
 
 urls = ('/admin', views.Admin,
@@ -39,7 +40,7 @@ app = router(Flask(__name__), urls)
 app.secret_key = SECRET_KEY
 cors = CORS(app)
 
-app.jinja_env.globals.update(fetch_work=fetch_work)
+app.jinja_env.globals.update(fetch_work=fetch_work, is_admin=is_admin)
 dictConfig(LOGGER)
 
 if __name__ == "__main__":
