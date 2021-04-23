@@ -7,30 +7,40 @@
 {% set page = request.args.get("page", 0) | int %}
 {% set recs = models["recommendations"].paginate(page, is_approved=True) %}
 
+
 {% for rec in recs %}
-<div class="block">
+<div class="block-rec">
   <div class="recommendation">
     <div>
       <a href="https://openlibrary.org/works/{{rec.winner.work_olid}}">
         {% if recs.works|length > 0 and recs.works[rec.winner.work_olid].get('cover_url') %}
-        <img src="{{recs.works[rec.winner.work_olid].get('cover_url')}}">
+        <img class="bookcover" src="{{recs.works[rec.winner.work_olid].get('cover_url')}}">
         {% endif %}
       </a>
     </div>
     <div>
-      <p>The best book on: "{{ rec.topic.name }}" by {{ rec.username }}:</p>
+      <p>The best book on: "<span class="bold">{{ rec.topic.name }}</span>" by <span class="bold">{{ rec.username }}</span>:</p>
+      <div class="italic">{{ recs.works[rec.winner.work_olid].title }}</div>
+      <div>{{ recs.works[rec.winner.work_olid].authors[0]['name'] }}</div>
+      {% for o in rec.winner.observations %}
+        <div>
+	        {{ o.aspect.label }}:
+          {{ o.response }}
+        </div>
+      {% endfor %}
+      <h4>Why this is the best book...</h4>
       <p>{{ rec.description }}</p>
+      <h4>Candidates</h4>
       <ul>
 	{% for candidate in rec.candidates %}
 	  {% set candidate_work = recs.works[candidate.work_olid] %}
-          <p>{{ candidate }}</p>
-	  <p>{{ candidate_work }}</p>
+    <!-- <p>{{ candidate_work }}</p> -->
+
+    <li class="italic"><a href="https://openlibrary.org{{candidate_work.work_key}}">{{ candidate_work.title }}</a> by {{ candidate_work.authors[0]['name']}}</li>
+    
         {% endfor %}
       </ul>
     </div>
   </div>
 </div>
 {% endfor %}
-
-
-

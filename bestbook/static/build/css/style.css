@@ -87,7 +87,13 @@ select:focus, select:active, input[type=text]:focus, input[type=text]:active {
 .block {
     border: 5px solid #ccd6dd;
     border-radius: 15px;
+    
+    width: 100%;
+    margin: 0 auto;
+}
 
+.block-rec {
+    border-bottom: 1px dashed #233045;
     width: 100%;
     margin: 0 auto;
 }
@@ -251,9 +257,14 @@ footer a.label:last-child {
     margin-right: 0;
 }
 
+
 .recommendation {
     display: flex;
     font-family: arial;
+}
+
+.italic {
+    font-style: italic;
 }
 
 .bookcover {
