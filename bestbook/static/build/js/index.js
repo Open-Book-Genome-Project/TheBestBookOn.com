@@ -475,7 +475,7 @@ $( function() {
     var $observationSections = $('.observations');
 
     $observationSections.each(function(index) {
-      observationsObject = {};
+      let observationsObject = {};
       observationsObject.observations = [];
 
       $(this).find('input[type=radio]:checked').each(function() {
