@@ -27,7 +27,7 @@ from sqlalchemy.exc import IntegrityError, InvalidRequestError
 from sqlalchemy.orm.exc import ObjectDeletedError
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm.attributes import flag_modified
-from api import db, engine, core
+from api import db, engine, core, OL_API
 
 
 def build_tables():
@@ -89,7 +89,7 @@ class Book(core.Base):
     def get_many(olids):
         if not olids:
             return {}
-        url = 'http://staging.openlibrary.org/get_many?ids=' + ','.join(olids)
+        url = '%s/get_many?ids=%s' % (OL_API, ','.join(olids))
         r = requests.get(url)
 
         try:
@@ -106,7 +106,7 @@ class Book(core.Base):
         if olid.lower().endswith('m'):
             edition_id = olid
             # Fetch the edition's corresponding work_id from Open Library
-            r = requests.get('https://openlibrary.org/books/' + olid).json()
+            r = requests.get('%s/books/%s' % (OL_API,  olid)).json()
             work_id = r['works'][0]['key'].split('/')[-1]
         else:
             work_id = olid

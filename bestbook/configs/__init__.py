@@ -65,6 +65,8 @@ LOGGER = {
     }
 }
 
+OL_API = config.getdef('apis', 'olapi', 'https://openlibrary.org')
+
 # Log file configuration:
 if config.has_section('logging') and config.has_option('logging', 'file_name'):
     LOGGER['handlers'].update(

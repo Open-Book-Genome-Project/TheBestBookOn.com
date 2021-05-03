@@ -13,7 +13,7 @@
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
-from configs import DB_URI, DEBUG
+from configs import DB_URI, DEBUG, OL_API
 
 engine = create_engine(DB_URI, echo=DEBUG, client_encoding='utf8')
 db = scoped_session(sessionmaker(bind=engine))
