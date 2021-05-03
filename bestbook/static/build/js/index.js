@@ -240,7 +240,7 @@ $( function() {
         var choiceId = `${id}-${aspectList[i].label}-${j}`;
         aspectMarkup += `
           <label class="${className}-label" for="${choiceId}">
-            <input type="${aspectList[i].multi_choice ? 'checkbox' : 'radio'}" name="${aspectList[i].label}" id="${choiceId}" value="${aspectList[i].schema.values[j]}">
+            <input type="${aspectList[i].multi_choice ? 'checkbox' : 'radio'}" name="${aspectList[i].label}-${id}" id="${choiceId}" value="${aspectList[i].schema.values[j]}">
             ${aspectList[i].schema.values[j]}
           </label>
         `
@@ -475,18 +475,18 @@ $( function() {
     var $observationSections = $('.observations');
 
     $observationSections.each(function(index) {
-      observationsObject = {};
+      let observationsObject = {};
       observationsObject.observations = [];
 
       $(this).find('input[type=radio]:checked').each(function() {
         var keyValuePair = {};
-        keyValuePair[$(this).attr('name')] = $(this).val();
+        keyValuePair[$(this).attr('name').split('-')[0]] = $(this).val();
         observationsObject.observations.push(keyValuePair);
       });
 
       $(this).find('input[type=checkbox]:checked').each(function() {
         var keyValuePair = {};
-        keyValuePair[$(this).attr('name')] = $(this).val();
+        keyValuePair[$(this).attr('name').split('-')[0]] = $(this).val();
         observationsObject.observations.push(keyValuePair);
       });
 
