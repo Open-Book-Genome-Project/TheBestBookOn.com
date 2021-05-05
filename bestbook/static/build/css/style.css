@@ -657,7 +657,7 @@ being rendered at the bottom of the page */
 }
 
 /* Aspect review outputs */
-.aspect-label {
+aspect-label {
     text-transform: capitalize;
     font-style: normal;
     font-weight: bold;
@@ -665,11 +665,17 @@ being rendered at the bottom of the page */
 
     color: #233045;
 }
-.aspect-response {
+ul.aspect-response {
+    list-style: none; /* Remove list bullets */
+    padding:0;
+}
+li.aspect-response {
     background: #FFFFFF;
+    display: inline-block;
     border: 1px solid #A2A5AA;
     box-sizing: border-box;
-    border-radius: 20px;
+    border-radius: 10px;
+    padding: 1%;
 
     font-style: normal;
     font-weight: normal;

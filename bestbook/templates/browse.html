@@ -21,7 +21,13 @@
         {% for o in c.observations %}
           <div>
             <h4 class="aspect-label">{{ o.aspect.label }}</h4>
-            <div class="aspect-response">{{ o.response }}</div>
+            <div>
+              <ul class="aspect-response">
+              {% for i in  o.response.split("|") %}
+              <li class="aspect-response">{{ i }}</li>
+              {% endfor %}
+            </ul>
+          </div>
           </div>
         {% endfor %}
       {% endfor %}
