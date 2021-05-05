@@ -41,13 +41,15 @@ $( function() {
 
   var aspects;
 
-  $.ajax({
-    type: 'GET',
-    url: '/api/aspects',
-    success: function(data) {
-      aspects = data.aspects;
-    }
-  });
+  if (window.location.pathname === '/submit') {
+    $.ajax({
+      type: 'GET',
+      url: '/api/aspects',
+      success: function(data) {
+        aspects = data.aspects;
+      }
+    });
+  }
 
   function selectBestBook(title, image, olid) {
     formData['winner'] = olid;
