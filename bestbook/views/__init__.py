@@ -108,8 +108,7 @@ class Section(MethodView):
         if resource in ["ask", "submit"] and not session.get('username'):
             return redirect(request.url_root + "login?redir=/" + resource)
         layout = resource.replace(".html", "") if resource else "index"
-        aspects = {'aspects': [v.dict(minimal=True) for v in books.core.models['aspects'].all()]}
-        return render_template("base.html", template="%s.html" % layout, models=models, data=aspects)
+        return render_template("base.html", template="%s.html" % layout, models=models)
 
     def post(self, resource=""):
         """

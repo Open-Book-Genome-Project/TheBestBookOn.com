@@ -39,6 +39,16 @@ $( function() {
 
   var $noSelectionMessage = $('#no-selections-message');
 
+  var aspects;
+
+  $.ajax({
+    type: 'GET',
+    url: '/api/aspects',
+    success: function(data) {
+      aspects = data.aspects;
+    }
+  });
+
   function selectBestBook(title, image, olid) {
     formData['winner'] = olid;
 
@@ -192,7 +202,7 @@ $( function() {
     var observationId = (isWinner) ? "best-book-observations" : `candidate-observations-${candidateIndex}`;
 
     listItemMarkUp += `
-      ${addObservationSection(window.aspects.aspects, observationId)}
+      ${addObservationSection(aspects, observationId)}
       </div>
     </li>
     `
