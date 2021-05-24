@@ -6,6 +6,13 @@ html, body {
     font-size: 1.3em;
 }
 
+html {
+    overflow: hidden;
+}
+body {
+    overflow: auto;
+}
+
 h1, h2, h3 {
     font-family: 'Playfair Display', serif;
 }
