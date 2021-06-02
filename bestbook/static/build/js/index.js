@@ -660,14 +660,25 @@ function approveRecommendation(recommendationId) {
   })
 }
 
-function rejectRecommendation(recommendationId) {
-  $.ajax({
-    type: 'DELETE',
-    url: `/api/recommendations/${recommendationId}`,
-    success: function(msg) {
-      updateButtonGroup(recommendationId, msg);
-    }
-  })
+function rejectRecommendation(button, recommendationId) {
+
+  if (button.classList.contains('btn-danger-confirm')) {
+    $.ajax({
+      type: 'DELETE',
+      url: `/api/recommendations/${recommendationId}`,
+      success: function(msg) {
+        updateButtonGroup(recommendationId, msg);
+      }
+    })
+  } else {
+    button.classList.add('btn-danger-confirm');
+    button.classList.remove('btn-danger')
+    setTimeout(function() {
+      button.textContent = "Confirm";
+    }, 450)
+    
+  }
+
 }
 
 function updateButtonGroup(id, msg) {

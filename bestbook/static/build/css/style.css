@@ -464,6 +464,13 @@ span[title] {
     background-color: red;
 }
 
+.btn-danger-confirm {
+    transition: all 0.5s;
+    color: red;
+    background-color: #fff;
+    border: red 1px solid;
+}
+
 .btn-success {
     color: #fff;
     background-color: green;
@@ -481,6 +488,7 @@ span[title] {
     justify-content: flex-end;
     padding-bottom: .8em;
     margin-left: .5em;
+    width: 12%;
 }
 
 .approval-item-buttons button {

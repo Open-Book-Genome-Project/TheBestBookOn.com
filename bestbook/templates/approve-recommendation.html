@@ -20,7 +20,7 @@
     {% if session.get('username') %}
     <div class="approval-item-buttons" id="button-group-{{ recommendation['id'] }}">
         <button class="btn btn-success" onclick="approveRecommendation( {{ recommendation['id'] }} )">Accept</button>
-        <button class="btn btn-danger" onclick="rejectRecommendation( {{ recommendation['id'] }} )">Reject</button>
+        <button class="btn btn-danger" onclick="rejectRecommendation( this, {{ recommendation['id'] }} )">Reject</button>
         <!-- <button class="btn btn-primary">Request Clarification</button> -->
     </div>
     {% endif %}
