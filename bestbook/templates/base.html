@@ -11,20 +11,39 @@
         <link rel="shortcut icon" href="{{ url_for('static', filename='imgs/favicon.ico') }}">
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0-alpha1/jquery.min.js"></script>
         <script
-	    src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"
-	    integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU="
-	    crossorigin="anonymous"></script>
+            src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"
+            integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU="
+            crossorigin="anonymous"></script>
         <script src="/static/build/js/index.js"></script>
     </head>
     <body>
         <!--[if lt IE 8]>
             <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
         <![endif]-->
+        <div class="banner banner-top" style="display: flex;">
+          <div style="flex: 1;">
+          </div>
+          {% if not session.get('username') %}
+            <a href="/login">login</a> or
+            <a href="https://openlibrary.org/account/create">register</a>
+          {% endif %}
+          {% if session.get('username') %}
+            <details class="account-dropdown">
+              <summary>
+                {{session.get('username')}}
+              </summary>
 
-        <div class="banner">
-            <div class="banner-content">
-                 <span>This site is a work in progress. To <a href="/volunteer">contribute</a>, please check out our <a href="https://github.com/Open-Book-Genome-Project/TheBestBookOn.com/" target="_blank">Github</a> or  <a href="https://forms.gle/SFmgvBvRF9pAJN2B7" target="_blank">take our survey</a>!</span>
-            </div>
+              <ul>
+                <li><a class="filter" href="https://openlibrary.org/account">My profile</a></li>
+                {% if session.get('username') and is_admin(session.get('username')) %}
+                <li><a class="filter {{'selected' if request.path in ['/admin'] else ''}}" href="/admin">Debug</a></li>
+                <li><a class="filter {{'selected' if request.path in ['/admin/approve/recommendations'] else ''}}" href="/admin/approve/recommendations">Approve Recommendations</a></li>
+                <li><a class="filter {{'selected' if request.path in ['/admin/approve/requests'] else ''}}" href="/admin/approve/requests">Approve Requests</a></li>
+                {% endif %}
+                <li><a href="/logout">logout</a></li>
+              </ul>
+            </details>
+          {% endif %}
         </div>
 
         <header class="header">
@@ -38,37 +57,31 @@
           <h2 class="tagline">Recommendations by <a href="http://lesswrong.com/lw/3gu/the_best_textbooks_on_every_subject/">Rigorous Review</a></h2>
         </header>
 
+
         <!-- Add your site or application content here -->
         <div class="container">
-          <span class="navigation">
-            <a class="filter {{'selected' if request.path in ['/browse', '/'] else ''}}" href="/browse">Browse</a>,
-            {% if not session.get('username') %}
-            or <a href="/login">login</a> to
-            {% endif %}
+          <div class="navigation block-rec">
+            <a class="filter {{'selected' if request.path in ['/browse', '/'] else ''}}" href="/browse">Find</a>,
+
             <!-- <a class="filter {{'selected' if request.path in ['/ask', '/'] else ''}}" href="/ask">Request</a>, or -->
             <a class="filter {{'selected' if request.path in ['/ask'] else ''}}" href="https://forms.gle/FQGbrTNY3kYfPoAA6" target="_blank">Request</a>, or
-            <a class="filter {{'selected' if request.path == '/submit' else ''}}" href="/submit">Make</a> Recommendations.
-            <br>
-            {% if session.get('username') and is_admin(session.get('username')) %}
-              <a class="filter {{'selected' if request.path in ['/admin'] else ''}}" href="/admin">Debug</a>
-              <a class="filter {{'selected' if request.path in ['/admin/approve/recommendations'] else ''}}" href="/admin/approve/recommendations">Approve Recommendations</a>
-              <a class="filter {{'selected' if request.path in ['/admin/approve/requests'] else ''}}" href="/admin/approve/requests">Approve Requests</a>
-            {% endif %}
-          </span>
-          <span style="display: inline; float: right;">
-            {% if session.get('username') %}
-              Welcome {{session.get('username')}}! (<a href="/logout">logout</a>)
-            {% endif %}
-          </span>
+            <a class="filter {{'selected' if request.path == '/submit' else ''}}" href="/submit">Recommend</a> the Best Book on any <a href="/topics">Topic</a>
+          </div>
+
           {% include template %}
         </div>
 
         <footer style="text-align: center;">
-          <p><a href="https://thebestbookon.com">TheBestBookOn.com</a> &copy; 2020 is a non-profit <a href="https://github.com/Open-Book-Genome-Project/TheBestBookOn.com">open-source</a> experiment maintained by <a href="https://mek.fyi">mek</a> @ <a href="https://bookgenomeproject.org">Open Book Genome Project</a>.</p>
+          <p><a href="https://thebestbookon.com">TheBestBookOn.com</a> &copy; 2020 is a non-profit <a href="https://github.com/Open-Book-Genome-Project/TheBestBookOn.com">open-source</a> experiment maintained by the <a href="https://bookgenomeproject.org">Open Book Genome Project</a>.</p>
           <p>We gratefully borrow book data from the <a href="https://archive.org">Internet Archive</a>'s <a href="https://openlibrary.org">OpenLibrary.org</a>
           </p>
         </footer>
 
+        <div class="banner banner-bottom">
+            <div class="banner-content">
+                 <span>This site is a work in progress. To <a href="/volunteer">contribute</a>, please check out our <a href="https://github.com/Open-Book-Genome-Project/TheBestBookOn.com/" target="_blank">Github</a> or  <a href="https://forms.gle/SFmgvBvRF9pAJN2B7" target="_blank">take our survey</a>!</span>
+            </div>
+        </div>
 
         <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
         <script>

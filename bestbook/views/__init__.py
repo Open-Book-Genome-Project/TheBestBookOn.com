@@ -21,12 +21,13 @@ from api.auth import login, is_admin
 from api import books
 from api.books import (
     Recommendation, Book, Request, Observation, Aspect, Topic,
-    Review
+    Review, Vote
 )
 from api.core import RexException
 from api import db
 
 PRIVATE_ENDPOINTS = []
+ASPECTS = []
 
 models = {
     "recommendations": Recommendation,
@@ -35,6 +36,7 @@ models = {
     "observations": Observation,
     "aspects": Aspect,
     "reviews": Review,
+    "votes": Vote,
 }
 
 def require_login(f):
@@ -103,12 +105,27 @@ class Base(MethodView):
         return render_template("base.html", template="%s.html" % uri, models=models)
 
 
+class Browse(MethodView):
+    def get(self):
+        page = request.args.get("page", 0)
+        recs = Recommendation.paginate(page, is_approved=True)
+        return render_template(
+            "base.html", template="browse.html", recs=recs, models=models)
+
+
 class Section(MethodView):
     def get(self, resource=""):
+        global ASPECTS
+        if resource == "login" and session.get('username'):
+            return redirect("/submit")
         if resource in ["ask", "submit"] and not session.get('username'):
             return redirect(request.url_root + "login?redir=/" + resource)
         layout = resource.replace(".html", "") if resource else "index"
-        return render_template("base.html", template="%s.html" % layout, models=models)
+        if not ASPECTS:
+            ASPECTS = [v.dict(minimal=True) for v in books.core.models['aspects'].all()]
+        return render_template(
+            "base.html", template="%s.html" % layout, models=models, data=ASPECTS
+        )
 
     def post(self, resource=""):
         """
@@ -261,7 +278,7 @@ class BookObservations(MethodView):
 class Router(MethodView):
 
     @rest
-    def get(self, cls, _id=None):
+    def get(self, cls, _id=None, cls2=None):
         if not books.core.models.get(cls) or cls in PRIVATE_ENDPOINTS:
             return {"error": "Invalid endpoint"}
         if request.args.get('action') == 'search':
@@ -271,7 +288,7 @@ class Router(MethodView):
         return {cls: [v.dict(minimal=True) for v in books.core.models[cls].all()]}
 
     @rest
-    def post(self, cls, _id=None):
+    def post(self, cls, _id=None, cls2=None):
         """To prevent a service like Open Library (or anyone else) from
         making a POST on behalf of another patron, we should require
         s3 keys.
@@ -279,6 +296,22 @@ class Router(MethodView):
         Open Library has s3 keys and we can fetch s3 keys from
         bestbook during the auth stage.
         """
+        if cls == "recommendations" and _id:
+            recommendation = Recommendation.get(_id)
+            username = session.get('username')
+            if recommendation and username:
+                value = 1 if request.form.get('value') == "true" else -1
+                try:
+                    vote = Vote.get(username=username, recommendation_id=_id)
+                    if vote.value != value:
+                        vote.value = value
+                        vote.update()
+                    else:
+                        return vote.remove()
+                except:
+                    vote = Vote(username=username, recommendation_id=_id, value=value).create()
+                return vote.dict()
+
 
         if cls=="topics":
             json_str = request.data
