@@ -315,8 +315,9 @@ ul.recommendation--candidates li div {
     padding: 10px;
 }
 
-ul.recommendation--candidate {
-    
+ul.recommendation--candidate div a {
+    margin: 0 auto;
+    display: block;
 }
 
 ul.recommendation--candidates li div ul.aspect-response li {
@@ -377,6 +378,8 @@ ul.recommendation--candidates li div ul.aspect-response li {
     max-width: 75px;
     height: 100px;
     background: #999;
+    margin: 0 auto;
+    display: block;
 }
 
 a.borrow-btn {
@@ -820,7 +823,7 @@ a.cta-btn--read {
     text-decoration: none;
     border-radius: 5px;
     padding: 5px 10px;
-    margin: 0 20px;
+    margin: 0 10px;
     display: block;
     text-align: center;
     background: #226699;

@@ -42,7 +42,7 @@
             {% if winner.get('availability') %}
             <div>
               {% set availability = winner.get('availability') %}
-              <a href="https://openlibrary.org/borrow/ia/{{availability.get('identifier')}}?ref=tbbo&q="
+              <a href="https://openlibrary.org/borrow/ia/{{availability.get('identifier')}}?ref=tbbo&q=" target="_blank"
                  class="cta-btn--read">{{ {"error": "Preview", "open": "Read", "borrow_available": "Borrow"}.get(availability.get('status'), 'Preview') }}</a>
             </div>
             {% endif %}
@@ -85,10 +85,19 @@
             {% set candidate_work = recs.works[candidate.work_olid] %}
             <li class="recommendation--candidate">
 	      <div>
-		<a href="https://openlibrary.org{{candidate_work.key}}">
+		<a href="https://openlibrary.org{{candidate_work.key}}" class="">
                   <img class="bookcover--thumbnail"
 		       src="https://covers.openlibrary.org/b/id/{{candidate_work.cover_i}}-M.jpg"/>
 		</a>
+
+                {% if candidate_work.get('availability') %}
+                  <div>
+                    {% set ca = candidate_work.get('availability') %}
+                    <a href="https://openlibrary.org/borrow/ia/{{ca.get('identifier')}}?ref=tbbo&q=" target="_blank"
+                       class="cta-btn--read">{{ {"error": "Preview", "open": "Read", "borrow_available": "Borrow"}.get(ca.get('status'), 'Preview') }}</a>
+                  </div>		  
+                {% endif %}
+		
                 <div>
                   <a href="https://openlibrary.org{{candidate_work.key}}">{{ candidate_work.title }}</a>
 		  {% if candidate_work.get('author_name') %}
