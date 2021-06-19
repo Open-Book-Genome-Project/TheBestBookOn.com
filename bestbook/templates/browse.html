@@ -23,10 +23,10 @@
     </div>
     <div class="recommendation--container">
       <div class="recommendation--title">
+	<p>according to <a href="https://openlibrary.org/people/{{ rec.username }}">{{ rec.username }}</a> on {{rec.created.strftime('%Y-%m-%d')}}</p>
         <h3>
-          The best book on <strong>{{ rec.topic.name }}</strong>
+          The best book on <strong>{{ rec.topic.name }}</strong> is:
         </h3>
-        <p>according to <a href="https://openlibrary.org/people/{{ rec.username }}">{{ rec.username }}</a> on {{rec.created.strftime('%Y-%m-%d')}}</p>
       </div>
 
       <div class="recommendation--body">
@@ -85,11 +85,15 @@
             {% set candidate_work = recs.works[candidate.work_olid] %}
             <li class="recommendation--candidate">
 	      <div>
-                <img class="bookcover--thumbnail"
-		     src="https://covers.openlibrary.org/b/id/{{candidate_work.cover_i}}-M.jpg"/>
+		<a href="https://openlibrary.org{{candidate_work.key}}">
+                  <img class="bookcover--thumbnail"
+		       src="https://covers.openlibrary.org/b/id/{{candidate_work.cover_i}}-M.jpg"/>
+		</a>
                 <div>
                   <a href="https://openlibrary.org{{candidate_work.key}}">{{ candidate_work.title }}</a>
-                  <p>by {{ candidate_work['author_name'][0] }}</p>
+		  {% if candidate_work.get('author_name') %}
+                    <p>by <a href="https://openlibrary.org/authors/{{ candidate_work['author_key'][0] }}">{{ candidate_work['author_name'][0] }}</a></p>
+		  {% endif %}
 		</div>
                 <ul class="aspect-response">
                   {% for o in candidate.observations %}

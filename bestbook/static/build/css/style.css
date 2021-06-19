@@ -344,9 +344,12 @@ ul.recommendation--candidates li div ul.aspect-response li {
 }
 
 .recommendation--winner--details .review {
+    font-size: .9vw;
+    line-height: 1.5vw;
     border-left: 4px solid #ccc;
-    padding: .5vw;
+    padding: 2vw;
     background: #fafafa;
+    text-align: justify;
 }
 
 .recommendation--winner img {
