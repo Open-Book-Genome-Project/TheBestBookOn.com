@@ -315,6 +315,14 @@ ul.recommendation--candidates li div {
     padding: 10px;
 }
 
+ul.recommendation--candidate {
+    
+}
+
+ul.recommendation--candidates li div ul.aspect-response li {
+    display: block;
+}
+    
 .recommendation h3 {
     font-weight: normal;
     margin: .25vw 0;
@@ -772,11 +780,11 @@ ul.aspect-response {
 
 ul.aspect-response li {
     background: #FFFFFF;
-    display: block;
+    display: inline-block;
     border: 1px solid #A2A5AA;
     box-sizing: border-box;
     border-radius: 10px;
-    padding: 1%;
+    padding: 5px 10px;
     font-style: normal;
     font-weight: normal;
     font-size: .8vw;

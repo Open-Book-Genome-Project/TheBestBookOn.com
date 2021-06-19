@@ -58,7 +58,7 @@
               {% if winner.get('author_name') and winner.get('author_key') %}
                 {% set author_key = winner['author_key'][0] %}
                 {% set author_name = winner['author_name'][0] %}
-                by <a href="https://openlibrary.org{{author_key}}">{{ author_name }}</a>
+                by <a href="https://openlibrary.org/authors/{{author_key}}">{{ author_name }}</a>
               {% endif %}
             </p>
 
@@ -83,22 +83,24 @@
           <ul class="recommendation--candidates">
           {% for candidate in rec.candidates %}
             {% set candidate_work = recs.works[candidate.work_olid] %}
-            <li>
-              <img class="bookcover--thumbnail" src="https://covers.openlibrary.org/b/id/{{candidate_work.cover_i}}-M.jpg"/>
-              <div>
-                <a href="https://openlibrary.org{{candidate_work.work_key}}">{{ candidate_work.title }}</a>
-                <p>by {{ candidate_work['author_name'][0] }}</p>
-
+            <li class="recommendation--candidate">
+	      <div>
+                <img class="bookcover--thumbnail"
+		     src="https://covers.openlibrary.org/b/id/{{candidate_work.cover_i}}-M.jpg"/>
+                <div>
+                  <a href="https://openlibrary.org{{candidate_work.key}}">{{ candidate_work.title }}</a>
+                  <p>by {{ candidate_work['author_name'][0] }}</p>
+		</div>
                 <ul class="aspect-response">
-                 {% for o in candidate.observations %}
-                   {% for i in  o.response.split("|") %}
-                     <li class="aspect-response">{{ i }}</li>
-                   {% endfor %}
-                 {% endfor %}
+                  {% for o in candidate.observations %}
+                    {% for i in  o.response.split("|") %}
+                      <li class="aspect-response">{{ i }}</li>
+                    {% endfor %}
+                  {% endfor %}
                 </ul>
-              </div>
+	      </div>	      
             </li>
-            {% endfor %}
+          {% endfor %}
           </ul>
         </div>
 
