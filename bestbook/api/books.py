@@ -20,7 +20,7 @@ import requests
 import sqlalchemy
 from sqlalchemy import UniqueConstraint, PrimaryKeyConstraint
 from sqlalchemy import Column, Unicode, BigInteger, Integer, \
-    Boolean, DateTime, ForeignKey, Table, Index, exists, func
+    SmallInteger, Boolean, DateTime, ForeignKey, Table, Index, exists, func
 from sqlalchemy import MetaData
 from sqlalchemy.dialects.postgresql import JSON
 from sqlalchemy.exc import IntegrityError, InvalidRequestError
@@ -260,16 +260,40 @@ class Observation(core.Base):
                         backref="observations")
     aspect = relationship("Aspect", foreign_keys=[aspect_id], backref="observations")
 
-class Upvote(core.Base):
+class Vote(core.Base):
 
-    __tablename__ = "upvotes"  # for recommendations
+    __tablename__ = "votes"  # for recommendations
+    __table_args__ = (UniqueConstraint('username', 'recommendation_id', name='_user_rec_votes_uc'),)
 
     username = Column(Unicode, primary_key=True)
     recommendation_id = Column(Integer, ForeignKey("recommendations.id", onupdate="CASCADE"), primary_key=True)
+    value = Column(SmallInteger, default=1, nullable=False)  # -1 (downvote) or 1 (upvote)
     created = Column(DateTime(timezone=False), default=datetime.utcnow, nullable=False)
     modified = Column(DateTime(timezone=False), default=None)
 
     recommendation = relationship("Recommendation", backref="votes")
+
+    def dict(self):
+        vote = super(Vote, self).dict()
+        vote.pop('created')
+        vote.pop('modified')
+        return vote
+
+    def get_batch(cls, recs, username=None):
+        rec_ids = dict((r.id, {}) for r in recs)
+        # upvotes
+        # total
+        votes = {}
+        votes['totals'] = dict((a, {"score": b, "voters": c}) for (a, b, c) in cls.query.with_entities(
+            cls.recommendation_id, func.sum(cls.value), func.count(cls.value)
+        ).group_by(Vote.recommendation_id).filter(
+            cls.recommendation_id.in_(rec_ids)
+        ).all())
+        if username:
+            votes['user'] = dict(cls.query.with_entities(
+                cls.recommendation_id, cls.value,
+            ).filter(cls.recommendation_id.in_(rec_ids), username == cls.username).all())
+        return votes
 
 def register_aspects():
     Aspect(label="pace",

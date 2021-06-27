@@ -28,12 +28,14 @@ urls = ('/admin', views.Admin,
         '/api/observations', views.Observations,
         '/api/users/<username>/observations',views.UserObservations,
         '/api/books/<olid>/observations',views.BookObservations,
+        '/api/<cls>/<_id>/<cls2>', views.Router,
         '/api/<cls>/<_id>', views.Router,
         '/api/<cls>', views.Router,
         '/recommendations/<slug>/<rid>', views.RecommendationPage,
         '/recommendations/<rid>', views.RecommendationPage,
+        '/browse', views.Browse,
         '/<path:resource>', views.Section,
-        '/', views.Base
+        '/', views.Browse
         )
 
 app = router(Flask(__name__), urls)

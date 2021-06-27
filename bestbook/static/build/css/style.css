@@ -4,6 +4,7 @@ html, body {
     margin: 0;
     padding: 0;
     font-size: 1.3em;
+    background: #efebe9;
 }
 
 html {
@@ -44,7 +45,11 @@ h1.main-logo {
     text-align: center;
     font-family: 'Playfair Display', serif;
     margin-bottom: -10px;
-    font-size: 5vw;
+    font-size: 2vw;
+}
+
+h1.main-logo img {
+    height: 125px;
 }
 
 .main-logo span {
@@ -60,7 +65,7 @@ h2.tagline {
     font-weight: normal;
     margin: 0 auto;
     padding: 0;
-    font-size: 2.5vw;
+    font-size: 1.5vw;
     max-width: 1000px;
     color: #6c777d;
 }
@@ -69,7 +74,7 @@ select {
     padding: 10px;
     font-size: 1em;
     background: #fff;
-    border: 3px solid #99aab5;
+    border: 1px solid #99aab5;
     border-radius: 10px;
     padding: 10px 5px;
     font-family: arial;
@@ -78,9 +83,9 @@ select {
 
 select:focus, select:active, input[type=text]:focus, input[type=text]:active {
 							 border-radius: 10px;
-							 border: 3px solid #ffce31;
-							 outline: 3px solid #ffce31;
-							 box-shadow: 0 0 3px #ffce31;
+							 border: 1px solid #ffce31;
+							 outline: 1px solid #ffce31;
+							 box-shadow: 0 0 2px #ffce31;
 							 outline: none;
 						     }
 
@@ -92,17 +97,17 @@ select:focus, select:active, input[type=text]:focus, input[type=text]:active {
 }
 
 .block {
-    border: 5px solid #ccd6dd;
-    border-radius: 15px;
-    
     width: 100%;
     margin: 0 auto;
 }
 
 .block-rec {
-    border-bottom: 1px dashed #233045;
-    width: 100%;
+    border: 1px solid #cccccc;
     margin: 0 auto;
+    background: white;
+    margin-bottom: 20px;
+    border-radius: 10px;
+    padding: 10px;
 }
 
 .block h2 {
@@ -131,7 +136,7 @@ input[type=text], textarea {
     background: #fff;
     border-radius: 10px;
     color: #333;
-    border: 3px solid #99aab5;
+    border: 1px solid #99aab5;
     box-sizing: border-box;
     max-width: 100%;
 }
@@ -155,27 +160,15 @@ header {
 
 .step p {
     color: #999;
-
 }
 
 .step {
+    border-radius: 10px;
+    border: 1px solid #ccc;
     padding: 40px;
-}
-
-.step--1 {
-    border-top-left-radius: 10px;
-    border-top-right-radius: 10px;
-    background-color: hsla(354, 82%, 61%, 0.25);
-}
-
-.step--2 {
-    background-color: hsla(0, 0%, 91%, .25);
-}
-
-.step--3 {
-    background-color: hsla(206, 51%, 51%, .25);
-    border-bottom-left-radius: 10px;
-    border-bottom-right-radius: 10px;
+    border-radius: 10px;
+    background-color: white;
+    margin: 20px 0;
 }
 
 .cta {
@@ -218,13 +211,8 @@ a {
     margin-left: 10px;
 }
 
-span.navigation {
-    color: #99aab5;
-}
-
 a.filter {
     display: inline-block;
-    margin-bottom: 5px;
     padding: 5px;
     text-decoration: underline;
     color: #99aab5;
@@ -255,7 +243,7 @@ footer p {
 
 footer a.label {
     border-radius: 5px;
-    border: 3px solid #ccd6dd;
+    border: 2px solid #ccd6dd;
     padding: 5px;
     margin-right: 10px;
 }
@@ -267,7 +255,110 @@ footer a.label:last-child {
 
 .recommendation {
     display: flex;
+    font-size: 1vw;
     font-family: arial;
+}
+
+.recommendation--container {
+    overflow: auto;
+}
+
+.recommendation--upvote {
+    text-align: center;
+    padding-right: 20px;
+}
+
+.recommendation--upvote p {
+    font-weight: bold;
+    font-size: .9vw;
+    margin: 0;
+    color: #000;
+}
+
+.recommendation--upvote input {
+    font-size: 1.5vw;
+    cursor: pointer;
+    color: #999;
+}
+
+.recommendation--upvote input:hover {
+    color: #ed4c5c;
+}
+
+.recommendation--upvote input[type=submit].selected {
+    color: #ed4c5c;
+}
+
+
+.recommendation--context {
+    display: flex;
+    align-items: center;
+    margin-top: 10px;
+    border-top: 1px solid #ddd;
+}
+
+ul.recommendation--candidates {
+    display: flex;
+    flex: 1;
+    overflow-y: auto;
+}
+
+ul.recommendation--candidates li {
+    display: flex;
+    padding: 5px;
+    margin: 5px;
+}
+
+ul.recommendation--candidates li div {
+    padding: 10px;
+}
+
+ul.recommendation--candidate div a {
+    margin: 0 auto;
+    display: block;
+}
+
+ul.recommendation--candidates li div ul.aspect-response li {
+    display: block;
+}
+    
+.recommendation h3 {
+    font-weight: normal;
+    margin: .25vw 0;
+    font-size: 1.25vw;
+}
+
+.recommendation--title p {
+    font-size: 1vw;
+    margin: .5vw 0;
+    color: #a3a5a7;
+}
+
+.recommendation--winner {
+    display: flex;
+}
+
+.recommendation--winner--details {
+    margin: 20px 0;
+}
+
+.recommendation--winner--details .review {
+    font-size: .9vw;
+    line-height: 1.5vw;
+    border-left: 4px solid #ccc;
+    padding: 2vw;
+    background: #fafafa;
+    text-align: justify;
+}
+
+.recommendation--winner img {
+    width: 100px;
+    height: 150px;
+    background: #999;
+}
+
+.recommendation--body p {
+    font-size: .8vw;
 }
 
 .italic {
@@ -278,6 +369,15 @@ footer a.label:last-child {
     border-radius: 5px;
     margin: 20px;
     margin-bottom: 0;
+}
+
+.bookcover--thumbnail {
+    border-radius: 5px;
+    max-width: 75px;
+    height: 100px;
+    background: #999;
+    margin: 0 auto;
+    display: block;
 }
 
 a.borrow-btn {
@@ -399,17 +499,25 @@ span[title] {
     text-decoration-color: #999;
 }
 
+.banner-top {
+    top: 0;
+    border-bottom: 2px solid #ccd6dd;
+}
+
+.banner-bottom {
+    bottom: 0;
+    border-top: 2px solid #ccd6dd;
+}
+
 .banner {
     position: -webkit-sticky;
     position: sticky;
-    top: 0;
     opacity: 1.0;
     background-color: #fff;
     color: #666;
     overflow: hidden;
     padding-bottom: 5px;
     padding-top: 5px;
-    border-bottom: 3px solid #ccd6dd;
     z-index: 2;
 }
 
@@ -435,10 +543,6 @@ span[title] {
 .header a {
     text-decoration: none;
     color: inherit;
-}
-
-.bold {
-    font-weight: 800;
 }
 
 /* Buttons: */
@@ -674,20 +778,52 @@ aspect-label {
 }
 ul.aspect-response {
     list-style: none; /* Remove list bullets */
-    padding:0;
+    padding: 0;
+    margin: 0;
 }
-li.aspect-response {
+
+ul.aspect-response li {
     background: #FFFFFF;
     display: inline-block;
     border: 1px solid #A2A5AA;
     box-sizing: border-box;
     border-radius: 10px;
-    padding: 1%;
-
+    padding: 5px 10px;
     font-style: normal;
     font-weight: normal;
+    font-size: .8vw;
     text-align: center;
     text-transform: capitalize;
 
     color: #233045;
+}
+
+.account-dropdown {
+    display: inline-block;
+}
+
+.account-dropdown ul {
+    position: fixed;
+    right: 0px;
+    border-radius: 3px;
+    background: #fff;
+    z-index: 999;
+    border: 2px solid #A2A5AA;
+    margin: 5px;
+}
+
+.nostyle {
+    border: none;
+    background: none;
+}
+
+a.cta-btn--read {
+    text-decoration: none;
+    border-radius: 5px;
+    padding: 5px 10px;
+    margin: 0 10px;
+    display: block;
+    text-align: center;
+    background: #226699;
+    color: #fff;
 }
