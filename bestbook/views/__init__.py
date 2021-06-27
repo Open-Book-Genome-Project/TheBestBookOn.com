@@ -296,7 +296,7 @@ class Router(MethodView):
         Open Library has s3 keys and we can fetch s3 keys from
         bestbook during the auth stage.
         """
-        if cls == "recommendations" and _id:
+        if cls == "recommendations" and cls2:
             recommendation = Recommendation.get(_id)
             username = session.get('username')
             if recommendation and username:
