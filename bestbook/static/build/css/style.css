@@ -289,8 +289,6 @@ footer a.label:last-child {
     color: #ed4c5c;
 }
 
-.recommendation--title {
-}
 
 .recommendation--context {
     display: flex;
@@ -829,4 +827,3 @@ a.cta-btn--read {
     background: #226699;
     color: #fff;
 }
-
