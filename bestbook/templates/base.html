@@ -62,10 +62,9 @@
         <div class="container">
           <div class="navigation block-rec">
             <a class="filter {{'selected' if request.path in ['/browse', '/'] else ''}}" href="/browse">Find</a>,
-
-            <!-- <a class="filter {{'selected' if request.path in ['/ask', '/'] else ''}}" href="/ask">Request</a>, or -->
             <a class="filter {{'selected' if request.path in ['/ask'] else ''}}" href="https://forms.gle/FQGbrTNY3kYfPoAA6" target="_blank">Request</a>, or
-            <a class="filter {{'selected' if request.path == '/submit' else ''}}" href="/submit">Recommend</a> the Best Book on any <a href="/topics">Topic</a>
+            <a class="filter {{'selected' if request.path == '/submit' else ''}}" href="/submit">Recommend</a> the Best Book on any
+            <a class="filter {{'selected' if request.path == '/topics' else ''}}" href="/topics">Topic</a>
           </div>
 
           {% include template %}

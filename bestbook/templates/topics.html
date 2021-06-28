@@ -1,0 +1,10 @@
+
+
+<div class="block-rec">
+  <h4>Recommendations have been submitted on the following topics</h4>
+  <ul>
+    {% for topic in models["recommendations"].topics() %}
+      <li><a href="/topics/{{topic.id}}">{{topic.name}}</a></li>
+    {% endfor %}
+  </ul>
+</div>

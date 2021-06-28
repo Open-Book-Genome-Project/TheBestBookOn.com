@@ -89,15 +89,24 @@ class Book(core.Base):
     def get_many(olids):
         if not olids:
             return {}
-        url = '%s/get_many?ids=%s' % (OL_API, ','.join(olids))
+        q = 'key:(%s)' % ' OR '.join(
+            '/%s/%s' % (
+                'works' if olid.endswith('W') else 'editions',
+                olid
+            ) for olid in olids
+        )
+        url = '%s/search.json?q=%s' % (OL_API, q)
         r = requests.get(url)
 
+        books = {}
         try:
             r.raise_for_status()
         except requests.exceptions.HTTPError:
-            return {}
+            return books
 
-        return r.json()
+        for doc in r.json().get('docs', {}):
+            books[doc.get('key', '').split('/')[-1]] = doc
+        return books
 
     @classmethod
     def get_work_and_edition(cls, olid):
@@ -188,6 +197,11 @@ class Recommendation(core.Base):
     topic = relationship("Topic")
     winner = relationship("Book", backref="recommendations", foreign_keys=[book_id])
     candidates = relationship("Book", secondary='recommendations_to_books')
+
+    @classmethod
+    def topics(cls):
+        topic_ids = [t.topic_id for t in cls.query.distinct(cls.topic_id)]
+        return Topic.query.filter(Topic.id.in_(topic_ids)).all()
 
     @classmethod
     def paginate(cls, page, limit=10, **kwargs):

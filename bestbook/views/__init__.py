@@ -37,6 +37,7 @@ models = {
     "aspects": Aspect,
     "reviews": Review,
     "votes": Vote,
+    "topics": Topic,
 }
 
 def require_login(f):
@@ -106,12 +107,11 @@ class Base(MethodView):
 
 
 class Browse(MethodView):
-    def get(self):
+    def get(self, topic_id=None):
         page = request.args.get("page", 0)
         recs = Recommendation.paginate(page, is_approved=True)
         return render_template(
             "base.html", template="browse.html", recs=recs, models=models)
-
 
 class Section(MethodView):
     def get(self, resource=""):
