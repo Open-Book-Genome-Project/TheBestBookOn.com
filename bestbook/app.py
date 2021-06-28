@@ -34,6 +34,7 @@ urls = ('/admin', views.Admin,
         '/recommendations/<slug>/<rid>', views.RecommendationPage,
         '/recommendations/<rid>', views.RecommendationPage,
         '/browse', views.Browse,
+        '/topics/<topic_id>', views.Browse,
         '/<path:resource>', views.Section,
         '/', views.Browse
         )
