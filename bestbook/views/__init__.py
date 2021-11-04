@@ -19,22 +19,16 @@ from flask.views import MethodView
 from flask.json import loads
 from api.auth import login, is_admin
 from api import books
-from api.books import (
-    Recommendation, Book, Request, Observation, Aspect, Topic,
-    Review, Vote
-)
+from api.books import Recommendation, Book, Request, Topic, Review, Vote
 from api.core import RexException
 from api import db
 
 PRIVATE_ENDPOINTS = []
-ASPECTS = []
 
 models = {
     "recommendations": Recommendation,
     "books": Book,
     "requests": Request,
-    "observations": Observation,
-    "aspects": Aspect,
     "reviews": Review,
     "votes": Vote,
     "topics": Topic,
@@ -115,16 +109,14 @@ class Browse(MethodView):
 
 class Section(MethodView):
     def get(self, resource=""):
-        global ASPECTS
         if resource == "login" and session.get('username'):
             return redirect("/submit")
         if resource in ["ask", "submit"] and not session.get('username'):
             return redirect(request.url_root + "login?redir=/" + resource)
         layout = resource.replace(".html", "") if resource else "index"
-        if not ASPECTS:
-            ASPECTS = [v.dict(minimal=True) for v in books.core.models['aspects'].all()]
+
         return render_template(
-            "base.html", template="%s.html" % layout, models=models, data=ASPECTS
+            "base.html", template="%s.html" % layout, models=models
         )
 
     def post(self, resource=""):
@@ -175,6 +167,8 @@ class Submit(MethodView):
         winner = request.form.get('winner')
         candidates = request.form.get('candidates')
         description = request.form.get('description')
+        # source is not POSTed from /submit, but is needed for some
+        # admin functionality
         source = request.form.get('source')
         username = session.get('username')
         if source:
@@ -183,13 +177,7 @@ class Submit(MethodView):
         if not username:
             raise Exception('Login required')
 
-        observations = request.form.getlist('observations[]') or []
-
-        for o in observations:
-            observation = loads(o)
-            observation['username'] = username
-            Observations.persist_observation(observation)
-
+        # candidates will arrive in a different format if POSTed from /admin
         candidates = candidates or ' '.join(request.form.getlist('candidates[]'))
         rec = Recommendation.add(
             topic, winner,
@@ -198,83 +186,7 @@ class Submit(MethodView):
         return rec.dict()
 
 
-class Observations(MethodView):
-    """ Used to delimit multiple values of a multiple choice response. """
-    MULTI_CHOICE_DELIMITER = "|"
-
-    def post(self):
-        # Ensure that data was sent
-        if not request.data:
-            return "Bad Request", 400
-
-        data = loads(request.data)
-
-        if not all(data.get(x) for x in ("username", "work_id", "observations")):
-            return "Bad Request", 400
-
-        self.persist_observation(data)
-
-        return "OK", 200
-
-    @classmethod
-    def persist_observation(cls, data):
-        work_id = Book.clean_olid(data['work_id'])
-        edition_id = data.get('edition_id') and Book.clean_olid(data.get('edition_id'))
-        try:
-            book = Book.get(
-                work_olid=work_id,
-                edition_olid=edition_id
-            )
-        except RexException:
-            book = Book(work_olid=Book.clean_olid(data['work_id']))
-            if 'edition_id' in data:
-                book.edition_olid = edition_id
-            book.create()
-
-        all_observations = {}
-
-        for elem in data["observations"]:
-            key, value = list(elem.items())[0]
-            if key in all_observations:
-                all_observations[key] += cls.MULTI_CHOICE_DELIMITER + value
-            else:
-                all_observations[key] = value
-
-        for k, v in all_observations.items():
-            aspect = Aspect.get(label=k)
-
-            try:
-                observation = Observation.get(username=data["username"],
-                                              aspect_id=aspect.id,
-                                              book_id=book.id)
-                observation.response = v
-                observation.modified = datetime.utcnow()
-                observation.update()
-            except RexException:
-                observation = Observation(username=data["username"],
-                                          aspect_id=aspect.id,
-                                          book_id=book.id,
-                                          response=v).create()
-
-
 # API GET Router
-class UserObservations(MethodView):
-    @rest
-    def get(self, username):
-        return {
-        "observations": [r.dict() for r in Observation.query.filter(
-            Observation.username == username).all()]
-        }
-
-class BookObservations(MethodView):
-    @rest
-    def get(self, olid):
-        book = Book(edition_id=olid) if 'M' in olid else Book(work_id=olid)
-        return {
-        "observations": [r.dict() for r in Observation.query.filter(
-            Observation.book_id == book.id).all()]
-        }
-
 class Router(MethodView):
 
     @rest
