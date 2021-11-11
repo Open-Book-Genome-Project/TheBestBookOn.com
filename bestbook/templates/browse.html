@@ -62,18 +62,6 @@
               {% endif %}
             </p>
 
-            <ul class="aspect-response">
-              {% for c in rec.candidates %}
-                {% if c.work_olid in winner['key'] %}
-                  {% for o in c.observations %}
-                    {% for i in  o.response.split("|") %}
-                      <li class="aspect-response">{{ i }}</li>
-                    {% endfor %}
-                  {% endfor %}
-                {% endif %}
-              {% endfor %}
-            </ul>
-
             <p class="review">{{ rec.description }}</p>
           </div>
         </div>
@@ -104,14 +92,7 @@
                     <p>by <a href="https://openlibrary.org/authors/{{ candidate_work['author_key'][0] }}">{{ candidate_work['author_name'][0] }}</a></p>
 		  {% endif %}
 		</div>
-                <ul class="aspect-response">
-                  {% for o in candidate.observations %}
-                    {% for i in  o.response.split("|") %}
-                      <li class="aspect-response">{{ i }}</li>
-                    {% endfor %}
-                  {% endfor %}
-                </ul>
-	      </div>	      
+	      </div>
             </li>
           {% endfor %}
           </ul>

@@ -26,58 +26,10 @@
   <input type="submit">
 </form>
 
-{% set aspects = models['aspects'].all() -%}
-
 <div>
   {% for book in  models['books'].all() %}
   <tr>
     <td>{{ book }}</td>
   </tr>
   {% endfor %}
-</div>
-
-<h2>Observations</h2>
-<form method="POST" action="/admin">
-  <input type="hidden" name="type" value="observation">
-  <input name="Username" placeholder="Username" value="{{ session.get('username') }}">
-  <input name="Book ID" placeholder="Book ID">
-  <input name="Aaspect ID" placeholder="Aspect ID">
-  <input name="Response" placeholder="Response">
-  <input type="submit">
-</form>
-<div>
-  <table>
-    <thead>
-      <tr>
-	<th>Book</th>
-	<th>Aspect</th>
-	<th>Username</th>
-      </tr>
-    </thead>
-    {% for observation in  models['observations'].all() %}
-    <tr>
-      <td><a href="https://openlibrary.org/works/{{ observation.book_id }}">{{ observation.book_id }}</a></td>
-      <td>{{ observation.aspect.label }}</td>
-      <td><a href="https://openlibrary.org/people/{{ observation.username }}">{{ observation.username }}</a></td>
-    </tr>
-    {% endfor %}
-  </table>
-</div>
-
-<h2>Aspects</h2>
-<div>
-  <table>    
-  {% for aspect in aspects %}
-  <tr>
-    <td  valign="top">{{  aspect.label  }}</td>
-    <td>
-      <ul>
-	{% for option in aspect.schema['values'] %}
-	<li>{{  option  }}</li>
-	{% endfor %}
-      </ul>
-    </td>
-  </tr>
-  {% endfor %}
-  </table>
 </div>

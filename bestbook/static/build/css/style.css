@@ -317,10 +317,6 @@ ul.recommendation--candidate div a {
     margin: 0 auto;
     display: block;
 }
-
-ul.recommendation--candidates li div ul.aspect-response li {
-    display: block;
-}
     
 .recommendation h3 {
     font-weight: normal;
@@ -703,27 +699,6 @@ aspect-label {
     font-style: normal;
     font-weight: bold;
     /* identical to box height */
-
-    color: #233045;
-}
-ul.aspect-response {
-    list-style: none; /* Remove list bullets */
-    padding: 0;
-    margin: 0;
-}
-
-ul.aspect-response li {
-    background: #FFFFFF;
-    display: inline-block;
-    border: 1px solid #A2A5AA;
-    box-sizing: border-box;
-    border-radius: 10px;
-    padding: 5px 10px;
-    font-style: normal;
-    font-weight: normal;
-    font-size: .8vw;
-    text-align: center;
-    text-transform: capitalize;
 
     color: #233045;
 }
