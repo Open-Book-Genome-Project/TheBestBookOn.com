@@ -136,24 +136,6 @@ class Book(core.Base):
         return book
 
 
-class Review(core.Base):
-    """
-    Maps a single patron to a single to a single book record
-    """
-
-    __tablename__ = "reviews"
-    __table_args__ = (
-        PrimaryKeyConstraint('book_id', 'username'),
-    )
-
-    book_id = Column(BigInteger, ForeignKey("books.id"))
-    username = Column(Unicode, nullable=False) # @cdrini - Open Library
-    description = Column(Unicode) # Free-form answer
-    created = Column(DateTime(timezone=False), default=datetime.utcnow,
-                     nullable=False)
-    modified = Column(DateTime(timezone=False), default=None)
-
-
 class Request(core.Base):
 
     """A detailed request for a book recommendation"""
