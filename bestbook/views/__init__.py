@@ -19,7 +19,7 @@ from flask.views import MethodView
 from flask.json import loads
 from api.auth import login, is_admin
 from api import books
-from api.books import Recommendation, Book, Request, Topic, Review, Vote
+from api.books import Recommendation, Book, Request, Topic, Vote
 from api.core import RexException
 from api import db
 
@@ -29,7 +29,6 @@ models = {
     "recommendations": Recommendation,
     "books": Book,
     "requests": Request,
-    "reviews": Review,
     "votes": Vote,
     "topics": Topic,
 }

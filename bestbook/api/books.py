@@ -55,6 +55,35 @@ class Topic(core.Base):
         except:
             return cls(name=topic).create()
 
+
+class BookGraph(core.Base):
+
+    # What about learning objectives?
+    # What about types of edges?
+
+    __tablename__ = "bookgraph"
+    __table_args__ = (
+        PrimaryKeyConstraint(
+            'submitter', 'winner_work_olid', 'competitor_work_olid', 'topic_id'
+        ),
+        UniqueConstraint(
+            'submitter', 'winner_work_olid', 'competitor_work_olid', 'topic_id',
+            name='_book_edge_uc'
+        )
+    )
+
+    submitter = Column(Unicode, nullable=False) # e.g. @cdrini - Open Library username
+    winner_work_olid = Column(Unicode, nullable=False) # Open Library ID (required)
+    # rename to contender_work_olid
+    competitor_work_olid = Column(Unicode, nullable=False) # Open Library ID (required)
+    topic_id = Column(Integer, ForeignKey("topics.id")) # TBBO what?
+    # review_id = Column(BigInteger, ForeignKey("reviews.id"))
+    annotation = Column(Unicode) # Free-form answer  # XXX rm
+    created = Column(DateTime(timezone=False), default=datetime.utcnow, nullable=False)
+
+    topic = relationship("Topic")
+
+
 class Book(core.Base):
 
     __tablename__ = "books"
@@ -136,24 +165,6 @@ class Book(core.Base):
         return book
 
 
-class Review(core.Base):
-    """
-    Maps a single patron to a single to a single book record
-    """
-
-    __tablename__ = "reviews"
-    __table_args__ = (
-        PrimaryKeyConstraint('book_id', 'username'),
-    )
-
-    book_id = Column(BigInteger, ForeignKey("books.id"))
-    username = Column(Unicode, nullable=False) # @cdrini - Open Library
-    description = Column(Unicode) # Free-form answer
-    created = Column(DateTime(timezone=False), default=datetime.utcnow,
-                     nullable=False)
-    modified = Column(DateTime(timezone=False), default=None)
-
-
 class Request(core.Base):
 
     """A detailed request for a book recommendation"""
@@ -176,17 +187,19 @@ class Request(core.Base):
     modified = Column(DateTime(timezone=False), default=None)
 
 
-class Recommendation(core.Base):
+class Recommendation(core.Base): # --> Review
 
     """A rigorous book recommendation which has a winner and references
     which candidates where involved in the decision"""
 
     # This is the minimal version (incomplete)
 
-    __tablename__ = "recommendations"
+    __tablename__ = "recommendations"  # -> reviews
     id = Column(BigInteger, primary_key=True)
     topic_id = Column(Integer, ForeignKey("topics.id")) # TBBO what?
+    # winner_work_olid = Column(Unicode)  # OL123W
     book_id = Column(BigInteger, ForeignKey("books.id"))
+    # review = Column(Unicode)
     description = Column(Unicode)
     username = Column(Unicode, nullable=False) # @cdrini - Open Library
     is_approved = Column(Boolean, default=False, nullable=False)
