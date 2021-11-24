@@ -70,7 +70,7 @@
           <h3>Contenders:</h3>
           <ul class="recommendation--candidates">
           {% for candidate in rec.candidates %}
-            {% set candidate_work = recs.works[candidate.work_olid] %}
+            {% set candidate_work = recs.works[candidate.work_olid] if recs.works.get(candidate.work_olid) else {}%}
             <li class="recommendation--candidate">
 	      <div>
 		<a href="https://openlibrary.org{{candidate_work.key}}" class="">
