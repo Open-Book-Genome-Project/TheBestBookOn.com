@@ -4,7 +4,7 @@
 {% if request.args.get('debug') %}
   {{ votes }}
 {% endif %}
-{{ revs.count() }}
+
 {% for rev in revs %}
 <div class="block-rec">
   <div class="recommendation">

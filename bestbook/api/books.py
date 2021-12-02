@@ -15,8 +15,6 @@ from random import randint
 from datetime import datetime
 # http://web.archive.org/web/20180421223443/https://stackoverflow.com/
 # questions/10059345/sqlalchemy-unique-across-multiple-columns
-import re
-import requests
 import sqlalchemy
 from sqlalchemy import UniqueConstraint, PrimaryKeyConstraint
 from sqlalchemy import Column, Unicode, BigInteger, Integer, \
@@ -27,7 +25,8 @@ from sqlalchemy.exc import IntegrityError, InvalidRequestError
 from sqlalchemy.orm.exc import ObjectDeletedError
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm.attributes import flag_modified
-from api import db, engine, core, OL_API
+from api import db, engine, core
+from api.bookutils import clean_olid, get_many, fetch_work
 
 
 def build_tables():
@@ -80,6 +79,7 @@ class BookGraph(core.Base):
     created = Column(DateTime(timezone=False), default=datetime.utcnow, nullable=False)
 
     topic = relationship("Topic")
+    review = relationship("Review")
 
     @classmethod
     def get_distinct_topics(cls):
@@ -128,116 +128,41 @@ class Review(core.Base):
             for n in r.nodes:
                 olids.append(n.contender_work_olid)
             olids.append(n.winner_work_olid)
-            # TODO: This should be a Book, not an OLID
             r.winner = n.winner_work_olid
-        revs.works = Book.get_many(olids)
+        revs.works = get_many(olids)
         return revs
+
+    def get_topic(self):
+        return self.nodes[0].topic
+
+    def get_winner(self):
+        return fetch_work(self.nodes[0].winner_work_olid)
+
+    def get_contenders(self):
+        return get_many([n.contender_work_olid for n in self.nodes])
+
+    def get_submitter(self):
+        return self.nodes[0].submitter
 
     @classmethod
     def add(cls, topic, winner_olid, candidate_olids, username, description=""):
         """
         params:
         :topic (api.Topic):
-        :winner_golid: ANY OL ID (e.g. OL123M or OL234W)
+        :winner_olid: ANY OL ID (e.g. OL123M or OL234W)
         """
-        topic = Topic.upsert(topic)
-        winner = Book.upsert_by_olid(Book.clean_olid(winner_olid))
-        candidates = []
-        candidates.append(winner)
+        topic = Topic.upsert(topic) # TODO: Is this necessary?
+        review = cls(review=description.strip()).create()
+
         for olid in candidate_olids:
-            olid = Book.clean_olid(olid)  # xxx
-            candidates.append(Book.upsert_by_olid(olid))
+            olid = clean_olid(olid)
+            BookGraph(submitter=username, winner_work_olid=winner_olid,
+                contender_work_olid=olid, topic_id=topic.id,
+                review_id=review.id
+            ).create()
 
-        r = cls(topic_id=topic.id, book_id=winner.id,
-                description=description,
-                username=username,
-                candidates=candidates).create()
-
-        db.commit()
-        return r
-
-
-# TODO: Replace this with a new representation
-class Book(object):
-
-    __tablename__ = "books"
-    __table_args__ = (UniqueConstraint('work_olid', 'edition_olid', name='_work_edition_uc'),)
-
-    id = Column(BigInteger, primary_key=True)
-    work_olid = Column(Unicode, nullable=False) # Open Library ID (required)
-    edition_olid = Column(Unicode, nullable=True) # Open Library ID (optional)
-    created = Column(DateTime(timezone=False), default=datetime.utcnow,
-                     nullable=False)
-    modified = Column(DateTime(timezone=False), default=None)
-
-
-    @staticmethod
-    def clean_olid(olid):
-        """
-        Extract just the olid from some olid-containing string
-
-        >>> Book.clean_olid(None)
-        ''
-        >>> Book.clean_olid('')
-        ''
-        """
-        if not olid:
-            return ''
-        olid = olid.upper()
-        if olid.startswith('OL') and olid.endswith(('M', 'W')):
-            return olid
-        return re.findall(r'OL[0-9]+[MW]', olid)[0]
-
-    @staticmethod
-    def get_many(olids):
-        if not olids:
-            return {}
-        q = 'key:(%s)' % ' OR '.join(
-            '/%s/%s' % (
-                'works' if olid.endswith('W') else 'editions',
-                olid
-            ) for olid in olids
-        )
-        url = '%s/search.json?q=%s' % (OL_API, q)
-        r = requests.get(url)
-
-        books = {}
-        try:
-            r.raise_for_status()
-        except requests.exceptions.HTTPError:
-            return books
-
-        for doc in r.json().get('docs', {}):
-            books[doc.get('key', '').split('/')[-1]] = doc
-        return books
-
-    @classmethod
-    def get_work_and_edition(cls, olid):
-        work_id = None
-        edition_id = None
-        if olid.lower().endswith('m'):
-            edition_id = olid
-            # Fetch the edition's corresponding work_id from Open Library
-            r = requests.get('%s/books/%s' % (OL_API,  olid)).json()
-            work_id = r['works'][0]['key'].split('/')[-1]
-        else:
-            work_id = olid
-        return (
-            work_id and cls.clean_olid(work_id),
-            edition_id and cls.clean_olid(edition_id)
-        )
-
-
-    # TODO: Remove this
-    @classmethod
-    def upsert_by_olid(cls, olid):
-        work_olid, edition_olid = cls.get_work_and_edition(olid)
-        # Does a book exist for this work_id and edition_id?
-        try: # to fetch it
-            book = Book.get(work_olid=work_olid, edition_olid=edition_olid)
-        except: # if it doesn't exist, create it
-            book = Book(work_olid=work_olid, edition_olid=edition_olid).create()
-        return book
+        db.commit() # TODO: Is this already happening in core.py
+        return review
 
 
 class Request(core.Base):
@@ -264,7 +189,7 @@ class Request(core.Base):
 
 class Vote(core.Base):
 
-    __tablename__ = "votes"  # for recommendations
+    __tablename__ = "votes"  # for reviews
     __table_args__ = (UniqueConstraint('username', 'review_id', name='_user_rev_votes_uc'),)
 
     username = Column(Unicode, primary_key=True)
@@ -274,9 +199,8 @@ class Vote(core.Base):
     modified = Column(DateTime(timezone=False), default=None)
 
     review = relationship("Review", backref="votes")
-    # recommendation = relationship("Recommendation", backref="votes")
 
-    def dict(self):
+    def dict(self, **kwargs):
         vote = super(Vote, self).dict()
         vote.pop('created')
         vote.pop('modified')

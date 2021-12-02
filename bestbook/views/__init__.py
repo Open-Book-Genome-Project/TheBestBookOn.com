@@ -14,19 +14,19 @@ import calendar
 import json
 import requests
 from datetime import datetime
+from itertools import groupby
 from flask import Flask, render_template, Response, request, session, jsonify, redirect, make_response
 from flask.views import MethodView
 from flask.json import loads
 from api.auth import login, is_admin
 from api import books
-from api.books import Book, Request, Topic, Vote, Review, BookGraph
+from api.books import Request, Topic, Vote, Review, BookGraph
 from api.core import RexException
 from api import db
 
 PRIVATE_ENDPOINTS = []
 
 models = {
-    "books": Book,
     "requests": Request,
     "votes": Vote,
     "topics": Topic,
@@ -91,10 +91,17 @@ def search(model, limit=50, lazy=True):
 
 class User(MethodView):
     def get(self, username):
-        # TODO: Fetch all of a reader's recommendations:
-        # recs = Recommendation.query.filter(Recommendation.username == username).all()
-        recs = []
-        return render_template("base.html", template="user.html", username=username, recs=recs)
+        nodes = BookGraph.query.filter(BookGraph.submitter == username).order_by(BookGraph.review_id).all()
+        contenders = {}
+        for k, g in groupby(nodes, lambda x: x.review_id):
+            contenders[k] = list(g)
+        revs = {n.review for n in nodes}
+        for r in revs:
+            r.contenders = [c.contender_work_olid for c in contenders[r.id]]
+            r.winner = contenders[r.id][0].winner_work_olid
+            r.topic = contenders[r.id][0].topic
+
+        return render_template("base.html", template="user.html", username=username, revs=revs)
 
 
 class Base(MethodView):
@@ -105,8 +112,6 @@ class Base(MethodView):
 class Browse(MethodView):
     def get(self, topic_id=None):
         page = request.args.get("page", 0)
-        # TODO: Fetch all of a reader's recommendations
-        # recs = Recommendation.paginate(page, is_approved=True)
         revs = Review.paginate(page, is_approved=True)
         return render_template(
             "base.html", template="browse.html", revs=revs, models=models)
@@ -164,6 +169,7 @@ class Observe(MethodView):
         observation = request.form
         return jsonify(observation)
 
+
 class Submit(MethodView):
 
     def post(self):
@@ -172,7 +178,7 @@ class Submit(MethodView):
         candidates = request.form.get('candidates')
         description = request.form.get('description')
         # source is not POSTed from /submit, but is needed for some
-        # admin functionality
+        # admin debug view functionality
         source = request.form.get('source')
         username = session.get('username')
         if source:
@@ -183,11 +189,13 @@ class Submit(MethodView):
 
         # candidates will arrive in a different format if POSTed from /admin
         candidates = candidates or ' '.join(request.form.getlist('candidates[]'))
-        rec = Recommendation.add(
+        print(candidates)
+        review = Review.add(
             topic, winner,
-            [Book.clean_olid(c) for c in candidates.strip().split(' ')],
-            username, description)
-        return rec.dict()
+            [c for c in candidates.strip().split(' ')],
+            username, description
+        )
+        return review.dict()
 
 
 # API GET Router
@@ -212,20 +220,21 @@ class Router(MethodView):
         Open Library has s3 keys and we can fetch s3 keys from
         bestbook during the auth stage.
         """
-        if cls == "recommendations" and cls2:
-            recommendation = Recommendation.get(_id)
+        # TODO: Should "recommendations" be in the endpoint?
+        if cls == "recommendations" and cls2:   # Endpoints like: /api/<cls>/<_id>/<cls2>
+            review = Review.get(_id)
             username = session.get('username')
-            if recommendation and username:
+            if review and username:
                 value = 1 if request.form.get('value') == "true" else -1
                 try:
-                    vote = Vote.get(username=username, recommendation_id=_id)
+                    vote = Vote.get(username=username, review_id=_id)
                     if vote.value != value:
                         vote.value = value
                         vote.update()
                     else:
                         return vote.remove()
                 except:
-                    vote = Vote(username=username, recommendation_id=_id, value=value).create()
+                    vote = Vote(username=username, review_id=_id, value=value).create()
                 return vote.dict()
 
 
@@ -242,15 +251,15 @@ class Router(MethodView):
                 req.modified = datetime.utcnow()
                 req.update()
                 return 'Request approved'
-
+        # TODO: Should "recommendations" be in the endpoint?
         elif cls=="recommendations":
             data = loads(request.data)
             if data['approved']:
-                recommendation = Recommendation.get(_id)
-                recommendation.is_approved = True
-                recommendation.modified = datetime.utcnow()
-                recommendation.update()
-                return 'Recommendation approved'
+                review = Review.get(_id)
+                review.is_approved = True
+                review.modified = datetime.utcnow()
+                review.update()
+                return 'Review approved'
 
     @rest
     def delete(self, cls, _id=None):
@@ -269,6 +278,8 @@ class Router(MethodView):
         if cls=="requests":
             Request.get(_id).remove()
             return 'Request deleted'
+        # TODO: Change this to reviews.
+        # TODO: Delete related book graph nodes here.
         elif cls=="recommendations":
             Recommendation.get(_id).remove()
             return 'Recommendation deleted'
@@ -291,9 +302,7 @@ class Admin(MethodView):
 class RecommendationApproval(MethodView):
     def get(self):
         return render_template("base.html", template="approve-recommendation.html", models={
-            "recommendations": Recommendation,
-            "books": Book,
-            "topics": Topic
+            "reviews": Review
         })
 
 class RecommendationPage(MethodView):
@@ -310,13 +319,3 @@ class RequestApproval(MethodView):
             "requests": Request,
             "topics": Topic
         })
-
-
-def fetch_work(work_olid):
-    base_url = "https://openlibrary.org/works/{}".format(work_olid)
-    response = requests.get(base_url + ".json")
-
-    return {
-        "title": response.json()["title"] if response.status_code == 200 else work_olid,
-        "link": base_url
-    }
