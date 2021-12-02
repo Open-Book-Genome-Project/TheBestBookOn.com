@@ -19,18 +19,19 @@ from flask.views import MethodView
 from flask.json import loads
 from api.auth import login, is_admin
 from api import books
-from api.books import Recommendation, Book, Request, Topic, Vote
+from api.books import Book, Request, Topic, Vote, Review, BookGraph
 from api.core import RexException
 from api import db
 
 PRIVATE_ENDPOINTS = []
 
 models = {
-    "recommendations": Recommendation,
     "books": Book,
     "requests": Request,
     "votes": Vote,
     "topics": Topic,
+    "reviews": Review,
+    "nodes": BookGraph # Is "nodes" the correct name?
 }
 
 def require_login(f):
@@ -90,7 +91,9 @@ def search(model, limit=50, lazy=True):
 
 class User(MethodView):
     def get(self, username):
-        recs = Recommendation.query.filter(Recommendation.username == username).all()
+        # TODO: Fetch all of a reader's recommendations:
+        # recs = Recommendation.query.filter(Recommendation.username == username).all()
+        recs = []
         return render_template("base.html", template="user.html", username=username, recs=recs)
 
 
@@ -102,9 +105,11 @@ class Base(MethodView):
 class Browse(MethodView):
     def get(self, topic_id=None):
         page = request.args.get("page", 0)
-        recs = Recommendation.paginate(page, is_approved=True)
+        # TODO: Fetch all of a reader's recommendations
+        # recs = Recommendation.paginate(page, is_approved=True)
+        revs = Review.paginate(page, is_approved=True)
         return render_template(
-            "base.html", template="browse.html", recs=recs, models=models)
+            "base.html", template="browse.html", revs=revs, models=models)
 
 class Section(MethodView):
     def get(self, resource=""):
