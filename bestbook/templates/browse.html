@@ -23,12 +23,11 @@
     </div>
     <div class="recommendation--container">
       <div class="recommendation--title">
-	<p>according to <a href="https://openlibrary.org/people/{{ rev.nodes[0].submitter }}">{{rev.nodes[0].submitter}}</a> on {{rev.created.strftime('%Y-%m-%d')}}</p>
+        <p>according to <a href="https://openlibrary.org/people/{{ rev.nodes[0].submitter }}">{{rev.nodes[0].submitter}}</a> on {{rev.created.strftime('%Y-%m-%d')}}</p>
         <h3>
           The best book on <strong>{{ rev.nodes[0].topic.name }}</strong> is:
         </h3>
       </div>
-
       <div class="recommendation--body">
         <div class="recommendation--winner">
           <div>
@@ -73,32 +72,28 @@
           {% for candidate in rev.nodes %}
             {% set candidate_work = revs.works[candidate.contender_work_olid] if revs.works.get(candidate.contender_work_olid) else {}%}
             <li class="recommendation--candidate">
-	      <div>
-		<a href="https://openlibrary.org{{candidate_work.key}}" class="">
-                  <img class="bookcover--thumbnail"
-		       src="https://covers.openlibrary.org/b/id/{{candidate_work.cover_i}}-M.jpg"/>
-		</a>
-
+              <div>
+                <a href="https://openlibrary.org{{candidate_work.key}}">
+                  <img class="bookcover--thumbnail" src="https://covers.openlibrary.org/b/id/{{candidate_work.cover_i}}-M.jpg"/>
+                </a>
                 {% if candidate_work.get('availability') %}
                   <div>
                     {% set ca = candidate_work.get('availability') %}
                     <a href="https://openlibrary.org/borrow/ia/{{ca.get('identifier')}}?ref=tbbo&q=" target="_blank"
                        class="cta-btn--read">{{ {"error": "Preview", "open": "Read", "borrow_available": "Borrow"}.get(ca.get('status'), 'Preview') }}</a>
-                  </div>		  
+                  </div>
                 {% endif %}
-		
                 <div>
                   <a href="https://openlibrary.org{{candidate_work.key}}">{{ candidate_work.title }}</a>
-		  {% if candidate_work.get('author_name') %}
+                  {% if candidate_work.get('author_name') %}
                     <p>by <a href="https://openlibrary.org/authors/{{ candidate_work['author_key'][0] }}">{{ candidate_work['author_name'][0] }}</a></p>
-		  {% endif %}
-		</div>
-	      </div>
+                  {% endif %}
+                </div>
+              </div>
             </li>
           {% endfor %}
           </ul>
         </div>
-
       </div>
     </div>
   </div>
