@@ -475,26 +475,26 @@ function rejectRequest(requestId) {
   })
 }
 
-function approveRecommendation(recommendationId) {
+function approveReview(reviewId) {
   let payload = { approved: true }
 
   $.ajax({
     type: 'POST',
-    url: `/api/recommendations/${recommendationId}`,
+    url: `/api/reviews/${reviewId}`,
     contentType: 'application/json',
     data: JSON.stringify(payload),
     success: function(msg) {
-      updateButtonGroup(recommendationId, msg);
+      updateButtonGroup(reviewId, msg);
     }
   })
 }
 
-function rejectRecommendation(recommendationId) {
+function rejectReview(reviewId) {
   $.ajax({
     type: 'DELETE',
-    url: `/api/recommendations/${recommendationId}`,
+    url: `/api/reviews/${reviewId}`,
     success: function(msg) {
-      updateButtonGroup(recommendationId, msg);
+      updateButtonGroup(reviewId, msg);
     }
   })
 }

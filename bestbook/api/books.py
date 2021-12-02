@@ -138,11 +138,18 @@ class Review(core.Base):
     def get_winner(self):
         return fetch_work(self.nodes[0].winner_work_olid)
 
+    def get_winner_olid(self):
+        return self.nodes[0].winner_work_olid
+
     def get_contenders(self):
         return get_many([n.contender_work_olid for n in self.nodes])
 
     def get_submitter(self):
         return self.nodes[0].submitter
+
+    def delete_nodes(self):
+        for n in self.nodes:
+            n.remove()
 
     @classmethod
     def add(cls, topic, winner_olid, candidate_olids, username, description=""):

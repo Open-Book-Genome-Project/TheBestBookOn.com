@@ -37,7 +37,7 @@
                 <li><a class="filter" href="https://openlibrary.org/account">My profile</a></li>
                 {% if session.get('username') and is_admin(session.get('username')) %}
                 <li><a class="filter {{'selected' if request.path in ['/admin'] else ''}}" href="/admin">Debug</a></li>
-                <li><a class="filter {{'selected' if request.path in ['/admin/approve/recommendations'] else ''}}" href="/admin/approve/recommendations">Approve Recommendations</a></li>
+                <li><a class="filter {{'selected' if request.path in ['/admin/approve/recommendations'] else ''}}" href="/admin/approve/reviews">Approve Reviews</a></li>
                 <li><a class="filter {{'selected' if request.path in ['/admin/approve/requests'] else ''}}" href="/admin/approve/requests">Approve Requests</a></li>
                 {% endif %}
                 <li><a href="/logout">logout</a></li>

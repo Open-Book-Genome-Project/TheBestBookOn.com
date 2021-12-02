@@ -252,7 +252,7 @@ class Router(MethodView):
                 req.update()
                 return 'Request approved'
         # TODO: Should "recommendations" be in the endpoint?
-        elif cls=="recommendations":
+        elif cls=="reviews":
             data = loads(request.data)
             if data['approved']:
                 review = Review.get(_id)
@@ -278,11 +278,11 @@ class Router(MethodView):
         if cls=="requests":
             Request.get(_id).remove()
             return 'Request deleted'
-        # TODO: Change this to reviews.
-        # TODO: Delete related book graph nodes here.
-        elif cls=="recommendations":
-            Recommendation.get(_id).remove()
-            return 'Recommendation deleted'
+        elif cls=="reviews":
+            review = Review.get(_id)
+            review.delete_nodes()
+            review.remove()
+            return 'Review deleted'
 
 # Index of all available models: APIs / tables
 
@@ -299,19 +299,20 @@ class Admin(MethodView):
         return render_template("base.html", template="admin.html", models=models)
 
 
-class RecommendationApproval(MethodView):
+class ReviewApproval(MethodView):
     def get(self):
-        return render_template("base.html", template="approve-recommendation.html", models={
+        return render_template("base.html", template="approve-review.html", models={
             "reviews": Review
         })
 
-class RecommendationPage(MethodView):
+
+class ReviewPage(MethodView):
     def get(self, rid=None, slug=""):
         try:
-            rec = Recommendation.get(int(rid))
+            rev = Review.get(int(rid))
         except RexException as e:
             return redirect(request.url_root)
-        return render_template("base.html", template="recommendation.html", rec=rec)
+        return render_template("base.html", template="review.html", rev=rev)
 
 class RequestApproval(MethodView):
     def get(self):
