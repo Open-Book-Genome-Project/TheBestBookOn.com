@@ -6,12 +6,17 @@ from api import OL_API
 
 def clean_olid(olid):
     """
-    Extract just the olid from some olid-containing string
+    Extract just the first work or edition olid from
+    some olid-containing string.
 
     >>> clean_olid(None)
     ''
     >>> clean_olid('')
     ''
+    >>> clean_olid('OL12345A,OL6789W')
+    'OL6789W'
+    >>> clean_olid('/books/OL13579M')
+    'OL13579M'
     """
     if not olid:
         return ''

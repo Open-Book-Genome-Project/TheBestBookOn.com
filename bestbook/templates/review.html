@@ -1,12 +1,12 @@
-<h2>The best book on: {{ rev.get_topic()['name'] }} by {{ rev.get_submitter() }}:</h2>
+<h2>The best book on: {{ rev.topic['name'] }} by {{ rev.submitter }}:</h2>
 
 <div class="block">
   <div class="recommendation">
-    <div><a href="https://openlibrary.org/works/{{rev.get_winner_olid()}}"><img src="https://covers.openlibrary.org/b/olid/{{rev.get_winner_olid()}}-M.jpg"></a></div>
+    <div><a href="https://openlibrary.org/works/{{rev.winner_olid}}"><img src="https://covers.openlibrary.org/b/olid/{{rev.winner_olid}}-M.jpg"></a></div>
     <div>
       <p>{{ rev.review }}</p>
       <ul>
-      {% for contender in rev.get_contenders() %}
+      {% for contender in rev.contenders %}
         <p>{{ contender }}</p>
       {% endfor %}
       </ul>

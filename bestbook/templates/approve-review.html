@@ -2,9 +2,9 @@
 {% set reviews = models['reviews'].get_all(is_approved=False) %}
 
 {% for review in reviews %}
-    {% set topic = review.get_topic() %}
-    {% set winner = review.get_winner() %}
-    {% set contenders = review.get_contenders() %}
+    {% set topic = review.topic %}
+    {% set winner = review.winner %}
+    {% set contenders = review.contenders %}
 
     <div class="approval-item">
         <div class="approval-item-data">
@@ -12,7 +12,7 @@
             <p><span class="bold">Topic:</span> {{ topic['name'] }}</p>
             <p><span class="bold">Review:</span> {{ review['review'] }}</p>
             <p><span class="bold">Created:</span> {{ review['created'] }}</p>
-            <p><span class="bold">Username:</span> {{ review.get_submitter() }}</p>
+            <p><span class="bold">Submitter:</span> {{ review.submitter }}</p>
             <div>
                 <span class="bold">Contenders:</span>
                 {% for contender in contenders.values() %}

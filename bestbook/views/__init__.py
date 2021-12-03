@@ -96,10 +96,6 @@ class User(MethodView):
         for k, g in groupby(nodes, lambda x: x.review_id):
             contenders[k] = list(g)
         revs = {n.review for n in nodes}
-        for r in revs:
-            r.contenders = [c.contender_work_olid for c in contenders[r.id]]
-            r.winner = contenders[r.id][0].winner_work_olid
-            r.topic = contenders[r.id][0].topic
 
         return render_template("base.html", template="user.html", username=username, revs=revs)
 

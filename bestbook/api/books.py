@@ -22,6 +22,7 @@ from sqlalchemy import Column, Unicode, BigInteger, Integer, \
 from sqlalchemy import MetaData
 from sqlalchemy.dialects.postgresql import JSON
 from sqlalchemy.exc import IntegrityError, InvalidRequestError
+from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm.exc import ObjectDeletedError
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm.attributes import flag_modified
@@ -94,26 +95,13 @@ class Review(core.Base):
 
     __tablename__ = "reviews"
     id = Column(BigInteger, primary_key=True)
-    # topic_id = Column(Integer, ForeignKey("topics.id")) # TBBO what?
-    # submitter = Column(Unicode, nullable=False) # @cdrini - Open Library
     review = Column(Unicode, nullable=False) # Why is the winner the best book?
-    # TODO: Confirm that winner_work_olid is needed here:
-    # winner_work_olid = Column(Unicode)  # OL123W
     is_approved = Column(Boolean, default=False, nullable=False)
     created = Column(DateTime(timezone=False), default=datetime.utcnow,
                      nullable=False)
     modified = Column(DateTime(timezone=False), default=None)
 
-    # topic = relationship("Topic")
-
-    # TODO: Create relationship to Bookgraph entry (or entries)
-    # This will allow us to remove submitter, topic_id, and winner_work_olid
     nodes = relationship("BookGraph")
-
-    # TODO: Replace the following with data from book graph:
-    winner = None
-    # winner = relationship("Book", backref="recommendations", foreign_keys=[book_id])
-    # candidates = relationship("BookGraph", secondary='recommendations_to_books')
 
     @classmethod
     def topics(cls):
@@ -128,23 +116,27 @@ class Review(core.Base):
             for n in r.nodes:
                 olids.append(n.contender_work_olid)
             olids.append(n.winner_work_olid)
-            r.winner = n.winner_work_olid
         revs.works = get_many(olids)
         return revs
 
-    def get_topic(self):
+    @hybrid_property
+    def topic(self):
         return self.nodes[0].topic
 
-    def get_winner(self):
+    @hybrid_property
+    def winner(self):
         return fetch_work(self.nodes[0].winner_work_olid)
 
-    def get_winner_olid(self):
+    @hybrid_property
+    def winner_olid(self):
         return self.nodes[0].winner_work_olid
 
-    def get_contenders(self):
+    @hybrid_property
+    def contenders(self):
         return get_many([n.contender_work_olid for n in self.nodes])
 
-    def get_submitter(self):
+    @hybrid_property
+    def submitter(self):
         return self.nodes[0].submitter
 
     def delete_nodes(self):
