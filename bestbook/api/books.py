@@ -93,7 +93,7 @@ class Review(core.Base):
     """A rigorous book recommendation which has a winner and references
     which candidates where involved in the decision"""
 
-    __tablename__ = "reviews"
+    __tablename__ = "recommendations"
     id = Column(BigInteger, primary_key=True)
     review = Column(Unicode, nullable=False) # Why is the winner the best book?
     is_approved = Column(Boolean, default=False, nullable=False)
