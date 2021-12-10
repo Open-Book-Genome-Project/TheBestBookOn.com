@@ -19,4 +19,12 @@ COPY . /app
 
 ENTRYPOINT [ "python3" ]
 
+# create psql user
+RUN service postgresql start
+RUN psql -h 0.0.0.0 -p 5432 -U postgres -d database_name -c "create user bestbook with password '$PSQL_PASSWD' login createdb;"
+RUN psql -h 0.0.0.0 -p 5432 -U postgres -d database_name -c "create database bestbooks owner bestbook;"
+
+# create tables via sqlalchemy
+RUN python -c 'import api;api.core.Base.metadata.create_all(api.engine)'
+
 CMD [ "bestbook/app.py" ]

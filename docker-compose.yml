@@ -1,0 +1,9 @@
+version: "3.1"
+services:
+  tbbo:
+    build: .
+    volumes:
+      - $TBBO_CONFIG:/TheBestBookOn.com/bestbook/configs/settings.cfg
+    command: tail -F anything
+    ports:
+      - 5432:5432
