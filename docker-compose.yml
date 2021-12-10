@@ -2,8 +2,17 @@ version: "3.1"
 services:
   tbbo:
     build: .
+    depends_on:
+      - db
     volumes:
       - $TBBO_CONFIG:/TheBestBookOn.com/bestbook/configs/settings.cfg
-    command: tail -F anything
+    ports:
+      - 31337:31337
+  db:
+    image: postgres:14.1
+    environment:
+      - POSTGRES_USER=bestbook
+      - POSTGRES_PASSWORD=$PSQL_PASSWD
+      - POSTGRES_DB=bestbooks
     ports:
       - 5432:5432
