@@ -27,7 +27,7 @@ First, create a user and a database for the project to use:
     postgres=# create user rex with password 'yourPasswordHere' login createdb;
     postgres=# create database bestbooks owner rex;
 
-Next, create a file called `settings.cfg` with the following contents within `bestbook/configs/`. Replace `yourPasswordHere` with the value you choose when creating your pql database. Under the `[security]` section, fill in a value for `secret = ` by generating os.urandom(24) -- see: http://flask.pocoo.org/docs/0.10/quickstart/#sessions "How to generate good secret keys":
+Next, create a file called `settings.cfg` with the following contents within `bestbook/configs/`. Replace `yourPasswordHere` with the value you choose when creating your pql database. Under the `[security]` section, fill in a value for `secret = ` by generating os.urandom(24) -- see: ["How to generate good secret keys"](https://flask.palletsprojects.com/en/2.0.x/quickstart/?highlight=secret%20key#sessions):
 
     [server]
     host = 0.0.0.0
