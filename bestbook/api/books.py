@@ -96,6 +96,8 @@ class Review(core.Base):
     __tablename__ = "recommendations"
     id = Column(BigInteger, primary_key=True)
     review = Column(Unicode, nullable=False) # Why is the winner the best book?
+    submitter = Column(Unicode, nullable=False) # e.g. @cdrini - Open Library username
+    winner_work_olid = Column(Unicode, nullable=False) # Open Library ID (required)
     is_approved = Column(Boolean, default=False, nullable=False)
     created = Column(DateTime(timezone=False), default=datetime.utcnow,
                      nullable=False)
