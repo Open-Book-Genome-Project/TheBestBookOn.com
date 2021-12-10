@@ -76,7 +76,7 @@ class BookGraph(core.Base):
     winner_work_olid = Column(Unicode, nullable=False) # Open Library ID (required)
     contender_work_olid = Column(Unicode, nullable=False) # Open Library ID (required)
     topic_id = Column(Integer, ForeignKey("topics.id")) # TBBO what?
-    review_id = Column(BigInteger, ForeignKey("reviews.id"))
+    review_id = Column(BigInteger, ForeignKey("recommendations.id"))
     created = Column(DateTime(timezone=False), default=datetime.utcnow, nullable=False)
 
     topic = relationship("Topic")
@@ -194,7 +194,7 @@ class Vote(core.Base):
     __table_args__ = (UniqueConstraint('username', 'review_id', name='_user_rev_votes_uc'),)
 
     username = Column(Unicode, primary_key=True)
-    review_id = Column(Integer, ForeignKey("reviews.id", onupdate="CASCADE"), primary_key=True)
+    review_id = Column(Integer, ForeignKey("recommendations.id", onupdate="CASCADE"), primary_key=True)
     value = Column(SmallInteger, default=1, nullable=False)  # -1 (downvote) or 1 (upvote)
     created = Column(DateTime(timezone=False), default=datetime.utcnow, nullable=False)
     modified = Column(DateTime(timezone=False), default=None)

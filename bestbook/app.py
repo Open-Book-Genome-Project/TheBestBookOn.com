@@ -14,7 +14,7 @@ from flask_routing import router
 from flask_cors import CORS
 from logging.config import dictConfig
 import views
-from api import db
+import api
 from api.auth import is_admin
 from configs import options, SECRET_KEY, LOGGER
 
@@ -43,9 +43,15 @@ app.jinja_env.globals.update(is_admin=is_admin)
 dictConfig(LOGGER)
 
 if __name__ == "__main__":
+    try:
+        # create tables via sqlalchemy
+        api.core.Base.metadata.create_all(api.engine)
+    except Exception as e:
+        print(f"Skipping table build: {e}")
+
     app.run(**options)
 
 @app.teardown_appcontext
 def shutdown_session(exception=None):
     # Removes db session at the end of each request
-    db.remove()
+    api.db.remove()
