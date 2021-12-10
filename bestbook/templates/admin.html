@@ -1,5 +1,5 @@
 
-<h2>Recommendations</h2>
+<h2>Reviews</h2>
 <form action="/submit" method="POST">
   <input name="topic" placeholder="topic (e.g. 'Information Theory')">
   <input name="winner" placeholder="winner (e.g. OL123W)">
@@ -10,26 +10,9 @@
 </form>
 
 
-{% set recommendations = models['recommendations'].all() -%}
+{% set reviews = models['reviews'].all() -%}
 <ul>
-  {% for rec in  recommendations %}
-    <li style="font-size: .8em">{{ rec }}</li>
+  {% for rev in reviews %}
+    <li style="font-size: .8em">{{ rev }}</li>
   {% endfor %}
 </ul>
-
-<h2>Books</h2>
-
-<form method="POST" action="/admin">
-  <input type="hidden" name="type" value="book">
-  <input name="work_olid" placeholder="Work ID">
-  <input name="edition_olid" placeholder="Edition ID (optional)">
-  <input type="submit">
-</form>
-
-<div>
-  {% for book in  models['books'].all() %}
-  <tr>
-    <td>{{ book }}</td>
-  </tr>
-  {% endfor %}
-</div>

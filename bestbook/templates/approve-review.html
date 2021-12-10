@@ -1,0 +1,34 @@
+<h2>Reviews Pending Approval:</h2>
+{% set reviews = models['reviews'].get_all(is_approved=False) %}
+
+{% for review in reviews %}
+    {% set topic = review.topic %}
+    {% set winner = review.winner %}
+    {% set contenders = review.contenders %}
+
+    <div class="approval-item">
+        <div class="approval-item-data">
+            <p><span class="bold">Title:</span> <a href="{{ winner['link'] }}" target="_blank">{{ winner['title'] }}</a></p>
+            <p><span class="bold">Topic:</span> {{ topic['name'] }}</p>
+            <p><span class="bold">Review:</span> {{ review['review'] }}</p>
+            <p><span class="bold">Created:</span> {{ review['created'] }}</p>
+            <p><span class="bold">Submitter:</span> {{ review.submitter }}</p>
+            <div>
+                <span class="bold">Contenders:</span>
+                {% for contender in contenders.values() %}
+                    <div class="contender">
+                        <p><span class="bold">Title:</span> <a href="{{ contender['link'] }}" target="_blank">{{ contender['title'] }}</a></p>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% if session.get('username') %}
+            <div class="approval-item-buttons" id="button-group-{{ review['id'] }}">
+                <button class="btn btn-success" onclick="approveReview( {{ review['id'] }} )">Accept</button>
+                <button class="btn btn-danger" onclick="rejectReview( {{ review['id'] }} )">Reject</button>
+                <!-- <button class="btn btn-primary">Request Clarification</button> -->
+            </div>
+        {% endif %}
+    </div>
+    <hr>
+{% endfor %}

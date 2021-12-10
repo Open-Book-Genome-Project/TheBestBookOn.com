@@ -1,9 +1,9 @@
 
 
 <div class="block-rec">
-  <h4>Recommendations have been submitted on the following topics</h4>
+  <h4>Reviews have been submitted on the following topics:</h4>
   <ul>
-    {% for topic in models["recommendations"].topics() %}
+    {% for topic in models["nodes"].get_distinct_topics() %}
       <li><a href="/topics/{{topic.id}}">{{topic.name}}</a></li>
     {% endfor %}
   </ul>

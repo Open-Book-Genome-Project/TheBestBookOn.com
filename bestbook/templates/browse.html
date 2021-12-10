@@ -1,40 +1,40 @@
 
-{% set votes = models["votes"].get_batch(models["votes"], recs, username=session.get("username")) %}
+{% set votes = models["votes"].get_batch(models["votes"], revs, username=session.get("username")) %}
 
 {% if request.args.get('debug') %}
   {{ votes }}
 {% endif %}
 
-{% for rec in recs %}
+{% for rev in revs %}
 <div class="block-rec">
   <div class="recommendation">
-    {% set winner = recs.works[rec.winner.work_olid] if rec.winner.work_olid in recs.works else {} %}
+    {% set winner = revs.works[rev.nodes[0].winner_work_olid] if rev.nodes[0].winner_work_olid in revs.works else {} %}
     <div class="recommendation--upvote">
-      {% set my_vote = votes.get('user', {}).get(rec.id) %}
-      <form method="POST" action="/api/recommendations/{{rec.id}}/votes">
+      {% set my_vote = votes.get('user', {}).get(rev.id) %}
+      <form method="POST" action="/api/recommendations/{{rev.id}}/votes">
         <input type="hidden" name="value" value="true">
         <input type="submit" value="&#9652;" class="nostyle {{ 'selected' if my_vote == 1 else '' }}"/>
       </form>
-      <p class="upvotes">{{ votes['totals'].get(rec.id, {}).get('score', 0) }}</p>
-      <form method="POST" action="/api/recommendations/{{rec.id}}/votes">
+      <p class="upvotes">{{ votes['totals'].get(rev.id, {}).get('score', 0) }}</p>
+      <form method="POST" action="/api/recommendations/{{rev.id}}/votes">
         <input type="hidden" name="value" value="false">
         <input type="submit" value="&#9662;" class="nostyle {{ 'selected' if my_vote == -1 else '' }}"/>
       </form>
     </div>
     <div class="recommendation--container">
       <div class="recommendation--title">
-	<p>according to <a href="https://openlibrary.org/people/{{ rec.username }}">{{ rec.username }}</a> on {{rec.created.strftime('%Y-%m-%d')}}</p>
+        <p>according to <a href="https://openlibrary.org/people/{{ rev.nodes[0].submitter }}">{{rev.nodes[0].submitter}}</a> on {{rev.created.strftime('%Y-%m-%d')}}</p>
         <h3>
-          The best book on <strong>{{ rec.topic.name }}</strong> is:
+          The best book on <strong>{{ rev.nodes[0].topic.name }}</strong> is:
         </h3>
       </div>
-
       <div class="recommendation--body">
         <div class="recommendation--winner">
           <div>
-            <a title="{{winner}}" href="https://openlibrary.org/works/{{rec.winner.work_olid}}">
+            <a title="{{winner.title}}" href="https://openlibrary.org/works/{{rev.nodes[0].winner_work_olid}}">
               <img class="bookcover"
-                {% if recs.works|length > 0 and winner.get('cover_i') %}
+                {# TODO: Fix this once Books have been replaced w/ new model #}
+                {% if revs.works|length > 0 and winner.get('cover_i') %}
                   src="https://covers.openlibrary.org/b/id/{{winner.get('cover_i')}}-M.jpg"
                 {% endif %}
               >
@@ -49,7 +49,7 @@
           </div>
           <div class="recommendation--winner--details">
             <h4>
-              <a href="https://openlibrary.org/works/{{rec.winner.work_olid}}">
+              <a href="https://openlibrary.org/works/{{rev.winner.work_olid}}">
                 {{ winner.get('title') }}
               </a>
             </h4>
@@ -62,42 +62,38 @@
               {% endif %}
             </p>
 
-            <p class="review">{{ rec.description }}</p>
+            <p class="review">{{ rev.review }}</p>
           </div>
         </div>
 
         <div class="recommendation--context">
           <h3>Contenders:</h3>
           <ul class="recommendation--candidates">
-          {% for candidate in rec.candidates %}
-            {% set candidate_work = recs.works[candidate.work_olid] if recs.works.get(candidate.work_olid) else {}%}
+          {% for candidate in rev.nodes %}
+            {% set candidate_work = revs.works[candidate.contender_work_olid] if revs.works.get(candidate.contender_work_olid) else {}%}
             <li class="recommendation--candidate">
-	      <div>
-		<a href="https://openlibrary.org{{candidate_work.key}}" class="">
-                  <img class="bookcover--thumbnail"
-		       src="https://covers.openlibrary.org/b/id/{{candidate_work.cover_i}}-M.jpg"/>
-		</a>
-
+              <div>
+                <a href="https://openlibrary.org{{candidate_work.key}}">
+                  <img class="bookcover--thumbnail" src="https://covers.openlibrary.org/b/id/{{candidate_work.cover_i}}-M.jpg"/>
+                </a>
                 {% if candidate_work.get('availability') %}
                   <div>
                     {% set ca = candidate_work.get('availability') %}
                     <a href="https://openlibrary.org/borrow/ia/{{ca.get('identifier')}}?ref=tbbo&q=" target="_blank"
                        class="cta-btn--read">{{ {"error": "Preview", "open": "Read", "borrow_available": "Borrow"}.get(ca.get('status'), 'Preview') }}</a>
-                  </div>		  
+                  </div>
                 {% endif %}
-		
                 <div>
                   <a href="https://openlibrary.org{{candidate_work.key}}">{{ candidate_work.title }}</a>
-		  {% if candidate_work.get('author_name') %}
+                  {% if candidate_work.get('author_name') %}
                     <p>by <a href="https://openlibrary.org/authors/{{ candidate_work['author_key'][0] }}">{{ candidate_work['author_name'][0] }}</a></p>
-		  {% endif %}
-		</div>
-	      </div>
+                  {% endif %}
+                </div>
+              </div>
             </li>
           {% endfor %}
           </ul>
         </div>
-
       </div>
     </div>
   </div>

@@ -361,6 +361,10 @@ ul.recommendation--candidate div a {
     font-style: italic;
 }
 
+.bold {
+    font-weight: bold;
+}
+
 .bookcover {
     border-radius: 5px;
     margin: 20px;
@@ -587,6 +591,10 @@ span[title] {
     width: 100%;
 }
 
+.contender {
+    margin-left: 20px;
+}
+
 /* Preview lists */
 #candidate-list,
 #winner-list,
@@ -689,9 +697,6 @@ being rendered at the bottom of the page */
     text-decoration: none;
     cursor: pointer;
 }
-
-/* Collapsible sections */
-
 
 /* Aspect review outputs */
 aspect-label {
