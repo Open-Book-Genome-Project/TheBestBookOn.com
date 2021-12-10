@@ -61,7 +61,7 @@ class BookGraph(core.Base):
     # What about learning objectives?
     # What about types of edges?
 
-    __tablename__ = "bookgraph"
+    __tablename__ = "tournament_graph"
     __table_args__ = (
         PrimaryKeyConstraint(
             'submitter', 'winner_work_olid', 'contender_work_olid', 'topic_id'
