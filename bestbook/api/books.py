@@ -127,19 +127,11 @@ class Review(core.Base):
 
     @hybrid_property
     def winner(self):
-        return fetch_work(self.nodes[0].winner_work_olid)
-
-    @hybrid_property
-    def winner_olid(self):
-        return self.nodes[0].winner_work_olid
+        return fetch_work(self.winner_work_olid)
 
     @hybrid_property
     def contenders(self):
         return get_many([n.contender_work_olid for n in self.nodes])
-
-    @hybrid_property
-    def submitter(self):
-        return self.nodes[0].submitter
 
     def delete_nodes(self):
         for n in self.nodes:
@@ -153,11 +145,12 @@ class Review(core.Base):
         :winner_olid: ANY OL ID (e.g. OL123M or OL234W)
         """
         topic = Topic.upsert(topic) # TODO: Is this necessary?
-        review = cls(review=description.strip()).create()
+        cleaned_winner_olid = clean_olid(winner_olid)
+        review = cls(review=description.strip(), submitter=username, winner_work_olid=cleaned_winner_olid).create()
 
         for olid in candidate_olids:
             olid = clean_olid(olid)
-            BookGraph(submitter=username, winner_work_olid=winner_olid,
+            BookGraph(submitter=username, winner_work_olid=cleaned_winner_olid,
                 contender_work_olid=olid, topic_id=topic.id,
                 review_id=review.id
             ).create()
