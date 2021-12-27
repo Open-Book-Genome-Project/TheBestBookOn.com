@@ -8,7 +8,7 @@
 {% for rev in revs %}
 <div class="block-rec">
   <div class="recommendation">
-    {% set winner = revs.works[rev.nodes[0].winner_work_olid] if rev.nodes[0].winner_work_olid in revs.works else {} %}
+    {% set winner = revs.works[rev.winner_work_olid] if rev.winner_work_olid in revs.works else {} %}
     <div class="recommendation--upvote">
       {% set my_vote = votes.get('user', {}).get(rev.id) %}
       <form method="POST" action="/api/recommendations/{{rev.id}}/votes">
@@ -23,15 +23,15 @@
     </div>
     <div class="recommendation--container">
       <div class="recommendation--title">
-        <p>according to <a href="https://openlibrary.org/people/{{ rev.nodes[0].submitter }}">{{rev.nodes[0].submitter}}</a> on {{rev.created.strftime('%Y-%m-%d')}}</p>
+        <p>according to <a href="https://openlibrary.org/people/{{ rev.submitter }}">{{rev.submitter}}</a> on {{rev.created.strftime('%Y-%m-%d')}}</p>
         <h3>
-          The best book on <strong>{{ rev.nodes[0].topic.name }}</strong> is:
+          The best book on <strong>{{ rev.topic.name }}</strong> is:
         </h3>
       </div>
       <div class="recommendation--body">
         <div class="recommendation--winner">
           <div>
-            <a title="{{winner.title}}" href="https://openlibrary.org/works/{{rev.nodes[0].winner_work_olid}}">
+            <a title="{{winner.title}}" href="https://openlibrary.org/works/{{rev.winner_work_olid}}">
               <img class="bookcover"
                 {# TODO: Fix this once Books have been replaced w/ new model #}
                 {% if revs.works|length > 0 and winner.get('cover_i') %}
@@ -49,7 +49,7 @@
           </div>
           <div class="recommendation--winner--details">
             <h4>
-              <a href="https://openlibrary.org/works/{{rev.winner.work_olid}}">
+              <a href="https://openlibrary.org/works/{{rev.winner_work_olid}}">
                 {{ winner.get('title') }}
               </a>
             </h4>

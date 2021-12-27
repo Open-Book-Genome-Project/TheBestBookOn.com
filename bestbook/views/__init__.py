@@ -185,7 +185,6 @@ class Submit(MethodView):
 
         # candidates will arrive in a different format if POSTed from /admin
         candidates = candidates or ' '.join(request.form.getlist('candidates[]'))
-        print(candidates)
         review = Review.add(
             topic, winner,
             [c for c in candidates.strip().split(' ')],
