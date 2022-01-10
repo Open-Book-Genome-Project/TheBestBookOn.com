@@ -30,6 +30,7 @@ urls = ('/admin', views.Admin,
         '/reviews/<slug>/<rid>', views.ReviewPage,
         '/reviews/<rid>', views.ReviewPage,
         '/browse', views.Browse,
+        '/trails', views.Trails,
         '/topics/<topic_id>', views.Browse,
         '/<path:resource>', views.Section,
         '/', views.Browse

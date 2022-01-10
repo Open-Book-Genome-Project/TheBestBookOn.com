@@ -1,0 +1,41 @@
+
+<html>
+  <head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@200&display=swap" rel="stylesheet">
+    <style type="text/css">
+      html, body {
+      font-family: 'Be Vietnam Pro', sans-serif;
+      margin: 0;
+      padding: 0;
+      }
+      .nav {
+      color: white;
+      background: #4C5667;
+      padding: 5px;
+      }
+      .nav h1 {
+      margin: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="nav">
+      <h1>Booktrails</h1>
+    </div>
+
+    <div>
+      <h2>Math Sequence</h2>
+      <ul>
+      {% for s in ['OL102147W', 'OL3502985W', 'OL4278833W'] %}
+        <li>{{ s }}</li>
+	{% endfor %}
+	</ul>
+    </div>
+    <footer>
+
+    </footer>
+  </body>
+</html>
+

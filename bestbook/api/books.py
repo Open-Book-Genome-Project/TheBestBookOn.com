@@ -56,6 +56,51 @@ class Topic(core.Base):
             return cls(name=topic).create()
 
 
+class BookTrail(core.Base):
+    __tablename__ = "booktrails"
+
+    id = Column(BigInteger, primary_key=True)
+    submitter = Column(Unicode, nullable=False) # e.g. @cdrini - Open Library username
+    title = Column(Unicode, nullable=False)
+    topic_id = Column(Integer, ForeignKey("topics.id")) # TBBO what?
+    created = Column(DateTime(timezone=False), default=datetime.utcnow, nullable=False)
+    modified = Column(DateTime(timezone=False), default=None)
+    crumbs = relationship("BookCrumb", backref="booktrail")
+
+    def dict(self, **kwargs):
+        crumbs = [c.dict() for c in self.crumbs]
+
+        return {
+            'title': self.title,
+            'submitter': self.submitter,
+            'crumbs': crumbs,
+            'works': get_many([c['work_id'] for c in crumbs])
+        }
+
+
+class BookCrumb(core.Base):
+    __tablename__ = "bookcrumbs"
+    __table_args__ = (
+        UniqueConstraint(
+            'trail_id', 'work_id', 'previous_crumb', name='_crumb_uc'
+        ),
+    )
+    id = Column(BigInteger, primary_key=True)
+    trail_id = Column(Integer, ForeignKey("booktrails.id"))
+    work_id = Column(Unicode, nullable=False) # Open Library work ID (required)
+    # a trail could have multiple starting books & thus multiple crumbs with no previous_crumb
+    previous_crumb = Column(Integer, ForeignKey("bookcrumbs.id"), default=None)
+    comment = Column(Unicode, default=None)
+    created = Column(DateTime(timezone=False), default=datetime.utcnow, nullable=False)
+
+    def dict(self, **kwargs):
+        return {
+            'trail_id': self.trail_id,
+            'work_id': self.work_id,
+            'previous_crumb': self.previous_crumb,  # we may want to fetch the crumb for resp
+            'comment': self.comment,
+        }
+
 class BookGraph(core.Base):
 
     # What about learning objectives?

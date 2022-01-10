@@ -20,7 +20,7 @@ from flask.views import MethodView
 from flask.json import loads
 from api.auth import login, is_admin
 from api import books
-from api.books import Request, Topic, Vote, Review, BookGraph
+from api.books import Request, Topic, Vote, Review, BookGraph, BookTrail, BookCrumb
 from api.core import RexException
 from api import db
 
@@ -112,6 +112,13 @@ class Browse(MethodView):
         return render_template(
             "base.html", template="browse.html", revs=revs, models=models)
 
+
+class Trails(MethodView):
+    def get(self):
+        return render_template(
+            "trails.html"
+        )
+
 class Section(MethodView):
     def get(self, resource=""):
         if resource == "login" and session.get('username'):
@@ -136,6 +143,7 @@ class Section(MethodView):
             "login": Login,
             "observe": Observe,
             "submit": Submit,
+            "entrail": SubmitTrail,
         }
         form = request.form
         return jsonify(forms[resource]().post())
@@ -165,6 +173,26 @@ class Observe(MethodView):
         observation = request.form
         return jsonify(observation)
 
+class SubmitTrail(MethodView):
+
+    """
+    Test with:
+
+    var data = {'title': 'test', 'crumbs': 'OL3525828W'};
+    var fd = new FormData(); for ( var key in data ) { fd.append(key, data[key]);};
+    fetch('/entrail', {method: "post", body: fd, success: function(data) { console.log(data) }})
+    """
+
+    def post(self):
+        username = session.get('username')
+        if not username:
+            raise Exception('Login required')
+        title = request.form.get('title')
+        trail = BookTrail(submitter=username, title=title).create()
+        work_ids = request.form.get('crumbs').split(',')
+        for work_id in work_ids:
+            BookCrumb(trail_id=trail.id, work_id=work_id).create()
+        return trail.dict()
 
 class Submit(MethodView):
 
