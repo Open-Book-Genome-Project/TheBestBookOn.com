@@ -2,14 +2,16 @@ version: "3.1"
 services:
   tbbo:
     build: .
+    container_name: tbbo-app
     depends_on:
       - db
     volumes:
-      - .:/app
+      - ${PWD}/:/app
       - $TBBO_CONFIG:/TheBestBookOn.com/bestbook/configs/settings.cfg
     ports:
       - 31337:31337
   db:
+    container_name: tbbo-db
     image: postgres:14.1
     environment:
       - POSTGRES_USER=bestbook

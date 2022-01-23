@@ -25,6 +25,11 @@ def clean_olid(olid):
         return olid
     return re.findall(r'OL[0-9]+[MW]', olid)[0]
 
+
+def get_one(olid):
+    return get_many([olid]).get('olid', {})
+
+
 def get_many(olids):
     if not olids:
         return {}
@@ -34,7 +39,7 @@ def get_many(olids):
             olid
         ) for olid in olids
     )
-    url = '%s/search.json?q=%s' % (OL_API, q)
+    url = '%s/search.json?q=%s&fields=*,availability' % (OL_API, q)
     r = requests.get(url)
 
     books = {}

@@ -1,41 +1,50 @@
+<div class="innerbody">
+  <h2>An adaptive skill tree for textbooks</h2>
+  <p>Learn <a href="#biology" title="sorry! topic selection not yet implemented">Biology▼</a> from Start to Finish</p>
+<ul class="bookshelf">
+  {% set trail = [] %}
+  {% for level in trailmap['trailmap'] %}
+    {% set level_loop = loop %}
+    <li class="forks">
+      <h2>Level {{loop.index}}</h2>
+      {% for edge in level %}
+      <div class="book {{ edge.get('selected') and 'selected' or '' }}">
+        {% set book = trailmap["book_data"][edge.book_olid] %}
+        {% set availability = book.get('availability', {}) %}
+        <a class="coverlink" href="?trail={{ ','.join(trail + ['%s:%s' % (level_loop.index-1, edge['book_olid'])])|safe }}">
+          <img class="bookcover"
+               src="//covers.openlibrary.org/b/olid/{{ book.cover_edition_key }}-M.jpg">
+        </a>
+        <h3>
+          <a href="https://openlibrary.org/works/{{ edge['book_olid'] }}">{{ book.title }}</a>
+        </h3>
+        {% if availability.get('identifier') %}
+          <div class="read-options">
+            {% set cta = "Preview" if availability.get('identifier') else '' %}
+            <a href="https://openlibrary.org/borrow/ia/{{ availability.get('identifier') }}?ref=ol"
+               class="cta">
+              {{ cta }}
+            </a>
+          </div>
+        {% endif %}
+        {% if loop.index < 4 %}
+          {{ ["🥇", "🥈", "🥉"][loop.index - 1]}}
+        {% endif %}
+        {{ edge['count'] }} ❤️
+      </div>
+    {% endfor %}
+    {{ trail.append('%s:%s' % (level_loop.index-1, trailmap["selections"][level_loop.index-1] or trailmap["trailmap"][level_loop.index-1][0]['book_olid'])) }}
+    </li>
+  {% endfor %}
+</ul>
+</div>      
 
-<html>
-  <head>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@200&display=swap" rel="stylesheet">
-    <style type="text/css">
-      html, body {
-      font-family: 'Be Vietnam Pro', sans-serif;
-      margin: 0;
-      padding: 0;
-      }
-      .nav {
-      color: white;
-      background: #4C5667;
-      padding: 5px;
-      }
-      .nav h1 {
-      margin: 5px;
-      }
-    </style>
-  </head>
-  <body>
-    <div class="nav">
-      <h1>Booktrails</h1>
-    </div>
-
-    <div>
-      <h2>Math Sequence</h2>
-      <ul>
-      {% for s in ['OL102147W', 'OL3502985W', 'OL4278833W'] %}
-        <li>{{ s }}</li>
-	{% endfor %}
-	</ul>
-    </div>
-    <footer>
-
-    </footer>
-  </body>
-</html>
-
+{% if session.get('username') %}
+<form method="POST" action="/" style="position: fixed; bottom: 0; left: 0;" >
+  <input name="submitter" value="{{session.get('username')}}" placeholder="submitter">
+  <input name="book_olid" placeholder="Book olid">
+  <input name="prereq_olid" placeholder="Prereq olid">
+  <input name="weight" value="1" placeholder="Weight">
+  <input type="submit">
+</form>
+{% endif %}
