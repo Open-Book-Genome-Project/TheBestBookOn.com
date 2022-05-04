@@ -64,9 +64,9 @@ class BookTopic(core.Base):
         ForeignKey(Topic.id, use_alter=True),
         nullable=False)
 
-    
+
 class TournamentBookGraph(core.Base):
-    
+
     """Which of these two books is better and why?"""
 
     __tablename__ = "bookgraph_tournaments"
@@ -104,7 +104,7 @@ class TournamentBookGraph(core.Base):
 class DependencyBookGraph(core.Base):
 
     """Which of these books should be read first?"""
-    
+
     # What about learning objectives?
     # What about types of edges?
 
@@ -144,7 +144,7 @@ class DependencyBookGraph(core.Base):
     def get_next(cls, prereq=None):
         return cls.query.filter(cls.prereq_olid == prereq).all()
 
-    
+
     @classmethod
     def get_trailmap(cls, topic=None, depth=5, waypoints=None):
         """A TrailMap is a matrix whose rows (Levels) represent increasing difficulty/complexity
