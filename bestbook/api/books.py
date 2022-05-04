@@ -27,13 +27,17 @@ from sqlalchemy.orm.exc import ObjectDeletedError
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm.attributes import flag_modified
 from api import db, engine, core
-from api.bookutils import clean_olid, get_many, fetch_work
+from api.bookutils import clean_olid, get_many, fetch_work, get_one
 
 
 def build_tables():
     """Builds database postgres schema"""
     MetaData().create_all(engine)
 
+
+TOPICS = [
+    'Algebra', 'Anatomy', 'Applied Mathematics', 'Astronomy', 'Astrophysics', 'Biochemistry', 'Bioinformatics', 'Biology', 'Biotechnology', 'Botany', 'Calculus', 'Cell Biology', 'Chemistry', 'Combinatorics', 'Complex Analysis', 'Computer Architecture', 'Computer Engineering', 'Computer Networking', 'Computer Science', 'Computer Vision', 'Cosmology', 'Cybernetics', 'Cytology', 'Data Science', 'Data Visualization', 'Databases', 'Developmental Biology', 'Differential Equations', 'Discrete Mathematics', 'Distributed Systems', 'Earth Sciences', 'Ecology', 'Epistemology', 'Game Theory', 'Genetics', 'Geology', 'Geometry', 'Group Theory', 'Information Theory', 'Linear Algebra', 'Linguistics', 'Logic', 'Machine Learning', 'Magnetism', 'Marine Biology', 'Mathematics', 'Matrices', 'Mechanical Engineering', 'Medals', 'Microbiology', 'Modern Physics', 'Molecular Biology', 'Morphology', 'Music Theory', 'Mycology', 'Nanoscience', 'Natural Language Processing', 'Neural Networks', 'Neuroscience', 'Nuclear Physics', 'Number Theory', 'Optics', 'Paleontology', 'Particle Physics', 'Physics', 'Pre-Calculus', 'Probability & Statistics', 'Quantum Physics', 'Quantum Theory', 'Radiation', 'Relativity', 'Set Theory', 'Statistics', 'Theoretical Physics', 'Thermodynamics', 'Trigonometry', 'Virology', 'Wave Mechanics', 'Zoology'
+]
 
 class Topic(core.Base):
 
@@ -46,182 +50,160 @@ class Topic(core.Base):
                      nullable=False)
     modified = Column(DateTime(timezone=False), default=None)
 
-    @classmethod
-    def upsert(cls, topic):
-        if isinstance(topic, cls):
-            return topic
-        try:
-            return cls.get(name=topic)
-        except:
-            return cls(name=topic).create()
+
+class BookTopic(core.Base):
+    __tablename__ = "book_topics"
+    __table_args__ = (
+        PrimaryKeyConstraint('olid', 'topic_id'),
+        UniqueConstraint('olid', 'topic_id', name='_book_topic_uc'),
+    )
+
+    olid = Column(Unicode, nullable=False)
+    topic_id = Column(
+        BigInteger,
+        ForeignKey(Topic.id, use_alter=True),
+        nullable=False)
 
 
-class BookGraph(core.Base):
+class TournamentBookGraph(core.Base):
+
+    """Which of these two books is better and why?"""
+
+    __tablename__ = "bookgraph_tournaments"
+    __table_args__ = (
+        UniqueConstraint(
+            'submitter', 'winner_olid', 'challenger_olid',
+            name='_tournament_edge_uc'
+        ),
+    )
+
+    id = Column(BigInteger, primary_key=True)
+    submitter = Column(Unicode, nullable=False) # e.g. @cdrini - OL username
+    winner_olid = Column(Unicode, nullable=False)
+    challenger_olid = Column(Unicode, nullable=False)
+    review = Column(Unicode)
+    created = Column(
+        DateTime(timezone=False),
+        default=datetime.utcnow,
+        nullable=False)
+
+    winner_topics = relationship(
+        Topic,
+        secondary="book_topics",
+        primaryjoin="TournamentBookGraph.winner_olid==BookTopic.olid",
+        secondaryjoin="BookTopic.topic_id==Topic.id",
+    )
+    challenger_topics = relationship(
+        Topic,
+        secondary="book_topics",
+        primaryjoin="TournamentBookGraph.challenger_olid==BookTopic.olid",
+        secondaryjoin="BookTopic.topic_id==Topic.id",
+    )
+
+
+class DependencyBookGraph(core.Base):
+
+    """Which of these books should be read first?"""
 
     # What about learning objectives?
     # What about types of edges?
 
-    __tablename__ = "tournament_graph"
+    __tablename__ = "bookgraph_dependencies"
     __table_args__ = (
-        PrimaryKeyConstraint(
-            'submitter', 'winner_work_olid', 'contender_work_olid', 'topic_id'
-        ),
         UniqueConstraint(
-            'submitter', 'winner_work_olid', 'contender_work_olid', 'topic_id',
-            name='_book_edge_uc'
-        )
+            'submitter', 'book_olid', 'prereq_olid',
+            name='_dependency_edge_uc'
+        ),
     )
 
-    submitter = Column(Unicode, nullable=False) # e.g. @cdrini - Open Library username
-    winner_work_olid = Column(Unicode, nullable=False) # Open Library ID (required)
-    contender_work_olid = Column(Unicode, nullable=False) # Open Library ID (required)
-    topic_id = Column(Integer, ForeignKey("topics.id")) # TBBO what?
-    review_id = Column(BigInteger, ForeignKey("recommendations.id"))
-    created = Column(DateTime(timezone=False), default=datetime.utcnow, nullable=False)
-
-    topic = relationship("Topic")
-    review = relationship("Review")
-
-    @classmethod
-    def get_distinct_topics(cls):
-        topic_ids = [t.topic_id for t in cls.query.distinct(cls.topic_id)]
-        return Topic.query.filter(Topic.id.in_(topic_ids)).all()
-
-
-class Review(core.Base):
-    #TODO: Update documentation:
-    """A rigorous book recommendation which has a winner and references
-    which candidates where involved in the decision"""
-
-    __tablename__ = "recommendations"
     id = Column(BigInteger, primary_key=True)
-    review = Column(Unicode, nullable=False) # Why is the winner the best book?
-    submitter = Column(Unicode, nullable=False) # e.g. @cdrini - Open Library username
-    winner_work_olid = Column(Unicode, nullable=False) # Open Library ID (required)
-    is_approved = Column(Boolean, default=False, nullable=False)
-    created = Column(DateTime(timezone=False), default=datetime.utcnow,
-                     nullable=False)
-    modified = Column(DateTime(timezone=False), default=None)
+    submitter = Column(Unicode, nullable=False) # e.g. @cdrini - OL username
+    book_olid = Column(Unicode, nullable=False) # Open Library ID
+    prereq_olid = Column(Unicode, nullable=True) # Open Library ID
+    weight = Column(Integer, default=1, nullable=True) # Open Library ID
+    description = Column(Unicode)
+    created = Column(
+        DateTime(timezone=False),
+        default=datetime.utcnow,
+        nullable=False)
 
-    nodes = relationship("BookGraph")
-
-    @classmethod
-    def topics(cls):
-        topic_ids = [t.topic_id for t in cls.query.distinct(cls.topic_id)]
-        return Topic.query.filter(Topic.id.in_(topic_ids)).all()
-
-    @classmethod
-    def paginate(cls, page, limit=10, **kwargs):
-        olids = []
-        revs = cls.query.filter_by(**kwargs).limit(limit).offset(page * limit)
-        for r in revs:
-            for n in r.nodes:
-                olids.append(n.contender_work_olid)
-            olids.append(n.winner_work_olid)
-        revs.works = get_many(olids)
-        return revs
-
-    @hybrid_property
-    def topic(self):
-        return self.nodes[0].topic
-
-    @hybrid_property
-    def winner(self):
-        return fetch_work(self.nodes[0].winner_work_olid)
-
-    @hybrid_property
-    def winner_olid(self):
-        return self.nodes[0].winner_work_olid
-
-    @hybrid_property
-    def contenders(self):
-        return get_many([n.contender_work_olid for n in self.nodes])
-
-    @hybrid_property
-    def submitter(self):
-        return self.nodes[0].submitter
-
-    def delete_nodes(self):
-        for n in self.nodes:
-            n.remove()
+    book_topics = relationship(
+        Topic,
+        secondary="book_topics",
+        primaryjoin="DependencyBookGraph.book_olid==BookTopic.olid",
+        secondaryjoin="BookTopic.topic_id==Topic.id",
+    )
+    prereq_topics = relationship(
+        Topic,
+        secondary="book_topics",
+        primaryjoin="DependencyBookGraph.prereq_olid==BookTopic.olid",
+        secondaryjoin="BookTopic.topic_id==Topic.id",
+    )
 
     @classmethod
-    def add(cls, topic, winner_olid, candidate_olids, username, description=""):
+    def get_next(cls, prereq=None):
+        return cls.query.filter(cls.prereq_olid == prereq).all()
+
+
+    @classmethod
+    def get_trailmap(cls, topic=None, depth=5, waypoints=None):
+        """A TrailMap is a matrix whose rows (Levels) represent increasing difficulty/complexity
+        and whose columns (Forks) include a set of
+        comparable books at this level which may be considered, sorted from most endorsed to least.
+
+        A connected, directed path through the TrailMap is called a Trail.
+
+        Choosing the books within the first column of every row should
+        yield the most endorsed directed sequence of interdependent
+        books for a topic.
+
+        Waypoints or viapoints is a map of level to preferred olid,
+        e.g.  {0: OL2657847W} which should be chosen as user
+        preference over endorsement counts.
+
         """
-        params:
-        :topic (api.Topic):
-        :winner_olid: ANY OL ID (e.g. OL123M or OL234W)
-        """
-        topic = Topic.upsert(topic) # TODO: Is this necessary?
-        review = cls(review=description.strip()).create()
+        trailmap = []  # the trailmap matrix to be built
+        selections = []
+        olids = set()
+        waypoints = waypoints or {}  # defaults to empty dict
+        seed = None
+        for level, d in enumerate(range(depth)):
+            # Get all edges for books which rely on `seed` as a prereq
+            edges = cls.get_next(prereq=seed)
+            edge_counts = {}
+            row = []
 
-        for olid in candidate_olids:
-            olid = clean_olid(olid)
-            BookGraph(submitter=username, winner_work_olid=winner_olid,
-                contender_work_olid=olid, topic_id=topic.id,
-                review_id=review.id
-            ).create()
+            if not edges:
+                break
 
-        db.commit() # TODO: Is this already happening in core.py
-        return review
+            for edge in edges:
+                olids.add(edge.book_olid)
+                if edge.prereq_olid:
+                    olids.add(edge.prereq_olid)
+                edge_counts.setdefault(edge.book_olid, {
+                    "count": 0,
+                    "book_olid": edge.book_olid,
+                    "prereq_olid": edge.prereq_olid
+                })
+                edge_counts[edge.book_olid]["count"] += edge.weight
 
+            top_edges = sorted(
+                edge_counts.items(),
+                key=lambda e_c: e_c[1]["count"],
+                reverse=True)
 
-class Request(core.Base):
+            # Try using the specified waypoint or
+            # fallback to most endorsed seed as next round's prereq
+            seed = waypoints.get(level, top_edges[0][0])
 
-    """A detailed request for a book recommendation"""
+            for (olid, edge) in top_edges:
+                if olid == seed:
+                    edge['selected'] = True
+                    selections.append(olid)
+                row.append(edge)
+            trailmap.append(row)
 
-    # This is the minimal version (incomplete)
-
-    # For the first version, we're going to skip the other form fields
-    # (and add them as we have more clarity)
-
-    __tablename__ = "requests"
-
-    id = Column(BigInteger, primary_key=True)
-    topic_id = Column(Integer, ForeignKey("topics.id")) # TBBO what?
-    data = Column(JSON)
-    description = Column(Unicode) # Free-form answer
-    username = Column(Unicode) # @cdrini - Open Library
-    is_approved = Column(Boolean, default=False, nullable=False)
-    created = Column(DateTime(timezone=False), default=datetime.utcnow,
-                     nullable=False)
-    modified = Column(DateTime(timezone=False), default=None)
-
-
-class Vote(core.Base):
-
-    __tablename__ = "votes"  # for reviews
-    __table_args__ = (UniqueConstraint('username', 'review_id', name='_user_rev_votes_uc'),)
-
-    username = Column(Unicode, primary_key=True)
-    review_id = Column(Integer, ForeignKey("recommendations.id", onupdate="CASCADE"), primary_key=True)
-    value = Column(SmallInteger, default=1, nullable=False)  # -1 (downvote) or 1 (upvote)
-    created = Column(DateTime(timezone=False), default=datetime.utcnow, nullable=False)
-    modified = Column(DateTime(timezone=False), default=None)
-
-    review = relationship("Review", backref="votes")
-
-    def dict(self, **kwargs):
-        vote = super(Vote, self).dict()
-        vote.pop('created')
-        vote.pop('modified')
-        return vote
-
-    def get_batch(cls, reviews, username=None):
-        review_ids = dict((r.id, {}) for r in reviews)
-        # upvotes
-        # total
-        votes = {}
-        votes['totals'] = dict((a, {"score": b, "voters": c}) for (a, b, c) in cls.query.with_entities(
-            cls.review_id, func.sum(cls.value), func.count(cls.value)
-        ).group_by(Vote.review_id).filter(
-            cls.review_id.in_(review_ids)
-        ).all())
-        if username:
-            votes['user'] = dict(cls.query.with_entities(
-                cls.review_id, cls.value,
-            ).filter(cls.review_id.in_(review_ids), username == cls.username).all())
-        return votes
+        return {"trailmap": trailmap, "selections": selections, "book_data": get_many(olids)}
 
 
 # This builds a dictionary of all of system's types
@@ -232,15 +214,3 @@ for model in core.Base._decl_class_registry:
         core.models[m.__tablename__] = m
     except:
         pass
-
-"""
-Example:
-
-from api.books import Aspect, Book, Observation
-book = Book.all()[0];
-o = Observation(username='mekBot',
-                book_id=book.work_olid,
-                aspect_id=Aspect.get(label='mood').id,
-                response={'values': ['scientific']}
-)
-"""

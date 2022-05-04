@@ -18,22 +18,17 @@ import api
 from api.auth import is_admin
 from configs import options, SECRET_KEY, LOGGER
 
-urls = ('/admin', views.Admin,
-        '/admin/approve/reviews', views.ReviewApproval,
-        '/admin/approve/requests', views.RequestApproval,
-        '/people/<username>', views.User,
-        '/logout', views.Logout,
-        '/api/', views.Index,
-        '/api/<cls>/<_id>/<cls2>', views.Router,
-        '/api/<cls>/<_id>', views.Router,
-        '/api/<cls>', views.Router,
-        '/reviews/<slug>/<rid>', views.ReviewPage,
-        '/reviews/<rid>', views.ReviewPage,
-        '/browse', views.Browse,
-        '/topics/<topic_id>', views.Browse,
-        '/<path:resource>', views.Section,
-        '/', views.Browse
-        )
+urls = (
+    '/login', views.Login,
+    '/logout', views.Logout,
+    '/api/', views.API_Index,
+    '/api/<cls>/<_id>/<cls2>', views.API_Router,
+    '/api/<cls>/<_id>', views.API_Router,
+    '/api/<cls>', views.API_Router,
+    '/api/<cls>', views.API_Router,
+    '/book/<olid>', views.Book,
+    '/', views.Home
+)
 
 app = router(Flask(__name__), urls)
 app.secret_key = SECRET_KEY
@@ -46,11 +41,17 @@ if __name__ == "__main__":
     try:
         # create tables via sqlalchemy
         api.core.Base.metadata.create_all(api.engine)
+        try:
+            for topic in api.books.TOPICS:
+                api.books.Topic(name=topic).create()
+        except Exception as te:
+            pass
     except Exception as e:
         print(f"Skipping table build: {e}")
 
     app.run(**options)
 
+    
 @app.teardown_appcontext
 def shutdown_session(exception=None):
     # Removes db session at the end of each request
